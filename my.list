@@ -1,8 +1,8 @@
-# 直连
-DOMAIN-KEYWORD,oracle
-DOMAIN-KEYWORD,jsdelivr
-DOMAIN-KEYWORD,ghproxy
-DOMAIN-KEYWORD,gitmirror
-DOMAIN-KEYWORD,ghp.ci
-DOMAIN-SUFFIX,mogg.top
-SRC-IP,156.238.229.121
+payload:
+- DOMAIN-KEYWORD,oracle
+- DOMAIN-KEYWORD,jsdelivr
+- DOMAIN-KEYWORD,ghproxy
+- DOMAIN-KEYWORD,gitmirror
+- DOMAIN-KEYWORD,ghp.ci
+- DOMAIN-SUFFIX,mogg.top
+- SRC-IP,156.238.229.121

@@ -5,4 +5,4 @@ payload:
 - DOMAIN-KEYWORD,gitmirror
 - DOMAIN-KEYWORD,ghp.ci
 - DOMAIN-SUFFIX,mogg.top
-- IP-CIDR,156.238.229.121/32
+- IP-CIDR,156.238.229.121/32,no-resolve

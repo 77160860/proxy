@@ -2,5 +2,5 @@ payload:
 - DOMAIN-KEYWORD,ghp.ci
 - DOMAIN-SUFFIX,oracle.com
 - DOMAIN-SUFFIX,mogg.top
-- DOMAIN-SUFFIX,mogg.net
+- DOMAIN-SUFFIX,wogg.net
 - IP-CIDR,156.238.229.121/32,no-resolve

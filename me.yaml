@@ -3,4 +3,5 @@ payload:
 - DOMAIN-SUFFIX,oracle.com
 - DOMAIN-SUFFIX,wogg.net
 - DOMAIN-SUFFIX,wogg.top
-
+- DOMAIN-SUFFIX,mogg.top
+- IP-CIDR,156.238.229.121/32,no-resolve

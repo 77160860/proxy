@@ -1,3 +1,4 @@
+# 直连
 payload:
 - DOMAIN-KEYWORD,ghp.ci
 - DOMAIN-KEYWORD,ghproxy

@@ -1,9 +1,0 @@
-# 直连
-payload:
-- DOMAIN-KEYWORD,ghp.ci
-- DOMAIN-KEYWORD,ghproxy
-- DOMAIN-KEYWORD,jsdelivr
-- DOMAIN-KEYWORD,mogg
-- DOMAIN-KEYWORD,wogg
-- DOMAIN-KEYWORD,feiwang
-- DOMAIN-KEYWORD,bangumi

@@ -1,5 +1,6 @@
 # 直连
-DOMAIN-SUFFIX,ghp.ci
+DOMAIN-SUFFIX,ghproxy.cn
+DOMAIN-SUFFIX,ghproxy.cc
 DOMAIN-SUFFIX,github.site
 DOMAIN-SUFFIX,github.store
 DOMAIN-SUFFIX,linux.do

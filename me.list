@@ -1,12 +1,11 @@
 # 直连
-DOMAIN-KEYWORD,ghp.ci
-DOMAIN-KEYWORD,ghproxy
-DOMAIN-KEYWORD,jsdelivr
+DOMAIN-SUFFIX,ghp.ci
+DOMAIN-SUFFIX,github.site
+DOMAIN-SUFFIX,github.store
+DOMAIN-SUFFIX,linux.do
+DOMAIN-SUFFIX,macked.app
 DOMAIN-KEYWORD,mogg
 DOMAIN-KEYWORD,wogg
 DOMAIN-KEYWORD,feiwang
 DOMAIN-KEYWORD,bangumi
-DOMAIN-SUFFIX,github.site
-DOMAIN-SUFFIX,github.store
-DOMAIN-SUFFIX,linux.do
 

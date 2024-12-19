@@ -3,6 +3,8 @@ DOMAIN-SUFFIX,ghproxy.cn
 DOMAIN-SUFFIX,ghproxy.cc
 DOMAIN-SUFFIX,github.site
 DOMAIN-SUFFIX,github.store
+DOMAIN-SUFFIX,gcore.jsdelivr.net
+DOMAIN-SUFFIX,testingcf.jsdelivr.net
 DOMAIN-SUFFIX,linux.do
 DOMAIN-SUFFIX,macked.app
 DOMAIN-SUFFIX,dl.macked.homes

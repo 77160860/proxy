@@ -1,2 +1,1 @@
-自用规则集
-补全geosite和geoip国内直连规则
+自用规则集|补全geosite和geoip国内直连规则

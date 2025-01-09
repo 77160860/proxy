@@ -12,8 +12,6 @@ DOMAIN-SUFFIX,akamaized.net
 # Web
 DOMAIN-SUFFIX,v1.mk
 DOMAIN-SUFFIX,dedyn.io
-DOMAIN-SUFFIX,cloudns.net
-DOMAIN-SUFFIX,cloudns.org
 DOMAIN-SUFFIX,ghproxy.cn
 DOMAIN-SUFFIX,ghproxy.cc
 DOMAIN-SUFFIX,github.site

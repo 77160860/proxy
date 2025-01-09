@@ -1,3 +1,4 @@
+# Media
 DOMAIN-SUFFIX,bangumi.ca
 DOMAIN-SUFFIX,cmdns.xyz
 DOMAIN-SUFFIX,wogg.net
@@ -8,10 +9,12 @@ DOMAIN-SUFFIX,heimuer.tv
 DOMAIN-SUFFIX,lzzyimg.com
 DOMAIN-SUFFIX,bfbfvip.com
 DOMAIN-SUFFIX.akamaized.net
+# Web
 DOMAIN-SUFFIX,v1.mk
 DOMAIN-SUFFIX,cc.ua
 DOMAIN-SUFFIX,dedyn.io
 DOMAIN-SUFFIX,cloudns.net
+DOMAIN-SUFFIX,cloudns.org
 DOMAIN-SUFFIX,ghproxy.cn
 DOMAIN-SUFFIX,ghproxy.cc
 DOMAIN-SUFFIX,github.site

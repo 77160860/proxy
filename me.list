@@ -10,10 +10,9 @@ DOMAIN-SUFFIX,lzzyimg.com
 DOMAIN-SUFFIX,bfbfvip.com
 DOMAIN-SUFFIX.akamaized.net
 #web
-DOMAIN-SUFFIX,us.kg
 DOMAIN-SUFFIX,cc.ua
-DOMAIN-SUFFIX,nyc.mn
 DOMAIN-SUFFIX,dedyn.io
+DOMAIN-SUFFIX,cloudns.org
 DOMAIN-SUFFIX,ghproxy.cn
 DOMAIN-SUFFIX,ghproxy.cc
 DOMAIN-SUFFIX,github.site

@@ -10,6 +10,7 @@ DOMAIN-SUFFIX,lzzyimg.com
 DOMAIN-SUFFIX,bfbfvip.com
 DOMAIN-SUFFIX.akamaized.net
 # web
+DOMAIN-SUFFIX,v1.mk
 DOMAIN-SUFFIX,cc.ua
 DOMAIN-SUFFIX,dedyn.io
 DOMAIN-SUFFIX,cloudns.net
@@ -26,7 +27,6 @@ DOMAIN-SUFFIX,macked.homes
 DOMAIN-SUFFIX,browserleaks.com
 DOMAIN-SUFFIX,browserleaks.org
 DOMAIN-SUFFIX,immortalwrt.org
-DOMAIN-SUFFIX,v1.mk
 DOMAIN-SUFFIX,istatmenus.app
 DOMAIN-SUFFIX,greasyfork.org
 DOMAIN-SUFFIX,earthol.me

@@ -9,8 +9,6 @@ DOMAIN-SUFFIX,heimuer.tv
 DOMAIN-SUFFIX,lzzyimg.com
 DOMAIN-SUFFIX,bfbfvip.com
 DOMAIN-SUFFIX,akamaized.net
-DOMAIN-SUFFIX,cloudfront.net
-DOMAIN-SUFFIX,gh-proxy.com
 # Web
 DOMAIN-SUFFIX,v1.mk
 DOMAIN-SUFFIX,dedyn.io
@@ -20,6 +18,7 @@ DOMAIN-SUFFIX,github.site
 DOMAIN-SUFFIX,github.store
 DOMAIN-SUFFIX,dockerpull.cn
 DOMAIN-SUFFIX,jsdelivr.net
+DOMAIN-SUFFIX,gh-proxy.com
 DOMAIN-SUFFIX,linux.do
 DOMAIN-SUFFIX,crond.dev
 DOMAIN-SUFFIX,oracle.com

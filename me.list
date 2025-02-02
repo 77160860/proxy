@@ -12,12 +12,8 @@ DOMAIN-SUFFIX,akamaized.net
 # Web
 DOMAIN-SUFFIX,v1.mk
 DOMAIN-SUFFIX,dedyn.io
-DOMAIN-SUFFIX,ghproxy.cn
-DOMAIN-SUFFIX,ghproxy.cc
-DOMAIN-SUFFIX,github.site
-DOMAIN-SUFFIX,github.store
-DOMAIN-SUFFIX,dockerpull.cn
-DOMAIN-SUFFIX,docker.imgdb.de
+DOMAIN-SUFFIX,ghfast.top
+DOMAIN-SUFFIX,dockerproxy.net
 DOMAIN-SUFFIX,jsdelivr.net
 DOMAIN-SUFFIX,gh-proxy.com
 DOMAIN-SUFFIX,linux.do

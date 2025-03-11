@@ -17,16 +17,12 @@ DOMAIN-SUFFIX,dockerproxy.net
 DOMAIN-SUFFIX,jsdelivr.net
 DOMAIN-SUFFIX,gh-proxy.com
 DOMAIN-SUFFIX,linux.do
-DOMAIN-SUFFIX,crond.dev
 DOMAIN-SUFFIX,oracle.com
 DOMAIN-SUFFIX,macked.app
 DOMAIN-SUFFIX,macked.homes
 DOMAIN-SUFFIX,browserleaks.com
-DOMAIN-SUFFIX,browserleaks.org
-DOMAIN-SUFFIX,immortalwrt.org
 DOMAIN-SUFFIX,istatmenus.app
 DOMAIN-SUFFIX,greasyfork.org
 DOMAIN-SUFFIX,earthol.me
 DOMAIN-SUFFIX,earthol.com
-DOMAIN-SUFFIX,windows.com
 DOMAIN-SUFFIX,tailscale.com

@@ -1,4 +1,26 @@
 # DIRECT
+DOMAIN-SUFFIX,lan
+DOMAIN-SUFFIX,local
+DOMAIN-SUFFIX,localhost
+DOMAIN-SUFFIX,captive.apple.com
+DOMAIN-SUFFIX,gstatic.com
+DOMAIN-SUFFIX,time.apple.com
+DOMAIN-SUFFIX,msftncsi.com
+DOMAIN-SUFFIX,msftconnecttest.com
+DOMAIN-SUFFIX,time.windows.com
+DOMAIN-SUFFIX,ntp.aliyun.com
+DOMAIN-SUFFIX,ntp.ntsc.ac.cn
+DOMAIN-SUFFIX,dev.10086.cn
+DOMAIN-SUFFIX,cmpassport.com
+DOMAIN-SUFFIX,jegotrip.com.cn
+DOMAIN-SUFFIX,jegotrip.cn
+DOMAIN-SUFFIX,icitymobile.mobi
+DOMAIN-SUFFIX,id6.me
+DOMAIN-SUFFIX,open.e.189.cn
+DOMAIN-SUFFIX,mdn.open.wo.cn
+DOMAIN-SUFFIX,auth.wosms.cn
+DOMAIN-SUFFIX,opencloud.wostore.cn
+DOMAIN-SUFFIX,10099.com.cn
 # Media
 DOMAIN-SUFFIX,ottiptv.cc
 DOMAIN-SUFFIX,bangumi.ca

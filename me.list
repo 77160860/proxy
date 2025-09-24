@@ -69,9 +69,10 @@ DOMAIN-SUFFIX,mihdr.top
 # Web
 DOMAIN-SUFFIX,v1.mk
 DOMAIN-SUFFIX,ghfast.top
+DOMAIN-SUFFIX,gh-proxy.net
+DOMAIN-SUFFIX,gh-proxy.com
 DOMAIN-SUFFIX,dockerproxy.net
 DOMAIN-SUFFIX,jsdelivr.net
-DOMAIN-SUFFIX,gh-proxy.com
 DOMAIN-SUFFIX,linux.do
 DOMAIN-SUFFIX,macked.app
 DOMAIN-SUFFIX,macked.homes
@@ -95,7 +96,7 @@ DOMAIN-SUFFIX,eu.org
 DOMAIN-SUFFIX,lzpanx.com
 DOMAIN-SUFFIX,misoso.cc
 DOMAIN-SUFFIX,yppan.com
-DOMAIN-SUFFIX,gh-proxy.net
+DOMAIN-SUFFIX,aliapp.org
 DOMAIN,app.localhost.qaq.wiki
 DOMAIN,cdn.pnup-ls.tcssyw.com
 DOMAIN,client.wns.windows.com

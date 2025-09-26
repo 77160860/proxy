@@ -1,7 +1,4 @@
 # DIRECT
-DOMAIN-SUFFIX,lan
-DOMAIN-SUFFIX,local
-DOMAIN-SUFFIX,localhost
 DOMAIN-SUFFIX,captive.apple.com
 DOMAIN-SUFFIX,gstatic.com
 DOMAIN-SUFFIX,time.apple.com

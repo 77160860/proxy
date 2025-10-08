@@ -67,6 +67,7 @@ DOMAIN-SUFFIX,miqk.cc
 DOMAIN-SUFFIX,mihdr.top
 DOMAIN-SUFFIX,bangumi.ca
 DOMAIN-SUFFIX,nanflix.net
+DOMAIN-SUFFIX,shrekmedia.org
 DOMAIN-SUFFIX,dytt-cine.com
 # Web
 DOMAIN-SUFFIX,v1.mk
@@ -90,7 +91,6 @@ DOMAIN-SUFFIX,mjjvm.com
 DOMAIN-SUFFIX,mjjbox.com
 DOMAIN-SUFFIX,leijing1.com
 DOMAIN-SUFFIX,qzz.io
-DOMAIN-SUFFIX,dedyn.io
 DOMAIN-SUFFIX,dpdns.org
 DOMAIN-SUFFIX,nyc.mn
 DOMAIN-SUFFIX,eu.org
@@ -98,6 +98,4 @@ DOMAIN-SUFFIX,lzpanx.com
 DOMAIN-SUFFIX,misoso.cc
 DOMAIN-SUFFIX,yppan.com
 DOMAIN-SUFFIX,aliapp.org
-DOMAIN,app.localhost.qaq.wiki
-DOMAIN,cdn.pnup-ls.tcssyw.com
-DOMAIN,client.wns.windows.com
+

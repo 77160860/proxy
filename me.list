@@ -1,3 +1,7 @@
+# Direct
+DOMAIN-SUFFIX,.lan
+DOMAIN-SUFFIX,.local
+DOMAIN-SUFFIX,.localhost
 # Media
 DOMAIN-SUFFIX,ottiptv.cc
 DOMAIN-SUFFIX,bangumi.ca

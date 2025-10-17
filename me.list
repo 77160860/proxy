@@ -2,6 +2,7 @@
 DOMAIN-SUFFIX,.lan
 DOMAIN-SUFFIX,.local
 DOMAIN-SUFFIX,.localhost
+DOMAIN-SUFFIX,wns.windows.com
 # Media
 DOMAIN-SUFFIX,ottiptv.cc
 DOMAIN-SUFFIX,bangumi.ca

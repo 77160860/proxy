@@ -5,7 +5,6 @@ DOMAIN-SUFFIX,.localhost
 DOMAIN-SUFFIX,wns.windows.com
 # Media
 DOMAIN-SUFFIX,ottiptv.cc
-DOMAIN-SUFFIX,bangumi.ca
 DOMAIN-SUFFIX,cmdns.xyz
 DOMAIN-SUFFIX,wogg.net
 DOMAIN-SUFFIX,wogg.lol
@@ -50,6 +49,7 @@ DOMAIN-SUFFIX,dmmiku.com
 DOMAIN-SUFFIX,miqk.cc
 DOMAIN-SUFFIX,mihdr.top
 DOMAIN-SUFFIX,bangumi.ca
+DOMAIN-SUFFIX,shrekmedia.org
 # Web
 DOMAIN-SUFFIX,v1.mk
 DOMAIN-SUFFIX,ghfast.top
@@ -76,3 +76,4 @@ DOMAIN-SUFFIX,lzpanx.com
 DOMAIN-SUFFIX,misoso.cc
 DOMAIN-SUFFIX,yppan.com
 DOMAIN-SUFFIX,aliapp.org
+DOMAIN-SUFFIX,eu.org

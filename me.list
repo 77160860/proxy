@@ -52,6 +52,7 @@ DOMAIN-SUFFIX,bangumi.ca
 # Web
 DOMAIN-SUFFIX,v1.mk
 DOMAIN-SUFFIX,ghfast.top
+DOMAIN-SUFFIX,ghproxy.net
 DOMAIN-SUFFIX,gh-proxy.net
 DOMAIN-SUFFIX,gh-proxy.com
 DOMAIN-SUFFIX,jsdelivr.net

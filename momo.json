@@ -19,8 +19,8 @@
     "reverse_mapping": true
   },
   "outbounds": [
-    {"tag": "🐝 Proxy", "type": "selector","outbounds": ["{all}", "🚀 Urltest"]},
-    {"tag": "🚀 Urltest", "type": "urltest", "interval": "5m", "tolerance": 50, ["{all}"]},
+    {"tag": "🐝 Proxy", "type": "selector","outbounds": ["{all}"]},
+    {"tag": "🚀 Urltest", "type": "urltest", "interval": "5m", "tolerance": 50, "outbounds": ["{all}"]},
     {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"]},
     {"tag": "🐸 Direct", "type": "direct"}
   ],

@@ -41,8 +41,8 @@
     {"tag": "tun-in", "type": "tun", "interface_name": "momo", "address": ["172.31.0.1/30"], "auto_route": false, "auto_redirect": false}
   ],
   "outbounds": [
-    {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"]},
-    {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true, "interval": "5m", "tolerance": 50},
+    {"tag": "🐝 Proxy", "type": "selector", "outbounds": ["🚀 Urltest"]},
+    {"tag": "🚀 Urltest", "type": "urltest", "interval": "5m", "tolerance": 50},
     {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"]},
     {"tag": "🐸 Direct", "type": "direct"}
   ],

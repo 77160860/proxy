@@ -1,6 +1,5 @@
 # Fakeip-filter
-DOMAIN,gstatic.com
-DOMAIN,msftncsi.com
+DOMAIN,10099.com.cn
 DOMAIN,dev.10086.cn
 DOMAIN,time.apple.com
 DOMAIN,ntp.aliyun.com
@@ -10,14 +9,13 @@ DOMAIN,mdn.open.wo.cn
 DOMAIN,auth.wosms.cn
 DOMAIN,time.windows.com
 DOMAIN,captive.apple.com
-DOMAIN,msftconnecttest.com
 DOMAIN,opencloud.wostore.cn
 DOMAIN-SUFFIX,lan
 DOMAIN-SUFFIX,local
 DOMAIN-SUFFIX,localhost
 DOMAIN-SUFFIX,localdomain
 DOMAIN-SUFFIX,home.arpa
-DOMAIN-SUFFIX,10099.com.cn
+DOMAIN-SUFFIX,gstatic.com
 # Media
 DOMAIN-SUFFIX,ottiptv.cc
 DOMAIN-SUFFIX,cmdns.xyz

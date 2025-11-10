@@ -20,7 +20,7 @@
     "rules": [
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
-      {"query_type": ["SVCB", "HTTPS"], "action": "reject"},
+      {"query_type":["SVCB", "HTTPS"], "action": "predefined", "rcode": "NOTIMP"},
       {"rule_set": ["cn", "me", "apple", "bilibili", "games@cn", "tracker"], "server": "local"},
       {"domain_suffix": ["services.googleapis.cn", "googleapis.cn", "xn--ngstr-lra8j.com"], "server": "foreign"},
       {"query_type": "A", "server": "fakeip", "rewrite_ttl": 0, "disable_cache": true}
@@ -33,11 +33,9 @@
   },
   "inbounds": [
     {"tag": "dns-in", "type": "direct", "listen": "0.0.0.0", "listen_port": 1053},
-    {"tag": "http-in", "type": "http", "listen": "0.0.0.0", "listen_port": 8080},
-    {"tag": "socks-in", "type": "socks", "listen": "0.0.0.0", "listen_port": 1080},
     {"tag": "mixed-in", "type": "mixed", "listen": "0.0.0.0", "listen_port": 7890},
-    {"tag": "redirect-in", "type": "redirect", "listen": "0.0.0.0", "listen_port": 7898},
-    {"tag": "tproxy-in", "type": "tproxy", "listen": "0.0.0.0", "listen_port": 7899},
+    {"tag": "redirect-in", "type": "redirect", "listen": "0.0.0.0", "listen_port": 7897},
+    {"tag": "tproxy-in", "type": "tproxy", "listen": "0.0.0.0", "listen_port": 7898},
     {"tag": "tun-in", "type": "tun", "interface_name": "momo", "address": ["172.31.0.1/30"], "auto_route": false, "auto_redirect": false}
   ],
   "outbounds": [
@@ -47,6 +45,9 @@
     {"tag": "🐸 Direct", "type": "direct"}
   ],
   "route": {
+    "final": "🍓 Final",
+    "auto_detect_interface": true,
+    "default_domain_resolver": {"server": "public"},
     "rules": [
       {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns"]},
       {"inbound": "dns-in", "action": "hijack-dns"},
@@ -94,8 +95,5 @@
       {"tag": "telegram-ip", "type": "remote", "format": "binary", "url": "https://gh-proxy.com/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/telegram.srs", "download_detour": "🐸 Direct"},
       {"tag": "cn-ip", "type": "remote", "format": "binary", "url": "https://gh-proxy.com/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/cn.srs", "download_detour": "🐸 Direct"}
     ],
-    "final": "🍓 Final",
-    "auto_detect_interface": true,
-    "default_domain_resolver": {"server": "public"}
   },
 }

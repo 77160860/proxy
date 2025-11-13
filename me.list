@@ -65,6 +65,9 @@ DOMAIN-SUFFIX,bangumi.ca
 DOMAIN-SUFFIX,emos.lol
 DOMAIN-SUFFIX,sharepoint.com
 DOMAIN-SUFFIX,tmdb.org
+DOMAIN-SUFFIX,trakt.tv
+DOMAIN-SUFFIX,thetvdb.com
+DOMAIN-SUFFIX,themoviedb.org
 # Web
 DOMAIN-SUFFIX,v1.mk
 DOMAIN-SUFFIX,ghfast.top

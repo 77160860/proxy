@@ -1,4 +1,6 @@
 # Fakeip-filter
+DST-PORT,123
+DOMAIN-KEYWORD,cdn.
 DOMAIN,10099.com.cn
 DOMAIN,dev.10086.cn
 DOMAIN,time.apple.com
@@ -15,6 +17,7 @@ DOMAIN-SUFFIX,local
 DOMAIN-SUFFIX,localhost
 DOMAIN-SUFFIX,localdomain
 DOMAIN-SUFFIX,home.arpa
+DOMAIN-SUFFIX,gov.cn
 DOMAIN-SUFFIX,gstatic.com
 # Media
 DOMAIN-SUFFIX,ottiptv.cc

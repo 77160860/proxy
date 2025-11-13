@@ -1,15 +1,15 @@
 # Fakeip-filter
 DST-PORT,123
-DOMAIN-KEYWORD,cdn.
+DOMAIN-KEYWORD,cdn
 DOMAIN,10099.com.cn
 DOMAIN,dev.10086.cn
-DOMAIN,time.apple.com
-DOMAIN,ntp.aliyun.com
-DOMAIN,ntp.ntsc.ac.cn
+# DOMAIN,time.apple.com
+# DOMAIN,ntp.aliyun.com
+# DOMAIN,ntp.ntsc.ac.cn
+# DOMAIN,time.windows.com
 DOMAIN,open.e.189.cn
 DOMAIN,mdn.open.wo.cn
 DOMAIN,auth.wosms.cn
-DOMAIN,time.windows.com
 DOMAIN,captive.apple.com
 DOMAIN,opencloud.wostore.cn
 DOMAIN-SUFFIX,lan

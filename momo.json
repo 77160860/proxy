@@ -30,9 +30,9 @@
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
       {"query_type":["SVCB", "HTTPS"], "action": "predefined", "rcode": "NOTIMP"},
-      {"rule_set": ["cn", "me", "apple", "bilibili", "games@cn", "tracker"], "server": "local"},
       {"domain_suffix": ["services.googleapis.cn", "googleapis.cn", "xn--ngstr-lra8j.com"], "server": "foreign"},
-      {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 0, "disable_cache": true}
+      {"rule_set": ["cn", "me", "apple", "bilibili", "games@cn", "tracker"], "server": "local"},
+      {"query_type": "A", "server": "fakeip", "rewrite_ttl": 0, "disable_cache": true}
     ],
     "final": "foreign",
     "strategy": "ipv4_only",

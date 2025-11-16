@@ -1,5 +1,4 @@
 # Fakeip-filter
-DOMAIN-KEYWORD,cdn.
 DOMAIN-KEYWORD,ntp.
 DOMAIN-KEYWORD,time.
 DOMAIN,10099.com.cn

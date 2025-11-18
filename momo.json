@@ -64,7 +64,6 @@
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
-      {"ip_cidr": ["95.161.76.100/31"], "action": "reject"},
       {"rule_set": "adblock", "action": "reject"},
       {"rule_set": "me", "outbound": "🐸 Direct"},
       {"rule_set": "apple", "outbound": "🐸 Direct"},

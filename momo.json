@@ -10,28 +10,18 @@
       "default_mode": "rule"
     }
   },
-  "providers": [
-    {
-      "type": "remote",
-      "tag": "airport",
-      "url": "订阅链接",
-      "health_check": {"enabled": false, "url": "http://www.gstatic.com/generate_204", "interval": "10m", "timeout": "3s"},
-      "download_detour": "🐸 Direct", "update_interval": "1d"
-    }
-  ],
   "dns": {
     "servers": [
-      {"tag": "local", "type": "udp", "server": "223.5.5.5"},
-      {"tag": "public", "type": "https", "server": "dns.alidns.com", "domain_resolver": "local"},
+      {"tag": "public", "type": "https", "server": "223.5.5.5"},
       {"tag": "foreign", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
-      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
+      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15"}
     ],
     "rules": [
-      {"clash_mode": "direct", "server": "local"},
+      {"clash_mode": "direct", "server": "public"},
       {"clash_mode": "global", "server": "fakeip"},
       {"query_type":["SVCB", "HTTPS"], "action": "predefined", "rcode": "NOTIMP"},
       {"domain_suffix": ["services.googleapis.cn", "googleapis.cn", "xn--ngstr-lra8j.com"], "server": "foreign"},
-      {"rule_set": ["cn", "me", "apple", "bilibili", "games@cn", "tracker"], "server": "local"},
+      {"rule_set": ["cn", "me", "apple", "bilibili", "games@cn", "tracker"], "server": "public"},
       {"query_type": "A", "server": "fakeip", "rewrite_ttl": 0, "disable_cache": true}
     ],
     "final": "foreign",
@@ -41,18 +31,17 @@
     "reverse_mapping": true
   },
   "inbounds": [
-    {"tag": "dns-in", "type": "direct", "listen": "::", "listen_port": 1053},
-    {"tag": "http-in", "type": "http", "listen": "::", "listen_port": 8080},
-    {"tag": "socks-in", "type": "socks", "listen": "::", "listen_port": 1080},
-    {"tag": "redirect-in", "type": "redirect", "listen": "::", "listen_port": 7897},
-    {"tag": "tproxy-in", "type": "tproxy", "listen": "::", "listen_port": 7898},
+    {"tag": "dns-in", "type": "direct", "listen": "0.0.0.0", "listen_port": 1053},
+    {"tag": "mixed-in", "type": "mixed", "listen": "0.0.0.0", "listen_port": 7890},
+    {"tag": "redirect-in", "type": "redirect", "listen": "0.0.0.0", "listen_port": 7897},
+    {"tag": "tproxy-in", "type": "tproxy", "listen": "0.0.0.0", "listen_port": 7898},
     {"tag": "tun-in", "type": "tun", "interface_name": "momo", "address": ["172.31.0.1/30"], "auto_route": false, "auto_redirect": false}
   ],
   "outbounds": [
-    {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"]},
-    {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true, "url": "http://www.gstatic.com/generate_204", "interval": "10m", "tolerance": 50},
+    {"tag": "🐝 Proxy", "type": "selector", "outbounds": ["🚀 Urltest"]},
+    {"tag": "🚀 Urltest", "type": "urltest", "url": "http://www.gstatic.com/generate_204", "interval": "10m", "tolerance": 50},
     {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"]},
-    {"tag": "🐸 Direct", "type": "direct", "tcp_keep_alive_interval": "75s", "tcp_keep_alive_idle": "10m"}
+    {"tag": "🐸 Direct", "type": "direct"}
   ],
   "route": {
     "final": "🍓 Final",
@@ -80,10 +69,10 @@
       {"rule_set": "openai", "outbound": "🐝 Proxy"},
       {"rule_set": "cn", "outbound": "🐸 Direct"},
       {"rule_set": "!cn", "outbound": "🐝 Proxy"},
-      {"action": "resolve", "match_only": true},
+      {"action": "resolve", "strategy": "ipv4_only"},
       {"rule_set": "tg-ip", "outbound": "🐝 Proxy"},
       {"rule_set": "gg-ip", "outbound": "🐝 Proxy"},
-      {"rule_set": "apple-ip", "outbound": "🐸 Direct"},
+      {"rule_set": "ap-ip", "outbound": "🐸 Direct"},
       {"rule_set": "cn-ip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [
@@ -105,7 +94,7 @@
       {"tag": "!cn", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/geolocation-!cn.srs", "download_detour": "🐸 Direct", "update_interval": "1d"},
       {"tag": "tg-ip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/telegram.srs", "download_detour": "🐸 Direct", "update_interval": "1d"},
       {"tag": "gg-ip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo-lite/geoip/google.srs", "download_detour": "🐸 Direct", "update_interval": "1d"},
-      {"tag": "apple-ip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo-lite/geoip/apple.srs", "download_detour": "🐸 Direct", "update_interval": "1d"},
+      {"tag": "ap-ip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo-lite/geoip/apple.srs", "download_detour": "🐸 Direct", "update_interval": "1d"},
       {"tag": "cn-ip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/cn.srs", "download_detour": "🐸 Direct", "update_interval": "1d"}
     ],
   },

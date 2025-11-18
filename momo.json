@@ -82,6 +82,7 @@
       {"rule_set": "!cn", "outbound": "🐝 Proxy"},
       {"action": "resolve", "match_only": true},
       {"rule_set": "tg-ip", "outbound": "🐝 Proxy"},
+      {"rule_set": "gg-ip", "outbound": "🐝 Proxy"},
       {"rule_set": "apple-ip", "outbound": "🐸 Direct"},
       {"rule_set": "cn-ip", "outbound": "🐸 Direct"}
     ],

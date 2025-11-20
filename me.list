@@ -73,7 +73,7 @@ DOMAIN-SUFFIX,ghfast.top
 DOMAIN-SUFFIX,ghproxy.net
 DOMAIN-SUFFIX,gh-proxy.org
 DOMAIN-SUFFIX,gh-proxy.com
-DOMAIN-SUFFIX,jsdelivr.net
+DOMAIN,testingcf.jsdelivr.net
 DOMAIN-SUFFIX,macked.app
 DOMAIN-SUFFIX,macked.homes
 DOMAIN-SUFFIX,browserleaks.com

@@ -106,5 +106,5 @@
       {"tag": "ap-ip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo-lite/geoip/apple.srs", "download_detour": "🐸 Direct"},
       {"tag": "cn-ip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/cn.srs", "download_detour": "🐸 Direct"}
     ]
-  },
+  }
 }

@@ -14,9 +14,9 @@
   "providers": [
     {
       "type": "remote",
-      "tag": "me",
-      "url": "订阅",
-      "health_check": {"enabled": false, "url": "http://www.gstatic.com/generate_204", "interval": "10m", "timeout": "3s"},
+      "tag": "airport",
+      "url": "订阅链接",
+      "health_check": {"enabled": false, "url": "http://www.gstatic.com/generate_204"},
       "download_detour": "🐸 Direct"
     }
   ],
@@ -31,14 +31,16 @@
       {"clash_mode": "global", "server": "fakeip"},
       {"query_type":["SVCB", "HTTPS"], "action": "predefined", "rcode": "NOTIMP"},
       {"domain_suffix": ["services.googleapis.cn", "googleapis.cn", "xn--ngstr-lra8j.com"], "server": "foreign"},
-      {"rule_set": ["cn", "me", "apple", "bilibili", "games@cn", "tracker"], "server": "public"},
-      {"query_type": "A", "server": "fakeip", "rewrite_ttl": 0, "disable_cache": true}
+      {"rule_set": ["cn-ip", "ap-ip", "cn", "me", "apple", "bilibili", "games@cn", "tracker"], "server": "public"},
+      {"query_type": "A", "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "foreign",
     "strategy": "ipv4_only",
+    "reverse_mapping": true,
     "independent_cache": true,
+    "round_robin_cache": true,
     "cache_capacity": 8192,
-    "reverse_mapping": true
+    "lazy_cache_ttl": 86400
   },
   "inbounds": [
     {"tag": "dns-in", "type": "direct", "listen": "0.0.0.0", "listen_port": 1053},
@@ -48,7 +50,7 @@
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"]},
-    {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true, "url": "http://www.gstatic.com/generate_204", "interval": "10m", "tolerance": 50},
+    {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true, "url": "http://www.gstatic.com/generate_204", "interrupt_exist_connections": true},
     {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"]},
     {"tag": "🐸 Direct", "type": "direct"}
   ],
@@ -78,7 +80,7 @@
       {"rule_set": "openai", "outbound": "🐝 Proxy"},
       {"rule_set": "cn", "outbound": "🐸 Direct"},
       {"rule_set": "!cn", "outbound": "🐝 Proxy"},
-      {"action": "resolve", "strategy": "ipv4_only", "match_only": true},
+      {"action": "resolve", "match_only": true},
       {"rule_set": "tg-ip", "outbound": "🐝 Proxy"},
       {"rule_set": "gg-ip", "outbound": "🐝 Proxy"},
       {"rule_set": "ap-ip", "outbound": "🐸 Direct"},

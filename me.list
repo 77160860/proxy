@@ -14,8 +14,6 @@ DOMAIN-SUFFIX,localhost
 DOMAIN-SUFFIX,localdomain
 DOMAIN-SUFFIX,home.arpa
 DOMAIN-SUFFIX,gov.cn
-DOMAIN-SUFFIX,gstatic.com
-DOMAIN-SUFFIX,firebasedatabase.app
 # Media
 DOMAIN-SUFFIX,ottiptv.cc
 DOMAIN-SUFFIX,cmdns.xyz

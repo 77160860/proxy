@@ -156,8 +156,8 @@ rules:
   - RULE-SET,twitter,Porxy
   - RULE-SET,facebook,Porxy
   - RULE-SET,openai,Porxy
-  - RULE-SET,cn,DIRECT
   - RULE-SET,fake,Porxy
+  - RULE-SET,cn,DIRECT
   - RULE-SET,tg-ip,Porxy,no-resolve
   - RULE-SET,gg-ip,Porxy,no-resolve
   - RULE-SET,ap-ip,DIRECT,no-resolve

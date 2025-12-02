@@ -101,9 +101,6 @@ dns:
     - "opencloud.wostore.cn"
     - "rule-set:cn"
 
-hosts:
-  services.googleapis.cn: services.googleapis.com
-
 proxy-groups:
   - name: Porxy
     type: select

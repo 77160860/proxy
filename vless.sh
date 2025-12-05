@@ -12,8 +12,13 @@ CLOUDFLARED_PATH="$HOME/cloudflared"
 CF_TUNNEL_SERVICE="/etc/systemd/system/argo.service"
 
 # -------- 安装依赖 --------
-apt update
-apt install -y curl wget jq socat
+# 修正：确保非交互式安装，并先更新再装 socat 避免失败
+export DEBIAN_FRONTEND=noninteractive
+apt update -y
+apt install -y curl wget jq socat || {
+  echo "依赖安装失败，请检查APT源或网络"
+  exit 1
+}
 
 # -------- 安装Xray --------
 echo "安装Xray..."
@@ -73,7 +78,6 @@ EOF
 systemctl daemon-reload
 systemctl enable xray
 systemctl restart xray
-
 echo "Xray已启动，监听本地端口 $XRAY_PORT"
 
 # -------- 安装cloudflared --------
@@ -104,6 +108,7 @@ systemctl daemon-reload
 systemctl enable argo
 systemctl restart argo
 
+# 等待服务启动
 sleep 8
 
 ARGO_STATUS=$(systemctl is-active argo)

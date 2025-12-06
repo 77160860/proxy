@@ -67,6 +67,8 @@ DOMAIN-SUFFIX,trakt.tv
 DOMAIN-SUFFIX,thetvdb.com
 DOMAIN-SUFFIX,themoviedb.org
 # Web
+DOMAIN,api.lolesports.com
+DOMAIN,ocsp.digicert.com
 DOMAIN-SUFFIX,v1.mk
 DOMAIN-SUFFIX,ghfast.top
 DOMAIN-SUFFIX,ghproxy.net
@@ -93,3 +95,4 @@ DOMAIN-SUFFIX,misoso.cc
 DOMAIN-SUFFIX,yppan.com
 DOMAIN-SUFFIX,aliapp.org
 DOMAIN-SUFFIX,shangchengtong.net
+

@@ -30,7 +30,6 @@
       {"clash_mode": "direct", "server": "public"},
       {"clash_mode": "global", "server": "fakeip"},
       {"query_type":["SVCB", "HTTPS"], "action": "predefined", "rcode": "NOTIMP"},
-      {"domain_suffix": ["services.googleapis.cn", "googleapis.cn", "xn--ngstr-lra8j.com"], "server": "foreign"},
       {"rule_set": ["cn-ip", "ap-ip", "cn", "me", "apple", "bilibili", "games@cn", "tracker"], "server": "public"},
       {"query_type": "A", "server": "fakeip", "rewrite_ttl": 1}
     ],

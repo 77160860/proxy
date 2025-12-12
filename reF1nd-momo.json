@@ -30,7 +30,7 @@
       {"clash_mode": "direct", "server": "public"},
       {"clash_mode": "global", "server": "fakeip"},
       {"query_type":["SVCB", "HTTPS"], "action": "predefined", "rcode": "NOTIMP"},
-      {"rule_set": ["cn-ip", "ap-ip", "cn", "me", "apple", "bilibili", "games@cn", "tracker"], "server": "public"},
+      {"rule_set": ["cn-ip", "ap-ip", "cn", "me", "apple", "games@cn"], "server": "public"},
       {"query_type": "A", "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "foreign",

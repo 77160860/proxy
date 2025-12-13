@@ -254,8 +254,8 @@ cip(){
     argodomain=$(cat "$HOME/agsbx/sbargoym.log" 2>/dev/null); [ -z "$argodomain" ] && argodomain=$(grep -a trycloudflare.com "$HOME/agsbx/argo.log" 2>/dev/null | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')
     if [ -n "$argodomain" ]; then
         vlvm=$(cat $HOME/agsbx/vlvm 2>/dev/null)
-        if [ "$vlvm" = "Vmess" ]; then vmatls_link1="vmess://$(echo "{\"v\":\"2\",\"ps\":\"${sxname}vmess-ws-tls-argo-$hostname-443\",\"add\":\"yg$(cfip).ygkkk.dpdns.org\",\"port\":\"443\",\"id\":\"$uuid\",\"aid\":\"0\",\"net\":\"ws\",\"host\":\"$argodomain\",\"path\":\"/${uuid}-vm\",\"tls\":\"tls\",\"sni\":\"$argodomain\"}" | base64 -w0)"; tratls_link1="";
-        elif [ "$vlvm" = "Trojan" ]; then tratls_link1="trojan://${uuid}@yg$(cfip).ygkkk.dpdns.org:443?security=tls&type=ws&host=${argodomain}&path=%2F${uuid}-tr&sni=${argodomain}&fp=chrome#${sxname}trojan-ws-tls-argo-$hostname-443"; vmatls_link1=""; fi
+        if [ "$vlvm" = "Vmess" ]; then vmatls_link1="vmess://$(echo "{\"v\":\"2\",\"ps\":\"${sxname}vmess-ws-tls-argo-$hostname-443\",\"add\":\"cdn.7zz.cn\",\"port\":\"443\",\"id\":\"$uuid\",\"aid\":\"0\",\"net\":\"ws\",\"host\":\"$argodomain\",\"path\":\"/${uuid}-vm\",\"tls\":\"tls\",\"sni\":\"$argodomain\"}" | base64 -w0)"; tratls_link1="";
+        elif [ "$vlvm" = "Trojan" ]; then tratls_link1="trojan://${uuid}@cdn.7zz.cn:443?security=tls&type=ws&host=${argodomain}&path=%2F${uuid}-tr&sni=${argodomain}&fp=chrome#${sxname}trojan-ws-tls-argo-$hostname-443"; vmatls_link1=""; fi
         sbtk=$(cat "$HOME/agsbx/sbargotoken.log" 2>/dev/null); [ -n "$sbtk" ] && nametn="Argo固定隧道token:\n$sbtk"
         argoshow="Argo隧道信息 (使用 $vlvm-ws 端口: $(cat $HOME/agsbx/argoport.log 2>/dev/null))\n---------------------------------------------------------\nArgo域名: ${argodomain}\n\n${nametn}\n\n1、💣 443端口TLS节点 (优选IP可替换):\n${vmatls_link1}${tratls_link1}"
         echo "---------------------------------------------------------"; echo -e "$argoshow"; echo "---------------------------------------------------------"

@@ -4,7 +4,6 @@ export LANG=en_US.UTF-8
 [ -z "${hypt+x}" ] || hyp=yes
 [ -z "${vmpt+x}" ] || { vmp=yes; }
 [ -z "${sopt+x}" ] || sop=yes
-[ -z "${warp+x}" ] || wap=yes
 if [ "$vmp" = "yes" ] && [ -z "$argo" ]; then export argo="vmpt"; fi
 if [ "$trp" = "yes" ] && [ -z "$argo" ]; then export argo="trpt"; fi
 if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -q 'agsbx/sing-box' || pgrep -f 'agsbx/sing-box' >/dev/null 2>&1; then
@@ -16,7 +15,7 @@ else
         [ "$sop" = yes ] || [ "$vmp" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || { echo "提示：未安装argosbx脚本，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
     fi
 fi
-export uuid=${uuid:-''}; export port_vm_ws=${vmpt:-''}; export port_tr=${trpt:-''}; export port_hy2=${hypt:-''}; export port_so=${sopt:-''}; export cdnym=${cdnym:-''}; export argo=${argo:-''}; export ARGO_DOMAIN=${agn:-''}; export ARGO_AUTH=${agk:-''}; export ippz=${ippz:-''}; export warp=${warp:-''}; export name=${name:-''}; export oap=${oap:-''}
+export uuid=${uuid:-''}; export port_vm_ws=${vmpt:-''}; export port_tr=${trpt:-''}; export port_hy2=${hypt:-''}; export port_so=${sopt:-''}; export cdnym=${cdnym:-''}; export argo=${argo:-''}; export ARGO_DOMAIN=${agn:-''}; export ARGO_AUTH=${agk:-''}; export ippz=${ippz:-''}; export name=${name:-''}; export oap=${oap:-''}
 v46url="https://icanhazip.com"
 agsbxurl="https://raw.githubusercontent.com/77160860/agsbx/main/agsbx.sh"
 showmode(){
@@ -29,33 +28,16 @@ showmode(){
     echo "卸载脚本命令：agsbx del"
     echo "---------------------------------------------------------"
 }
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"; echo "Argosbx一键无交互脚本💣 (Sing-box内核版)"; echo "当前版本：V25.12.12"; echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"; echo "Argosbx一键无交互脚本💣 (Sing-box内核版)"; echo "当前版本：V25.12.13"; echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 hostname=$(uname -a | awk '{print $2}'); op=$(cat /etc/redhat-release 2>/dev/null || cat /etc/os-release 2>/dev/null | grep -i pretty_name | cut -d \" -f2); case $(uname -m) in aarch64) cpu=arm64;; x86_64) cpu=amd64;; *) echo "目前脚本不支持$(uname -m)架构" && exit; esac; mkdir -p "$HOME/agsbx"
 v4v6(){
     v4=$( (curl -s4m5 -k "$v46url" 2>/dev/null) || (wget -4 -qO- --tries=2 "$v46url" 2>/dev/null) )
     v6=$( (curl -s6m5 -k "$v46url" 2>/dev/null) || (wget -6 -qO- --tries=2 "$v46url" 2>/dev/null) )
 }
-warpsx(){
-    warpurl=$( (curl -sm5 -k https://ygkkk-warp.renky.eu.org 2>/dev/null) || (wget -qO- --tries=2 https://ygkkk-warp.renky.eu.org 2>/dev/null) )
-    if echo "$warpurl" | grep -q ygkkk; then pvk=$(echo "$warpurl" | awk -F'：' '/Private_key/{print $2}' | xargs); wpv6=$(echo "$warpurl" | awk -F'：' '/IPV6/{print $2}' | xargs); res=$(echo "$warpurl" | awk -F'：' '/reserved/{print $2}' | xargs); else wpv6='2606:4700:110:8d8d:1845:c39f:2dd5:a03a'; pvk='52cuYFgCJXp0LAq7+nWJIbCXXgU9eGggOc+Hlfz5u6A='; res='[215, 69, 233]'; fi
-    if [ -n "$name" ]; then sxname=$name-; echo "$sxname" > "$HOME/agsbx/name"; echo; echo "所有节点名称前缀：$name"; fi; v4v6
-    if echo "$v6" | grep -q '^2a09' || echo "$v4" | grep -q '^104.28'; then
-        s1outtag=direct; s2outtag=direct; sip='"::/0", "0.0.0.0/0"'; wap=warpargo; echo; echo "请注意：你已安装了warp"
-    else
-        if [ "$wap" != yes ]; then
-            s1outtag=direct; s2outtag=direct; sip='"::/0", "0.0.0.0/0"'; wap=warpargo
-        else
-            case "$warp" in
-                ""|s) s1outtag=warp-out; s2outtag=warp-out; sip='"::/0", "0.0.0.0/0"'; wap=warp ;;
-                s4) s1outtag=warp-out; s2outtag=direct; sip='"0.0.0.0/0"'; wap=warp ;;
-                s6) s1outtag=warp-out; s2outtag=direct; sip='"::/0"'; wap=warp ;;
-                *) s1outtag=direct; s2outtag=direct; sip='"::/0", "0.0.0.0/0"'; wap=warpargo ;;
-            esac
-        fi
-    fi
-    if (curl -s4m5 -k "$v46url" >/dev/null 2>&1) || (wget -4 -qO- --tries=2 "$v46url" >/dev/null 2>&1); then v4_ok=true; fi
-    if (curl -s6m5 -k "$v46url" >/dev/null 2>&1) || (wget -6 -qO- --tries=2 "$v46url" >/dev/null 2>&1); then v6_ok=true; fi
-    if [ "$v4_ok" = true ] && [ "$v6_ok" = true ]; then case "$warp" in _s4_) sbyx='prefer_ipv4' ;; _) sbyx='prefer_ipv6' ;; esac; elif [ "$v4_ok" = true ] && [ "$v6_ok" != true ]; then case "$warp" in s4) sbyx='ipv4_only' ;;_ ) sbyx='prefer_ipv6' ;; esac; elif [ "$v4_ok" != true ] && [ "$v6_ok" = true ]; then case "$warp" in _s6_) sbyx='ipv6_only' ;; *) sbyx='prefer_ipv4' ;; esac; fi
+noop_warpsx(){
+    # 此函数已移除WARP功能，仅保留名称前缀设置和IP检测
+    if [ -n "$name" ]; then sxname=$name-; echo "$sxname" > "$HOME/agsbx/name"; echo; echo "所有节点名称前缀：$name"; fi
+    v4v6
 }
 upsingbox(){
     url="https://github.com/yonggekkk/argosbx/releases/download/argosbx/sing-box-$cpu"
@@ -121,9 +103,14 @@ sbbout(){
         sed -i '${s/,\s*$//}' "$HOME/agsbx/sb.json"
         cat >> "$HOME/agsbx/sb.json" <<EOF
 ],
-"outbounds": [ { "type": "direct", "tag": "direct" }, { "type": "block", "tag": "block" } ],
-"endpoints": [ { "type": "wireguard", "tag": "warp-out", "address": [ "172.16.0.2/32", "${wpv6}/128" ], "private_key": "${pvk}", "peers": [ { "address": "${sendip}", "port": 2408, "public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=", "allowed_ips": [ "0.0.0.0/0", "::/0" ], "reserved": $res } ] } ],
-"route": { "rules": [ { "action": "sniff" }, { "action": "resolve", "strategy": "${sbyx}" }, { "ip_cidr": [ ${sip} ], "outbound": "${s1outtag}" } ], "final": "${s2outtag}" }
+"outbounds": [
+    { "type": "direct", "tag": "direct" },
+    { "type": "block", "tag": "block" }
+],
+"route": {
+    "rules": [ { "action": "sniff" } ],
+    "final": "direct"
+}
 }
 EOF
         if pidof systemd >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
@@ -158,7 +145,7 @@ EOF
     fi
 }
 ins(){
-    installsb; warpsx; sbbout
+    installsb; noop_warpsx; sbbout
     if [ -n "$argo" ]; then
         echo; echo "=========启用Cloudflared-argo内核========="
         if [ ! -e "$HOME/agsbx/cloudflared" ]; then argocore=$({ curl -Ls https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared || wget -qO- https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared; } | grep -Eo '"[0-9.]+"' | sed -n 1p | tr -d '",'); echo "下载Cloudflared-argo最新正式版内核：$argocore"; url="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$cpu"; out="$HOME/agsbx/cloudflared"; (curl -Lo "$out" -# --retry 2 "$url") || (wget -O "$out" --tries=2 "$url"); chmod +x "$HOME/agsbx/cloudflared"; fi
@@ -206,7 +193,7 @@ EOF
     sleep 5; echo
     if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(sing-box|c)' || pgrep -f 'agsbx/(sing-box|c)' >/dev/null 2>&1 ; then
         [ -f ~/.bashrc ] || touch ~/.bashrc; sed -i '/agsbx/d' ~/.bashrc; SCRIPT_PATH="$HOME/bin/agsbx"; mkdir -p "$HOME/bin"; (curl -sL "$agsbxurl" -o "$SCRIPT_PATH") || (wget -qO "$SCRIPT_PATH" "$agsbxurl"); chmod +x "$SCRIPT_PATH"
-        if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then echo "if ! pgrep -f 'agsbx/sing-box' >/dev/null 2>&1; then export cdnym=\"${cdnym}\" name=\"${name}\" ippz=\"${ippz}\" argo=\"${argo}\" uuid=\"${uuid}\" $wap=\"${warp}\" $vmp=\"${port_vm_ws}\" $trp=\"${port_tr}\" $hyp=\"${port_hy2}\" agn=\"${ARGO_DOMAIN}\" agk=\"${ARGO_AUTH}\"; bash "$HOME/bin/agsbx"; fi" >> ~/.bashrc; fi
+        if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then echo "if ! pgrep -f 'agsbx/sing-box' >/dev/null 2>&1; then export cdnym=\"${cdnym}\" name=\"${name}\" ippz=\"${ippz}\" argo=\"${argo}\" uuid=\"${uuid}\" $vmp=\"${port_vm_ws}\" $trp=\"${port_tr}\" $hyp=\"${port_hy2}\" agn=\"${ARGO_DOMAIN}\" agk=\"${ARGO_AUTH}\"; bash "$HOME/bin/agsbx"; fi" >> ~/.bashrc; fi
         sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc; echo 'export PATH="$HOME/bin:$PATH"' >> "$HOME/.bashrc"; grep -qxF 'source ~/.bashrc' ~/.bash_profile 2>/dev/null || echo 'source ~/.bashrc' >> ~/.bash_profile; . ~/.bashrc 2>/dev/null
         crontab -l > /tmp/crontab.tmp 2>/dev/null
         if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then sed -i '/agsbx\/sing-box/d' /tmp/crontab.tmp; echo '@reboot sleep 10 && nohup $HOME/agsbx/sing-box run -c $HOME/agsbx/sb.json >/dev/null 2>&1 &' >> /tmp/crontab.tmp; fi
@@ -231,8 +218,7 @@ cip(){
         v4dq=$( (curl -s4m5 -k https://ip.fm 2>/dev/null | sed -E 's/.*Location: ([^,]+(, [^,]+)*),.*/\1/') || (wget -4 -qO- --tries=2 https://ip.fm 2>/dev/null | grep '<span class="has-text-grey-light">Location:' | tail -n1 | sed -E 's/.*>Location: <\/span>([^<]+)<.*/\1/') )
         v6dq=$( (curl -s6m5 -k https://ip.fm 2>/dev/null | sed -E 's/.*Location: ([^,]+(, [^,]+)*),.*/\1/') || (wget -6 -qO- --tries=2 https://ip.fm 2>/dev/null | grep '<span class="has-text-grey-light">Location:' | tail -n1 | sed -E 's/.*>Location: <\/span>([^<]+)<.*/\1/') )
         if [ -z "$v4" ]; then vps_ipv4='无IPV4'; vps_ipv6="$v6"; location=$v6dq; elif [ -n "$v4" ] && [ -n "$v6" ]; then vps_ipv4="$v4"; vps_ipv6="$v6"; location=$v4dq; else vps_ipv4="$v4"; vps_ipv6='无IPV6'; location=$v4dq; fi
-        if echo "$v6" | grep -q '^2a09'; then w6="【WARP】"; fi; if echo "$v4" | grep -q '^104.28'; then w4="【WARP】"; fi
-        echo; argosbxstatus; echo; echo "=========当前服务器本地IP情况========="; echo "本地IPV4地址：$vps_ipv4 $w4"; echo "本地IPV6地址：$vps_ipv6 $w6"; echo "服务器地区：$location"; echo; sleep 2
+        echo; argosbxstatus; echo; echo "=========当前服务器本地IP情况========="; echo "本地IPV4地址：$vps_ipv4"; echo "本地IPV6地址：$vps_ipv6"; echo "服务器地区：$location"; echo; sleep 2
         if [ "$ippz" = "4" ]; then if [ -z "$v4" ]; then ipbest; else server_ip="$v4"; echo "$server_ip" > "$HOME/agsbx/server_ip.log"; fi; elif [ "$ippz" = "6" ]; then if [ -z "$v6" ]; then ipbest; else server_ip="[$v6]"; echo "$server_ip" > "$HOME/agsbx/server_ip.log"; fi; else ipbest; fi
     }
     ipchange; rm -rf "$HOME/agsbx/jh.txt"; uuid=$(cat "$HOME/agsbx/uuid"); server_ip=$(cat "$HOME/agsbx/server_ip.log"); sxname=$(cat "$HOME/agsbx/name" 2>/dev/null);
@@ -291,7 +277,6 @@ if ! pgrep -f 'agsbx/sing-box' >/dev/null 2>&1 && [ "$1" != "rep" ]; then
 fi
 if ! pgrep -f 'agsbx/sing-box' >/dev/null 2>&1 || [ "$1" = "rep" ]; then
     if [ -z "$( (curl -s4m5 -k "$v46url") || (wget -4 -qO- --tries=2 "$v46url") )" ]; then echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a00:1098:2c::1" > /etc/resolv.conf; fi
-    if [ -n "$( (curl -s6m5 -k "$v46url") || (wget -6 -qO- --tries=2 "$v46url") )" ]; then sendip="2606:4700:d0::a29f:c001"; else sendip="162.159.192.1"; fi
     echo "VPS系统：$op"; echo "CPU架构：$cpu"; echo "Argosbx脚本开始安装/更新…………" && sleep 1
     if [ -n "$oap" ]; then setenforce 0 >/dev/null 2>&1; iptables -F; iptables -P INPUT ACCEPT; netfilter-persistent save >/dev/null 2>&1; echo "iptables执行开放所有端口"; fi
     ins; cip

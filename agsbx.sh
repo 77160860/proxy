@@ -102,7 +102,7 @@ EOF
 
     if [ -n "$trp" ]; then
         if [ -z "$port_tr" ] && [ ! -e "$HOME/agsbx/port_tr" ]; then port_tr=$(shuf -i 10000-65535 -n 1); echo "$port_tr" > "$HOME/agsbx/port_tr"; elif [ -n "$port_tr" ]; then echo "$port_tr" > "$HOME/agsbx/port_tr"; fi
-        port_tr=$(cat "$HOME/agsbx/port_tr"); echo "Trojan-ws (Sing-box) 端口：$port_tr"
+        port_tr=$(cat "$HOME/agsbx/port_tr"); echo "Trojan-ws端口：$port_tr"
         cat >> "$HOME/agsbx/sb.json" <<EOF
 {"type": "trojan", "tag": "trojan-ws-sb", "listen": "::", "listen_port": ${port_tr},"users": [ { "password": "${uuid}" } ],"transport": { "type": "ws", "path": "/${uuid}-tr" }},
 EOF

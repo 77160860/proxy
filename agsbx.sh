@@ -3,30 +3,30 @@ export LANG=en_US.UTF-8
 [ -z "${trpt+x}" ] || { trp=yes; vmag=yes; }
 [ -z "${hypt+x}" ] || hyp=yes
 [ -z "${vmpt+x}" ] || { vmp=yes; vmag=yes; }
-[ -z "${sopt+x}" ] || sop=yes
+[ -z "${vlrt+x}" ] || vlr=yes
 if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -q 'agsbx/sing-box' || pgrep -f 'agsbx/sing-box' >/dev/null 2>&1; then
     if [ "$1" = "rep" ]; then
-        [ "$sop" = yes ] || [ "$vmp" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || { echo "提示：rep重置协议时，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
+        [ "$vlr" = yes ] || [ "$vmp" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || { echo "提示：rep重置协议时，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
     fi
 else
     if [ "$1" != "del" ]; then
-        [ "$sop" = yes ] || [ "$vmp" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || { echo "提示：未安装argosbx脚本，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
+        [ "$vlr" = yes ] || [ "$vmp" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || { echo "提示：未安装argosbx脚本，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
     fi
 fi
-export uuid=${uuid:-''}; export port_vm_ws=${vmpt:-''}; export port_tr=${trpt:-''}; export port_hy2=${hypt:-''}; export port_so=${sopt:-''}; export cdnym=${cdnym:-''}; export argo=${argo:-''}; export ARGO_DOMAIN=${agn:-''}; export ARGO_AUTH=${agk:-''}; export ippz=${ippz:-''}; export name=${name:-''}; export oap=${oap:-''}
+export uuid=${uuid:-''}; export port_vm_ws=${vmpt:-''}; export port_tr=${trpt:-''}; export port_hy2=${hypt:-''}; export port_vlr=${vlrt:-''}; export cdnym=${cdnym:-''}; export argo=${argo:-''}; export ARGO_DOMAIN=${agn:-''}; export ARGO_AUTH=${agk:-''}; export ippz=${ippz:-''}; export name=${name:-''}; export oap=${oap:-''}
 v46url="https://icanhazip.com"
 agsbxurl="https://raw.githubusercontent.com/77160860/proxy/main/agsbx.sh"
 showmode(){
     echo "Argosbx脚本 (Sing-box内核版)"
     echo "主脚本：bash <(curl -Ls ${agsbxurl}) 或 bash <(wget -qO- ${agsbxurl})"
     echo "显示节点信息命令：agsbx list"
-    echo "重置变量组命令：自定义协议变量组 agsbx rep"
-    echo "更新Sing-box内核命令：agsbx ups"
+    echo "重置变量组命令：agsbx rep"
+    echo "更新Singbox内核命令：agsbx ups"
     echo "重启脚本命令：agsbx res"
     echo "卸载脚本命令：agsbx del"
     echo "---------------------------------------------------------"
 }
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"; echo "Argosbx一键无交互脚本💣 (Sing-box内核版)"; echo "当前版本：V25.12.12 (精简版)"; echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"; echo "Argosbx一键无交互脚本💣 (Sing-box内核版)"; echo "当前版本：V25.12.12"; echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 hostname=$(uname -a | awk '{print $2}'); op=$(cat /etc/redhat-release 2>/dev/null || cat /etc/os-release 2>/dev/null | grep -i pretty_name | cut -d \" -f2); case $(uname -m) in aarch64) cpu=arm64;; x86_64) cpu=amd64;; *) echo "目前脚本不支持$(uname -m)架构" && exit; esac; mkdir -p "$HOME/agsbx"
 v4v6(){
     v4=$( (curl -s4m5 -k "$v46url" 2>/dev/null) || (wget -4 -qO- --tries=2 "$v46url" 2>/dev/null) )
@@ -90,11 +90,14 @@ EOF
 {"type": "vmess", "tag": "vmess-sb", "listen": "::", "listen_port": ${port_vm_ws},"users": [ { "uuid": "${uuid}", "alterId": 0 } ],"transport": { "type": "ws", "path": "/${uuid}-vm" }},
 EOF
     fi
-    if [ -n "$sopt" ]; then
-        if [ -z "$port_so" ] && [ ! -e "$HOME/agsbx/port_so" ]; then port_so=$(shuf -i 10000-65535 -n 1); echo "$port_so" > "$HOME/agsbx/port_so"; elif [ -n "$port_so" ]; then echo "$port_so" > "$HOME/agsbx/port_so"; fi
-        port_so=$(cat "$HOME/agsbx/port_so"); echo "Socks5端口：$port_so"
+    if [ -n "$vlr" ]; then
+        if [ -z "$port_vlr" ] && [ ! -e "$HOME/agsbx/port_vlr" ]; then port_vlr=$(shuf -i 10000-65535 -n 1); echo "$port_vlr" > "$HOME/agsbx/port_vlr"; elif [ -n "$port_vlr" ]; then echo "$port_vlr" > "$HOME/agsbx/port_vlr"; fi
+        port_vlr=$(cat "$HOME/agsbx/port_vlr"); echo "VLESS-Reality-Vision端口：$port_vlr"
+        if [ ! -f "$HOME/agsbx/reality.key" ]; then "$HOME/agsbx/sing-box" generate reality-keypair > "$HOME/agsbx/reality.key"; fi
+        private_key=$(sed -n '1p' "$HOME/agsbx/reality.key" | awk '{print $2}')
+        short_id=$(openssl rand -hex 8); echo "$short_id" > "$HOME/agsbx/short_id"
         cat >> "$HOME/agsbx/sb.json" <<EOF
-{"tag": "socks5-sb", "type": "socks", "listen": "::", "listen_port": ${port_so},"users": [ { "username": "${uuid}", "password": "${uuid}" } ]},
+{"type": "vless", "tag": "vless-reality-vision-sb", "listen": "::", "listen_port": ${port_vlr},"users": [{"uuid": "${uuid}","flow": "xtls-rprx-vision"}],"tls": {"enabled": true,"server_name": "www.ua.edu","reality": {"enabled": true,"handshake": {"server": "www.ua.edu","server_port": 443},"private_key": "${private_key}","short_id": "${short_id}"}}},
 EOF
     fi
 }
@@ -187,7 +190,7 @@ EOF
     sleep 5; echo
     if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(sing-box|c)' || pgrep -f 'agsbx/(sing-box|c)' >/dev/null 2>&1 ; then
         [ -f ~/.bashrc ] || touch ~/.bashrc; sed -i '/agsbx/d' ~/.bashrc; SCRIPT_PATH="$HOME/bin/agsbx"; mkdir -p "$HOME/bin"; (curl -sL "$agsbxurl" -o "$SCRIPT_PATH") || (wget -qO "$SCRIPT_PATH" "$agsbxurl"); chmod +x "$SCRIPT_PATH"
-        if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then echo "if ! pgrep -f 'agsbx/sing-box' >/dev/null 2>&1; then export cdnym=\"${cdnym}\" name=\"${name}\" ippz=\"${ippz}\" argo=\"${argo}\" uuid=\"${uuid}\" $vmp=\"${port_vm_ws}\" $trp=\"${port_tr}\" $hyp=\"${port_hy2}\" agn=\"${ARGO_DOMAIN}\" agk=\"${ARGO_AUTH}\"; bash "$HOME/bin/agsbx"; fi" >> ~/.bashrc; fi
+        if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then echo "if ! pgrep -f 'agsbx/sing-box' >/dev/null 2>&1; then export cdnym=\"${cdnym}\" name=\"${name}\" ippz=\"${ippz}\" argo=\"${argo}\" uuid=\"${uuid}\" $vmp=\"${port_vm_ws}\" $trp=\"${port_tr}\" $hyp=\"${port_hy2}\" $vlr=\"${port_vlr}\" agn=\"${ARGO_DOMAIN}\" agk=\"${ARGO_AUTH}\"; bash "$HOME/bin/agsbx"; fi" >> ~/.bashrc; fi
         sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc; echo 'export PATH="$HOME/bin:$PATH"' >> "$HOME/.bashrc"; grep -qxF 'source ~/.bashrc' ~/.bash_profile 2>/dev/null || echo 'source ~/.bashrc' >> ~/.bash_profile; . ~/.bashrc 2>/dev/null
         crontab -l > /tmp/crontab.tmp 2>/dev/null
         if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then sed -i '/agsbx\/sing-box/d' /tmp/crontab.tmp; echo '@reboot sleep 10 && nohup $HOME/agsbx/sing-box run -c $HOME/agsbx/sb.json >/dev/null 2>&1 &' >> /tmp/crontab.tmp; fi
@@ -218,6 +221,13 @@ cip(){
     ipchange; rm -rf "$HOME/agsbx/jh.txt"; uuid=$(cat "$HOME/agsbx/uuid"); server_ip=$(cat "$HOME/agsbx/server_ip.log"); sxname=$(cat "$HOME/agsbx/name" 2>/dev/null);
     echo "*********************************************************"; echo "Argosbx脚本输出节点配置如下："; echo;
     if grep -q "hy2-sb" "$HOME/agsbx/sb.json"; then port_hy2=$(cat "$HOME/agsbx/port_hy2"); hy2_link="hysteria2://$uuid@$server_ip:$port_hy2?security=tls&alpn=h3&insecure=1&sni=www.bing.com#${sxname}hy2-$hostname"; echo "💣【 Hysteria2 】(直接连接)"; echo "$hy2_link" | tee -a "$HOME/agsbx/jh.txt"; echo; fi
+    if grep -q "vless-reality-vision-sb" "$HOME/agsbx/sb.json"; then
+        port_vlr=$(cat "$HOME/agsbx/port_vlr")
+        public_key=$(sed -n '2p' "$HOME/agsbx/reality.key" | awk '{print $2}')
+        short_id=$(cat "$HOME/agsbx/short_id")
+        vless_link="vless://${uuid}@${server_ip}:${port_vlr}?encryption=none&security=reality&sni=www.ua.edu&flow=xtls-rprx-vision&publicKey=${public_key}&shortId=${short_id}#${sxname}vless-reality-$hostname"
+        echo "💣【 VLESS-Reality-Vision 】(直接连接)"; echo "$vless_link" | tee -a "$HOME/agsbx/jh.txt"; echo;
+    fi
     argodomain=$(cat "$HOME/agsbx/sbargoym.log" 2>/dev/null); [ -z "$argodomain" ] && argodomain=$(grep -a trycloudflare.com "$HOME/agsbx/argo.log" 2>/dev/null | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')
     if [ -n "$argodomain" ]; then
         vlvm=$(cat $HOME/agsbx/vlvm 2>/dev/null); uuid=$(cat "$HOME/agsbx/uuid")
@@ -235,7 +245,7 @@ cip(){
     echo; echo "聚合节点: cat $HOME/agsbx/jh.txt"; echo "========================================================="; echo "相关快捷方式如下："; showmode
 }
 cleandel(){
-    for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/exe" 2>/dev/null); if echo "$TARGET" | grep -qE '/agsbx/c|/agsbx/sing-box'; then kill "$(basename "$P")" 2>/dev/null; fi; fi; done
+    for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/e_xe" 2>/dev/null); if echo "$TARGET" | grep -qE '/agsbx/c|/agsbx/sing-box'; then kill "$(basename "$P")" 2>/dev/null; fi; fi; done
     kill -15 $(pgrep -f 'agsbx/c' 2>/dev/null) $(pgrep -f 'agsbx/sing-box' 2>/dev/null) >/dev/null 2>&1
     sed -i '/agsbx/d' ~/.bashrc; sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc; . ~/.bashrc 2>/dev/null
     crontab -l > /tmp/crontab.tmp 2>/dev/null; sed -i '/agsbx/d' /tmp/crontab.tmp; crontab /tmp/crontab.tmp >/dev/null 2>&1; rm /tmp/crontab.tmp; rm -rf "$HOME/bin/agsbx"

@@ -40,7 +40,7 @@ set_sbyx(){
     if [ "$v4_ok" = true ] && [ "$v6_ok" = true ]; then sbyx='prefer_ipv6'; elif [ "$v4_ok" = true ] && [ "$v6_ok" != true ]; then sbyx='ipv4_only'; elif [ "$v4_ok" != true ] && [ "$v6_ok" = true ]; then sbyx='ipv6_only'; else sbyx='prefer_ipv6'; fi
 }
 upsingbox(){
-    url="https://github.com/yonggekkk/argosbx/releases/download/argosbx/sing-box-$cpu"
+    url="https://github.com/77160860/proxy/releases/download/singbox/sing-box-$cpu"
     out="$HOME/agsbx/sing-box"
     (curl -Lo "$out" -# --retry 2 "$url") || (wget -O "$out" --tries=2 "$url")
     chmod +x "$HOME/agsbx/sing-box"

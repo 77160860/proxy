@@ -20,13 +20,13 @@ showmode(){
     echo "Argosbx脚本 (Sing-box内核版)"
     echo "主脚本：bash <(curl -Ls ${agsbxurl}) 或 bash <(wget -qO- ${agsbxurl})"
     echo "显示节点信息命令：agsbx list"
-    echo "重置变量组命令：agsbx rep"
-    echo "更新Singbox内核命令：agsbx ups"
+    echo "重置变量组命令：自定义协议变量组 agsbx rep"
+    echo "更新Sing-box内核命令：agsbx ups"
     echo "重启脚本命令：agsbx res"
     echo "卸载脚本命令：agsbx del"
     echo "---------------------------------------------------------"
 }
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"; echo "Argosbx一键无交互脚本💣 (Sing-box内核版)"; echo "当前版本：V25.12.12"; echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"; echo "Argosbx一键无交互脚本💣 (Sing-box内核版)"; echo "当前版本：V25.12.13 (Reality修正版)"; echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 hostname=$(uname -a | awk '{print $2}'); op=$(cat /etc/redhat-release 2>/dev/null || cat /etc/os-release 2>/dev/null | grep -i pretty_name | cut -d \" -f2); case $(uname -m) in aarch64) cpu=arm64;; x86_64) cpu=amd64;; *) echo "目前脚本不支持$(uname -m)架构" && exit; esac; mkdir -p "$HOME/agsbx"
 v4v6(){
     v4=$( (curl -s4m5 -k "$v46url" 2>/dev/null) || (wget -4 -qO- --tries=2 "$v46url" 2>/dev/null) )
@@ -97,7 +97,7 @@ EOF
         private_key=$(sed -n '1p' "$HOME/agsbx/reality.key" | awk '{print $2}')
         short_id=$(openssl rand -hex 8); echo "$short_id" > "$HOME/agsbx/short_id"
         cat >> "$HOME/agsbx/sb.json" <<EOF
-{"type": "vless", "tag": "vless-reality-vision-sb", "listen": "::", "listen_port": ${port_vlr},"users": [{"uuid": "${uuid}","flow": "xtls-rprx-vision"}],"tls": {"enabled": true,"server_name": "www.ua.edu","reality": {"enabled": true,"handshake": {"server": "www.ua.edu","server_port": 443},"private_key": "${private_key}","short_id": "${short_id}"}}},
+{"type": "vless", "tag": "vless-reality-vision-sb", "listen": "::", "listen_port": ${port_vlr},"sniff": true,"users": [{"uuid": "${uuid}","flow": "xtls-rprx-vision"}],"tls": {"enabled": true,"server_name": "www.ua.edu","reality": {"enabled": true,"handshake": {"server": "www.ua.edu","server_port": 443},"private_key": "${private_key}","short_id": ["${short_id}"]}}},
 EOF
     fi
 }
@@ -225,7 +225,7 @@ cip(){
         port_vlr=$(cat "$HOME/agsbx/port_vlr")
         public_key=$(sed -n '2p' "$HOME/agsbx/reality.key" | awk '{print $2}')
         short_id=$(cat "$HOME/agsbx/short_id")
-        vless_link="vless://${uuid}@${server_ip}:${port_vlr}?encryption=none&security=reality&sni=www.ua.edu&flow=xtls-rprx-vision&publicKey=${public_key}&shortId=${short_id}#${sxname}vless-reality-$hostname"
+        vless_link="vless://${uuid}@${server_ip}:${port_vlr}?encryption=none&security=reality&sni=www.ua.edu&fp=chrome&flow=xtls-rprx-vision&publicKey=${public_key}&shortId=${short_id}#${sxname}vless-reality-$hostname"
         echo "💣【 VLESS-Reality-Vision 】(直接连接)"; echo "$vless_link" | tee -a "$HOME/agsbx/jh.txt"; echo;
     fi
     argodomain=$(cat "$HOME/agsbx/sbargoym.log" 2>/dev/null); [ -z "$argodomain" ] && argodomain=$(grep -a trycloudflare.com "$HOME/agsbx/argo.log" 2>/dev/null | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')
@@ -245,7 +245,7 @@ cip(){
     echo; echo "聚合节点: cat $HOME/agsbx/jh.txt"; echo "========================================================="; echo "相关快捷方式如下："; showmode
 }
 cleandel(){
-    for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/e_xe" 2>/dev/null); if echo "$TARGET" | grep -qE '/agsbx/c|/agsbx/sing-box'; then kill "$(basename "$P")" 2>/dev/null; fi; fi; done
+    for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/exe" 2>/dev/null); if echo "$TARGET" | grep -qE '/agsbx/c|/agsbx/sing-box'; then kill "$(basename "$P")" 2>/dev/null; fi; fi; done
     kill -15 $(pgrep -f 'agsbx/c' 2>/dev/null) $(pgrep -f 'agsbx/sing-box' 2>/dev/null) >/dev/null 2>&1
     sed -i '/agsbx/d' ~/.bashrc; sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc; . ~/.bashrc 2>/dev/null
     crontab -l > /tmp/crontab.tmp 2>/dev/null; sed -i '/agsbx/d' /tmp/crontab.tmp; crontab /tmp/crontab.tmp >/dev/null 2>&1; rm /tmp/crontab.tmp; rm -rf "$HOME/bin/agsbx"

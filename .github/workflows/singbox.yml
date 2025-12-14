@@ -1,4 +1,4 @@
-name: Build Mini sing-box Core for Linux
+name: Build singbox
 on:
   workflow_dispatch:
     inputs:
@@ -8,9 +8,15 @@ on:
         required: false
         default: 'reF1nd-main'
       build_version:
-        description: 'Version string to embed (constant.Version) [required]'
+        description: 'Version string to embed (constant.Version)'
         type: string
         required: true
+      # --- CRITICAL CHANGE: Added input for a fixed release tag ---
+      release_tag:
+        description: 'The exact tag for the GitHub Release (e.g., r1.12.13). This determines the final URL.'
+        type: string
+        required: true
+        default: 'r1.12.13' # Set your desired fixed tag here
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,9 +32,6 @@ jobs:
           echo "REF=$REF" >> $GITHUB_ENV
           echo "UPSTREAM_REPO=$UPSTREAM_REPO" >> $GITHUB_ENV
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "ref=$REF" >> $GITHUB_OUTPUT
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "upstream=$UPSTREAM_REPO" >> $GITHUB_OUTPUT
       - name: Resolve SHA (tag/branch/commit)
         id: upstream
         run: |
@@ -59,22 +62,18 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
-      # --- MODIFIED: Removed ZIP logic, simplified output filenames ---
       - name: Define build metadata
         id: meta
         run: |
           TAGS_LINUX="with_quic with_utls with_acme"
           OUT_LINUX_ARM64="sing-box-arm64"
           OUT_LINUX_AMD64="sing-box-amd64"
-          TAG="sing-box-${VERSION}-${SHORT_SHA}"
           echo "TAGS_LINUX=$TAGS_LINUX" >> $GITHUB_ENV
           echo "OUT_LINUX_ARM64=$OUT_LINUX_ARM64" >> $GITHUB_ENV
           echo "OUT_LINUX_AMD64=$OUT_LINUX_AMD64" >> $GITHUB_ENV
-          echo "TAG=$TAG" >> $GITHUB_ENV
           echo "tags_linux=$TAGS_LINUX" >> $GITHUB_OUTPUT
           echo "out_linux_arm64=$OUT_LINUX_ARM64" >> $GITHUB_OUTPUT
           echo "out_linux_amd64=$OUT_LINUX_AMD64" >> $GITHUB_OUTPUT
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
       - name: Build sing-box (linux arm64)
         env:
           GOOS: linux
@@ -102,30 +101,20 @@ jobs:
           file "${OUT_LINUX_ARM64}" || true
           file "${OUT_LINUX_AMD64}" || true
           ls -lh "${OUT_LINUX_ARM64}" "${OUT_LINUX_AMD64}"
-      
-      # --- REMOVED: All "Package zip" steps have been deleted ---
-
-      # --- MODIFIED: Uploading raw binaries instead of ZIPs ---
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: sing-box-minimal-linux-${{ steps.upstream.outputs.short }}
-          path: |
-            ${{ steps.meta.outputs.out_linux_amd64 }}
-            ${{ steps.meta.outputs.out_linux_arm64 }}
-            
-      # --- MODIFIED: Releasing raw binaries directly ---
-      - name: Release
+          
+      # --- CRITICAL CHANGE: This step now uses the fixed tag from input ---
+      - name: Create or Update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.meta.outputs.tag }}
-          name: sing-box minimal (${{ steps.upstream.outputs.short }})
+          # This uses the manually provided tag to ensure a fixed URL
+          tag_name: ${{ github.event.inputs.release_tag }}
+          name: Release ${{ github.event.inputs.release_tag }} (Source: ${{ steps.upstream.outputs.short }})
           body: |
             Source: reF1nd/sing-box @ ${{ env.VERSION }}
             GOOS/GOARCH: linux/amd64, linux/arm64
             Tags:
               linux: ${{ steps.meta.outputs.tags_linux }}
-          prerelease: true
+          # This action will automatically update the release if the tag already exists
           files: |
             ${{ steps.meta.outputs.out_linux_amd64 }}
             ${{ steps.meta.outputs.out_linux_arm64 }}

@@ -71,8 +71,8 @@ jobs:
         id: meta
         run: |
           # Tags per-OS
-          TAGS_LINUX="with_quic with_utls with_gVisor with_clash_api"
-          TAGS_WIN64="with_quic with_utls with_gVisor with_clash_api with_purego"
+          TAGS_LINUX="with_quic with_utls with_gvisor with_clash_api"
+          TAGS_WIN64="with_quic with_utls with_gvisor with_clash_api with_purego"
 
           # linux/arm64
           OUT_LINUX="sing-box-linux-arm64-${VERSION}-${SHORT_SHA}"

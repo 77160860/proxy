@@ -43,7 +43,7 @@
   },
   "inbounds": [
     {"tag": "mixed-in", "type": "mixed", "listen": "0.0.0.0", "listen_port": 7890},
-    {"tag": "tun-in", "type": "tun", "address": ["172.31.0.1/30"], "mtu": 9000, "auto_route": true, "strict_route": true, "route_exclude_address": ["192.168.0.0/16", "fc00::/7"]}
+    {"tag": "tun-in", "type": "tun", "address": ["172.31.0.1/30"], "mtu": 1484, "auto_route": true, "strict_route": true, "route_exclude_address": ["192.168.0.0/16", "fc00::/7"]}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"], "interrupt_exist_connections": true},

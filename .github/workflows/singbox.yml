@@ -1,4 +1,4 @@
-name: Build singbox
+name: Build and Release to Fixed URL
 on:
   workflow_dispatch:
     inputs:

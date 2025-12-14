@@ -26,7 +26,7 @@ showmode(){
     echo "卸载脚本命令：agsbx del"
     echo "---------------------------------------------------------"
 }
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"; echo "Argosbx一键无交互脚本💣 (Sing-box内核版)"; echo "当前版本：V25.12.13 (Reality修正版)"; echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"; echo "Argosbx一键无交互脚本💣 (Sing-box内核版)"; echo "当前版本：V25.12.13"; echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 hostname=$(uname -a | awk '{print $2}'); op=$(cat /etc/redhat-release 2>/dev/null || cat /etc/os-release 2>/dev/null | grep -i pretty_name | cut -d \" -f2); case $(uname -m) in aarch64) cpu=arm64;; x86_64) cpu=amd64;; *) echo "目前脚本不支持$(uname -m)架构" && exit; esac; mkdir -p "$HOME/agsbx"
 v4v6(){
     v4=$( (curl -s4m5 -k "$v46url" 2>/dev/null) || (wget -4 -qO- --tries=2 "$v46url" 2>/dev/null) )
@@ -78,7 +78,7 @@ EOF
     fi
     if [ -n "$trp" ]; then
         if [ -z "$port_tr" ] && [ ! -e "$HOME/agsbx/port_tr" ]; then port_tr=$(shuf -i 10000-65535 -n 1); echo "$port_tr" > "$HOME/agsbx/port_tr"; elif [ -n "$port_tr" ]; then echo "$port_tr" > "$HOME/agsbx/port_tr"; fi
-        port_tr=$(cat "$HOME/agsbx/port_tr"); echo "Trojan-ws端口 (Argo本地使用)：$port_tr"
+        port_tr=$(cat "$HOME/agsbx/port_tr"); echo "Trojan端口(Argo本地使用)：$port_tr"
         cat >> "$HOME/agsbx/sb.json" <<EOF
 {"type": "trojan", "tag": "trojan-ws-sb", "listen": "::", "listen_port": ${port_tr},"users": [ { "password": "${uuid}" } ],"transport": { "type": "ws", "path": "/${uuid}-tr" }},
 EOF

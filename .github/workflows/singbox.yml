@@ -1,0 +1,199 @@
+name: Build Mini sing-box Core
+
+on:
+  # 1. 当一个以 'v' 开头的标签被推送时自动触发 (例如 v1.8.0, v1.9.0-beta.1)
+  push:
+    tags:
+      - 'v*'
+  
+  # 2. 保留手动触发功能，用于测试或特殊构建
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'sing-box 源代码 (分支/标签/提交哈希)'
+        type: string
+        required: true
+        default: 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # 允许创建 Release
+    steps:
+      # 步骤 1: 准备上下文，确定要检出的 Git 引用 (ref)
+      - name: Prepare context
+        id: prep
+        run: |
+          UPSTREAM_REPO="https://github.com/reF1nd/sing-box.git"
+          # 如果是标签触发，REF 就是标签名；如果是手动触发，REF 来自用户输入
+          REF="${{ github.ref_type == 'tag' && github.ref_name || github.event.inputs.version }}"
+          echo "REF=$REF" >> $GITHUB_ENV
+          echo "UPSTREAM_REPO=$UPSTREAM_REPO" >> $GITHUB_ENV
+          echo "ref=$REF" >> $GITHUB_OUTPUT
+          echo "upstream=$UPSTREAM_REPO" >> $GITHUB_OUTPUT
+
+      # 步骤 2: 解析 Git 引用，获取完整的提交哈希 (SHA)
+      - name: Resolve SHA (tag/branch/commit)
+        id: upstream
+        run: |
+          set -e
+          SHA=$(git ls-remote --heads "${UPSTREAM_REPO}" "refs/heads/${REF}" | cut -f1)
+          if [ -z "$SHA" ]; then
+            SHA=$(git ls-remote --tags "${UPSTREAM_REPO}" "refs/tags/${REF}" | cut -f1)
+          fi
+          if [ -z "$SHA" ]; then
+            SHA=$(git ls-remote "${UPSTREAM_REPO}" "${REF}" | cut -f1)
+          fi
+          if [ -z "$SHA" ]; then
+            echo "ERROR: REF '${REF}' not found (branch/tag/commit)."
+            exit 1
+          fi
+          SHORT="${SHA:0:7}"
+          echo "UPSTREAM_SHA=$SHA" >> $GITHUB_ENV
+          echo "SHORT_SHA=$SHORT" >> $GITHUB_ENV
+          echo "sha=$SHA" >> $GITHUB_OUTPUT
+          echo "short=$SHORT" >> $GITHUB_OUTPUT
+      
+      # 步骤 3: 检出指定提交哈希的上游代码
+      - name: Checkout upstream
+        uses: actions/checkout@v4
+        with:
+          repository: reF1nd/sing-box # 注意：这里应为 sing-box 官方或你使用的 fork
+          ref: ${{ steps.upstream.outputs.sha }}
+          fetch-depth: 1
+
+      # 步骤 4: 自动确定版本号
+      - name: Determine Version
+        id: versioning
+        run: |
+          # 如果是标签触发, 版本号就是标签名 (并去掉 'v' 前缀)
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            VERSION="${{ github.ref_name#v }}"
+          else
+            # 否则, 版本号由 分支名-短哈希 组成
+            # 清理分支名中的 "/" 字符
+            REF_SAFE=$(echo "${{ steps.prep.outputs.ref }}" | sed 's/\//-/g')
+            VERSION="${REF_SAFE}-${{ steps.upstream.outputs.short }}"
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Generated version: $VERSION"
+
+      # 步骤 5: 设置 Go 环境
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      # 步骤 6: 定义构建元数据 (文件名等)
+      # 此步骤现在将自动使用上面步骤生成的 ${VERSION} 环境变量
+      - name: Define build metadata
+        id: meta
+        run: |
+          SHORT_SHA="${{ steps.upstream.outputs.short }}"
+          VERSION="${{ env.VERSION }}"
+          
+          # Tags per-OS
+          TAGS_LINUX="with_quic with_utls with_gvisor with_clash_api"
+          TAGS_WIN64="with_quic with_utls with_gvisor with_clash_api with_purego"
+          
+          # linux/arm64
+          OUT_LINUX="sing-box-linux-arm64-v${VERSION}"
+          ZIP_LINUX="${OUT_LINUX}.zip"
+          # windows/amd64
+          OUT_WIN64="sing-box-windows-amd64-v${VERSION}.exe"
+          ZIP_WIN64="sing-box-windows-amd64-v${VERSION}.zip"
+          
+          echo "TAGS_LINUX=$TAGS_LINUX" >> $GITHUB_ENV
+          echo "TAGS_WIN64=$TAGS_WIN64" >> $GITHUB_ENV
+          echo "OUT_LINUX=$OUT_LINUX" >> $GITHUB_ENV
+          echo "ZIP_LINUX=$ZIP_LINUX" >> $GITHUB_ENV
+          echo "OUT_WIN64=$OUT_WIN64" >> $GITHUB_ENV
+          echo "ZIP_WIN64=$ZIP_WIN64" >> $GITHUB_ENV
+          
+          echo "tags_linux=$TAGS_LINUX" >> $GITHUB_OUTPUT
+          echo "tags_win64=$TAGS_WIN64" >> $GITHUB_OUTPUT
+          echo "out_linux=$OUT_LINUX" >> $GITHUB_OUTPUT
+          echo "zip_linux=$ZIP_LINUX" >> $GITHUB_OUTPUT
+          echo "out_win64=$OUT_WIN64" >> $GITHUB_OUTPUT
+          echo "zip_win64=$ZIP_WIN64" >> $GITHUB_OUTPUT
+
+      # 步骤 7: 构建 sing-box (linux arm64)，将自动确定的版本号写入
+      - name: Build sing-box (linux arm64 minimal)
+        env:
+          GOOS: linux
+          GOARCH: arm64
+        run: |
+          go build \
+            -trimpath \
+            -o "${{ env.OUT_LINUX }}" \
+            -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${{ env.VERSION }}" \
+            -tags="${{ env.TAGS_LINUX }}" \
+            ./cmd/sing-box
+
+      # 步骤 8: 构建 sing-box (windows amd64)，将自动确定的版本号写入
+      - name: Build sing-box (windows amd64 minimal)
+        env:
+          CGO_ENABLED: "0" # Windows 必须禁用 CGO
+          GOOS: windows
+          GOARCH: amd64
+        run: |
+          go build \
+            -trimpath \
+            -o "${{ env.OUT_WIN64 }}" \
+            -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${{ env.VERSION }}" \
+            -tags="${{ env.TAGS_WIN64 }}" \
+            ./cmd/sing-box
+
+      # ... (验证和打包步骤保持不变，但使用新的文件名变量) ...
+
+      - name: Verify arch
+        run: |
+          file "${{ env.OUT_LINUX }}" || true
+          file "${{ env.OUT_WIN64 }}" || true
+          ls -lh "${{ env.OUT_LINUX }}" "${{ env.OUT_WIN64 }}"
+          
+      - name: Package zip (linux)
+        run: |
+          set -euo pipefail
+          mv "${{ env.OUT_LINUX }}" sing-box
+          zip -9 -j "${{ env.ZIP_LINUX }}" sing-box
+          ls -lh "${{ env.ZIP_LINUX }}"
+          rm -f sing-box
+
+      - name: Package zip (windows amd64)
+        run: |
+          set -euo pipefail
+          mv "${{ env.OUT_WIN64 }}" sing-box.exe
+          zip -9 -j "${{ env.ZIP_WIN64 }}" sing-box.exe
+          ls -lh "${{ env.ZIP_WIN64 }}"
+          rm -f sing-box.exe
+      
+      # 步骤 9: 上传构建产物 (对所有构建都执行)
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sing-box-minimal-v${{ env.VERSION }}
+          path: |
+            ${{ env.ZIP_LINUX }}
+            ${{ env.ZIP_WIN64 }}
+
+      # 步骤 10: 创建 Release (仅当由标签触发时执行)
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        # 条件判断：只有当触发事件是推送一个 'v' 开头的标签时才运行此步骤
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          tag_name: ${{ github.ref_name }} # Release 的标签使用触发工作流的标签
+          name: sing-box v${{ env.VERSION }}
+          body: |
+            Source: ${{ steps.prep.outputs.upstream }} @ ${{ steps.upstream.outputs.short }}
+            GOOS/GOARCH: linux/arm64, windows/amd64
+            Tags:
+              linux: ${{ env.TAGS_LINUX }}
+              windows: ${{ env.TAGS_WIN64 }}
+          prerelease: false # 正式版标签，所以设为 false
+          files: |
+            ${{ env.ZIP_LINUX }}
+            ${{ env.ZIP_WIN64 }}

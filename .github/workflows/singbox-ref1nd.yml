@@ -110,14 +110,14 @@ jobs:
         env:
           GOOS: linux
           GOARCH: arm64
-          CGO_ENABLED: "0" # <-- CRITICAL FIX: Statically link for maximum compatibility
+          CGO_ENABLED: "0"
         run: |
           go build -trimpath -o "${OUT_LINUX_ARM64}" -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" -tags="${TAGS_LINUX}" ./cmd/sing-box
       - name: Build sing-box (linux amd64)
         env:
           GOOS: linux
           GOARCH: amd64
-          CGO_ENABLED: "0" # <-- CRITICAL FIX: Statically link for maximum compatibility
+          CGO_ENABLED: "0"
         run: |
           go build -trimpath -o "${OUT_LINUX_AMD64}" -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" -tags="${TAGS_LINUX}" ./cmd/sing-box
       - name: Build sing-box (windows arm64)
@@ -176,17 +176,12 @@ jobs:
           tag_name: ${{ steps.meta.outputs.tag }}
           name: singbox lite (${{ env.VERSION }})
           body: |
-            Source Ref: ${{ env.REF }}
+            Source: ${{ env.REF }}
             Version: ${{ env.VERSION }}
             Commit: ${{ steps.upstream.outputs.short }}
-            GOOS/GOARCH:
-            - linux/arm64
-            - linux/amd64
-            - windows/arm64
-            - windows/amd64
-            Tags:
-            - **Linux**: `${{ steps.meta.outputs.tags_linux }}`
-            - **Windows**: `${{ steps.meta.outputs.tags_windows }}`
+            GOOS/GOARCH: linux:arm64/amd64 windows:arm64/amd64
+            Tags Linux: ${{ steps.meta.outputs.tags_linux }}
+            Tags Windows: ${{ steps.meta.outputs.tags_windows }}
           prerelease: true
           files: |
             ${{ steps.meta.outputs.zip_linux_arm64 }}

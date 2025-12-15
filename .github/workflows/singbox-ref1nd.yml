@@ -73,26 +73,17 @@ jobs:
       - name: Define build metadata
         id: meta
         run: |
-          # Define Tags for each OS
           TAGS_LINUX="with_gvisor with_quic with_utls with_acme with_clash_api badlinkname tfogo_checklinkname0"
           TAGS_WINDOWS="with_gvisor with_quic with_utls with_acme with_clash_api with_purego badlinkname tfogo_checklinkname0"
-          
-          # linux/arm64
           OUT_LINUX_ARM64="sing-box-linux-arm64-${VERSION}-${SHORT_SHA}"
           ZIP_LINUX_ARM64="${OUT_LINUX_ARM64}.zip"
-          # linux/amd64
           OUT_LINUX_AMD64="sing-box-linux-amd64-${VERSION}-${SHORT_SHA}"
           ZIP_LINUX_AMD64="${OUT_LINUX_AMD64}.zip"
-          # windows/arm64
           OUT_WIN_ARM64="sing-box-windows-arm64-${VERSION}-${SHORT_SHA}.exe"
           ZIP_WIN_ARM64="sing-box-windows-arm64-${VERSION}-${SHORT_SHA}.zip"
-          # windows/amd64
           OUT_WIN_AMD64="sing-box-windows-amd64-${VERSION}-${SHORT_SHA}.exe"
           ZIP_WIN_AMD64="sing-box-windows-amd64-${VERSION}-${SHORT_SHA}.zip"
-          
           TAG="sing-box-${VERSION}-${SHORT_SHA}"
-          
-          # Export all variables
           echo "TAGS_LINUX=$TAGS_LINUX" >> $GITHUB_ENV
           echo "TAGS_WINDOWS=$TAGS_WINDOWS" >> $GITHUB_ENV
           echo "OUT_LINUX_ARM64=$OUT_LINUX_ARM64" >> $GITHUB_ENV
@@ -104,7 +95,6 @@ jobs:
           echo "OUT_WIN_AMD64=$OUT_WIN_AMD64" >> $GITHUB_ENV
           echo "ZIP_WIN_AMD64=$ZIP_WIN_AMD64" >> $GITHUB_ENV
           echo "TAG=$TAG" >> $GITHUB_ENV
-          
           echo "tags_linux=$TAGS_LINUX" >> $GITHUB_OUTPUT
           echo "tags_windows=$TAGS_WINDOWS" >> $GITHUB_OUTPUT
           echo "out_linux_arm64=$OUT_LINUX_ARM64" >> $GITHUB_OUTPUT
@@ -120,12 +110,14 @@ jobs:
         env:
           GOOS: linux
           GOARCH: arm64
+          CGO_ENABLED: "0" # <-- CRITICAL FIX: Statically link for maximum compatibility
         run: |
           go build -trimpath -o "${OUT_LINUX_ARM64}" -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" -tags="${TAGS_LINUX}" ./cmd/sing-box
       - name: Build sing-box (linux amd64)
         env:
           GOOS: linux
           GOARCH: amd64
+          CGO_ENABLED: "0" # <-- CRITICAL FIX: Statically link for maximum compatibility
         run: |
           go build -trimpath -o "${OUT_LINUX_AMD64}" -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" -tags="${TAGS_LINUX}" ./cmd/sing-box
       - name: Build sing-box (windows arm64)

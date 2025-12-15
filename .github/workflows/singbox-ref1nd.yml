@@ -1,46 +1,37 @@
-name: Build Mini sing-box Core
-
+name: Build Lite sing-box Core
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'sing-box source (tag/branch/commit)'
-        type: string
-        required: false
-        default: 'reF1nd-main'
-      build_version:
-        description: 'Version string to embed (constant.Version) [required]'
+      source_ref:
+        description: 'Source ref to build (tag/branch/commit)'
         type: string
         required: true
-
+        default: 'reF1nd-main'
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
       - name: Prepare context
         id: prep
         run: |
           UPSTREAM_REPO="https://github.com/reF1nd/sing-box.git"
-          REF="${{ github.event.inputs.version }}"
-          VERSION="${{ github.event.inputs.build_version }}"
-
+          REF="${{ github.event.inputs.source_ref }}"
           echo "REF=$REF" >> $GITHUB_ENV
           echo "UPSTREAM_REPO=$UPSTREAM_REPO" >> $GITHUB_ENV
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "ref=$REF" >> $GITHUB_OUTPUT
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "upstream=$UPSTREAM_REPO" >> $GITHUB_OUTPUT
-
       - name: Resolve SHA (tag/branch/commit)
         id: upstream
         run: |
           set -e
           SHA=$(git ls-remote --heads "${UPSTREAM_REPO}" "refs/heads/${REF}" | cut -f1)
           if [ -z "$SHA" ]; then
-            SHA=$(git ls-remote --tags "${UPSTREAM_REPO}" "${REF}^{}" | cut -f1)
+            SHA=$(git ls-remote --tags "${UPSTREAM_REPO}" "refs/tags/${REF}" | cut -f1)
+          fi
+          if [ -z "$SHA" ]; then
+            SHA=$(git ls-remote --tags "${UPSTREAM_REPO}" "refs/tags/${REF}^{}" | cut -f1)
           fi
           if [ -z "$SHA" ]; then
             SHA=$(git ls-remote "${UPSTREAM_REPO}" "${REF}" | cut -f1)
@@ -54,121 +45,159 @@ jobs:
           echo "SHORT_SHA=$SHORT" >> $GITHUB_ENV
           echo "sha=$SHA" >> $GITHUB_OUTPUT
           echo "short=$SHORT" >> $GITHUB_OUTPUT
-
-      - name: Checkout upstream
+      - name: Checkout upstream with full history
         uses: actions/checkout@v4
         with:
           repository: reF1nd/sing-box
           ref: ${{ steps.upstream.outputs.sha }}
-          fetch-depth: 1
-
+          fetch-depth: 0
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
-
+      - name: Extract, Clean, and Prefix Version
+        id: extract_version
+        run: |
+          RAW_VERSION=$(go run ./cmd/internal/read_tag)
+          if [ -z "$RAW_VERSION" ]; then
+            echo "ERROR: 'go run ./cmd/internal/read_tag' failed to produce a version string."
+            exit 1
+          fi
+          echo "Raw version from tool: $RAW_VERSION"
+          CLEANED_VERSION=$(echo "$RAW_VERSION" | sed 's/-reF1nd$//')
+          echo "Cleaned version: $CLEANED_VERSION"
+          FINAL_VERSION="r${CLEANED_VERSION}"
+          echo "VERSION=$FINAL_VERSION" >> $GITHUB_ENV
+          echo "version=$FINAL_VERSION" >> $GITHUB_OUTPUT
+          echo "Successfully created final version: $FINAL_VERSION"
       - name: Define build metadata
         id: meta
         run: |
-          # Tags per-OS
-          TAGS_LINUX="with_quic with_utls with_gvisor with_clash_api"
-          TAGS_WIN64="with_quic with_utls with_gvisor with_clash_api with_purego"
-
+          # Define Tags for each OS
+          TAGS_LINUX="with_gvisor with_quic with_utls with_acme with_clash_api badlinkname tfogo_checklinkname0"
+          TAGS_WINDOWS="with_gvisor with_quic with_utls with_acme with_clash_api with_purego badlinkname tfogo_checklinkname0"
+          
           # linux/arm64
-          OUT_LINUX="sing-box-linux-arm64-${VERSION}-${SHORT_SHA}"
-          ZIP_LINUX="${OUT_LINUX}.zip"
-
+          OUT_LINUX_ARM64="sing-box-linux-arm64-${VERSION}-${SHORT_SHA}"
+          ZIP_LINUX_ARM64="${OUT_LINUX_ARM64}.zip"
+          # linux/amd64
+          OUT_LINUX_AMD64="sing-box-linux-amd64-${VERSION}-${SHORT_SHA}"
+          ZIP_LINUX_AMD64="${OUT_LINUX_AMD64}.zip"
+          # windows/arm64
+          OUT_WIN_ARM64="sing-box-windows-arm64-${VERSION}-${SHORT_SHA}.exe"
+          ZIP_WIN_ARM64="sing-box-windows-arm64-${VERSION}-${SHORT_SHA}.zip"
           # windows/amd64
-          OUT_WIN64="sing-box-windows-amd64-${VERSION}-${SHORT_SHA}.exe"
-          ZIP_WIN64="sing-box-windows-amd64-${VERSION}-${SHORT_SHA}.zip"
-
+          OUT_WIN_AMD64="sing-box-windows-amd64-${VERSION}-${SHORT_SHA}.exe"
+          ZIP_WIN_AMD64="sing-box-windows-amd64-${VERSION}-${SHORT_SHA}.zip"
+          
           TAG="sing-box-${VERSION}-${SHORT_SHA}"
-
+          
+          # Export all variables
           echo "TAGS_LINUX=$TAGS_LINUX" >> $GITHUB_ENV
-          echo "TAGS_WIN64=$TAGS_WIN64" >> $GITHUB_ENV
-          echo "OUT_LINUX=$OUT_LINUX" >> $GITHUB_ENV
-          echo "ZIP_LINUX=$ZIP_LINUX" >> $GITHUB_ENV
-          echo "OUT_WIN64=$OUT_WIN64" >> $GITHUB_ENV
-          echo "ZIP_WIN64=$ZIP_WIN64" >> $GITHUB_ENV
+          echo "TAGS_WINDOWS=$TAGS_WINDOWS" >> $GITHUB_ENV
+          echo "OUT_LINUX_ARM64=$OUT_LINUX_ARM64" >> $GITHUB_ENV
+          echo "ZIP_LINUX_ARM64=$ZIP_LINUX_ARM64" >> $GITHUB_ENV
+          echo "OUT_LINUX_AMD64=$OUT_LINUX_AMD64" >> $GITHUB_ENV
+          echo "ZIP_LINUX_AMD64=$ZIP_LINUX_AMD64" >> $GITHUB_ENV
+          echo "OUT_WIN_ARM64=$OUT_WIN_ARM64" >> $GITHUB_ENV
+          echo "ZIP_WIN_ARM64=$ZIP_WIN_ARM64" >> $GITHUB_ENV
+          echo "OUT_WIN_AMD64=$OUT_WIN_AMD64" >> $GITHUB_ENV
+          echo "ZIP_WIN_AMD64=$ZIP_WIN_AMD64" >> $GITHUB_ENV
           echo "TAG=$TAG" >> $GITHUB_ENV
-
+          
           echo "tags_linux=$TAGS_LINUX" >> $GITHUB_OUTPUT
-          echo "tags_win64=$TAGS_WIN64" >> $GITHUB_OUTPUT
-          echo "out_linux=$OUT_LINUX" >> $GITHUB_OUTPUT
-          echo "zip_linux=$ZIP_LINUX" >> $GITHUB_OUTPUT
-          echo "out_win64=$OUT_WIN64" >> $GITHUB_OUTPUT
-          echo "zip_win64=$ZIP_WIN64" >> $GITHUB_OUTPUT
+          echo "tags_windows=$TAGS_WINDOWS" >> $GITHUB_OUTPUT
+          echo "out_linux_arm64=$OUT_LINUX_ARM64" >> $GITHUB_OUTPUT
+          echo "zip_linux_arm64=$ZIP_LINUX_ARM64" >> $GITHUB_OUTPUT
+          echo "out_linux_amd64=$OUT_LINUX_AMD64" >> $GITHUB_OUTPUT
+          echo "zip_linux_amd64=$ZIP_LINUX_AMD64" >> $GITHUB_OUTPUT
+          echo "out_win_arm64=$OUT_WIN_ARM64" >> $GITHUB_OUTPUT
+          echo "zip_win_arm64=$ZIP_WIN_ARM64" >> $GITHUB_OUTPUT
+          echo "out_win_amd64=$OUT_WIN_AMD64" >> $GITHUB_OUTPUT
+          echo "zip_win_amd64=$ZIP_WIN_AMD64" >> $GITHUB_OUTPUT
           echo "tag=$TAG" >> $GITHUB_OUTPUT
-
-      - name: Build sing-box (linux arm64 minimal)
+      - name: Build sing-box (linux arm64)
         env:
           GOOS: linux
           GOARCH: arm64
         run: |
-          go build \
-            -trimpath \
-            -o "${OUT_LINUX}" \
-            -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
-            -tags="${TAGS_LINUX}" \
-            ./cmd/sing-box
-
-      - name: Build sing-box (windows amd64 minimal)
+          go build -trimpath -o "${OUT_LINUX_ARM64}" -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" -tags="${TAGS_LINUX}" ./cmd/sing-box
+      - name: Build sing-box (linux amd64)
         env:
-          CGO_ENABLED: "0" # Windows 必须禁用 CGO
-          GOOS: windows
+          GOOS: linux
           GOARCH: amd64
         run: |
-          go build \
-            -trimpath \
-            -o "${OUT_WIN64}" \
-            -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
-            -tags="${TAGS_WIN64}" \
-            ./cmd/sing-box
-
+          go build -trimpath -o "${OUT_LINUX_AMD64}" -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" -tags="${TAGS_LINUX}" ./cmd/sing-box
+      - name: Build sing-box (windows arm64)
+        env:
+          GOOS: windows
+          GOARCH: arm64
+          CGO_ENABLED: "0"
+        run: |
+          go build -trimpath -o "${OUT_WIN_ARM64}" -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" -tags="${TAGS_WINDOWS}" ./cmd/sing-box
+      - name: Build sing-box (windows amd64)
+        env:
+          GOOS: windows
+          GOARCH: amd64
+          CGO_ENABLED: "0"
+        run: |
+          go build -trimpath -o "${OUT_WIN_AMD64}" -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" -tags="${TAGS_WINDOWS}" ./cmd/sing-box
       - name: Verify arch
         run: |
-          file "${OUT_LINUX}" || true
-          file "${OUT_WIN64}" || true
-          ls -lh "${OUT_LINUX}" "${OUT_WIN64}"
-
-      - name: Package zip (linux)
+          file "${OUT_LINUX_ARM64}" || true
+          file "${OUT_LINUX_AMD64}" || true
+          file "${OUT_WIN_ARM64}" || true
+          file "${OUT_WIN_AMD64}" || true
+          ls -lh "${OUT_LINUX_ARM64}" "${OUT_LINUX_AMD64}" "${OUT_WIN_ARM64}" "${OUT_WIN_AMD64}"
+      - name: Package zip (linux arm64)
         run: |
-          set -euo pipefail
-          test -f "${OUT_LINUX}"
-          cp -f "${OUT_LINUX}" sing-box
-          zip -9 -j "${ZIP_LINUX}" sing-box
-          ls -lh "${ZIP_LINUX}"
+          cp -f "${OUT_LINUX_ARM64}" sing-box
+          zip -9 -j "${ZIP_LINUX_ARM64}" sing-box
           rm -f sing-box
-
+      - name: Package zip (linux amd64)
+        run: |
+          cp -f "${OUT_LINUX_AMD64}" sing-box
+          zip -9 -j "${ZIP_LINUX_AMD64}" sing-box
+          rm -f sing-box
+      - name: Package zip (windows arm64)
+        run: |
+          cp -f "${OUT_WIN_ARM64}" sing-box.exe
+          zip -9 -j "${ZIP_WIN_ARM64}" sing-box.exe
+          rm -f sing-box.exe
       - name: Package zip (windows amd64)
         run: |
-          set -euo pipefail
-          test -f "${OUT_WIN64}"
-          cp -f "${OUT_WIN64}" sing-box.exe
-          zip -9 -j "${ZIP_WIN64}" sing-box.exe
-          ls -lh "${ZIP_WIN64}"
+          cp -f "${OUT_WIN_AMD64}" sing-box.exe
+          zip -9 -j "${ZIP_WIN_AMD64}" sing-box.exe
           rm -f sing-box.exe
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sing-box-minimal-arm64-${{ steps.upstream.outputs.short }}
+          name: sing-box-lite-all-arch-${{ steps.upstream.outputs.short }}
           path: |
-            ${{ steps.meta.outputs.zip_linux }}
-            ${{ steps.meta.outputs.zip_win64 }}
-
+            ${{ steps.meta.outputs.zip_linux_arm64 }}
+            ${{ steps.meta.outputs.zip_linux_amd64 }}
+            ${{ steps.meta.outputs.zip_win_arm64 }}
+            ${{ steps.meta.outputs.zip_win_amd64 }}
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.meta.outputs.tag }}
-          name: sing-box minimal (${{ steps.upstream.outputs.short }})
+          name: singbox lite (${{ env.VERSION }})
           body: |
-            Source: reF1nd/sing-box @ ${{ env.VERSION }}
-            GOOS/GOARCH: linux/arm64, windows/amd64
+            Source Ref: ${{ env.REF }}
+            Version: ${{ env.VERSION }}
+            Commit: ${{ steps.upstream.outputs.short }}
+            GOOS/GOARCH:
+            - linux/arm64
+            - linux/amd64
+            - windows/arm64
+            - windows/amd64
             Tags:
-              linux: ${{ steps.meta.outputs.tags_linux }}
-              windows: ${{ steps.meta.outputs.tags_win64 }}
+            - **Linux**: `${{ steps.meta.outputs.tags_linux }}`
+            - **Windows**: `${{ steps.meta.outputs.tags_windows }}`
           prerelease: true
           files: |
-            ${{ steps.meta.outputs.zip_linux }}
-            ${{ steps.meta.outputs.zip_win64 }}
+            ${{ steps.meta.outputs.zip_linux_arm64 }}
+            ${{ steps.meta.outputs.zip_linux_amd64 }}
+            ${{ steps.meta.outputs.zip_win_arm64 }}
+            ${{ steps.meta.outputs.zip_win_amd64 }}

@@ -4,6 +4,7 @@ export LANG=en_US.UTF-8
 [ -z "${hypt+x}" ] || hyp=yes
 [ -z "${vmpt+x}" ] || { vmp=yes; vmag=yes; }
 [ -z "${vlrt+x}" ] || vlr=yes
+
 if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -q 'agsb/sing-box' || pgrep -f 'agsb/sing-box' >/dev/null 2>&1; then
     if [ "$1" = "rep" ]; then
         [ "$vlr" = yes ] || [ "$vmp" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || { echo "提示：rep重置协议时，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
@@ -48,6 +49,7 @@ echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 hostname=$(uname -a | awk '{print $2}')
 op=$(cat /etc/redhat-release 2>/dev/null || cat /etc/os-release 2>/dev/null | grep -i pretty_name | cut -d \" -f2)
+
 case $(uname -m) in
     aarch64) cpu=arm64 ;;
     x86_64) cpu=amd64 ;;
@@ -121,7 +123,7 @@ EOF
     openssl req -new -x509 -days 36500 -key "$HOME/agsb/private.key" -out "$HOME/agsb/cert.pem" -subj "/CN=www.bing.com" >/dev/null 2>&1
 
     if [ -n "$vlr" ]; then
-        # 处理 short_id 的逻辑
+        # 处理 VLESS-Reality-Vision
         short_id=""
         if [ -f "$HOME/agsb/short_id" ]; then
             short_id=$(tr -d '\r\n ' < "$HOME/agsb/short_id")
@@ -130,24 +132,59 @@ EOF
             short_id=$(openssl rand -hex 8)
             echo "$short_id" > "$HOME/agsb/short_id"
         fi
-
-        if [ -z "$port_vlr" ] && [ ! -e "$HOME/agsb/port_vlr" ]; then 
+        if [ -z "$port_vlr" ] && [ ! -e "$HOME/agsb/port_vlr" ]; then
             port_vlr=$(shuf -i 10000-65535 -n 1)
             echo "$port_vlr" > "$HOME/agsb/port_vlr"
-        elif [ -n "$port_vlr" ]; then 
+        elif [ -n "$port_vlr" ]; then
             echo "$port_vlr" > "$HOME/agsb/port_vlr"
         fi
         port_vlr=$(cat "$HOME/agsb/port_vlr")
         echo "VLESS-Reality-Vision端口：$port_vlr"
-
-        if [ ! -f "$HOME/agsb/reality.key" ]; then 
+        if [ ! -f "$HOME/agsb/reality.key" ]; then
             "$HOME/agsb/sing-box" generate reality-keypair > "$HOME/agsb/reality.key"
         fi
-
         private_key=$(sed -n '1p' "$HOME/agsb/reality.key" | awk '{print $2}')
-
         cat >> "$HOME/agsb/sb.json" <<EOF
 {"type": "vless", "tag": "vless-reality-vision-sb", "listen": "::", "listen_port": ${port_vlr},"sniff": true,"users": [{"uuid": "${uuid}","flow": "xtls-rprx-vision"}],"tls": {"enabled": true,"server_name": "www.ua.edu","reality": {"enabled": true,"handshake": {"server": "www.ua.edu","server_port": 443},"private_key": "${private_key}","short_id": ["${short_id}"]}}},
+EOF
+    fi
+    
+    # 处理 Trojan 相关逻辑
+    if [ -n "$trp" ]; then
+        if [ -z "$port_tr" ] && [ ! -e "$HOME/agsb/port_tr" ]; then
+            port_tr=$(shuf -i 10000-65535 -n 1)
+            echo "$port_tr" > "$HOME/agsb/port_tr"
+        fi
+        port_tr=$(cat "$HOME/agsb/port_tr")
+        echo "Trojan端口：$port_tr"
+        cat >> "$HOME/agsb/sb.json" <<EOF
+{"type": "trojan", "tag": "trojan-sb", "listen": "::", "listen_port": ${port_tr},"sniff": true,"users": [{"uuid": "${uuid}"}]},
+EOF
+    fi
+
+    # 处理 Vmess 相关逻辑
+    if [ -n "$vmp" ]; then
+        if [ -z "$port_vm_ws" ] && [ ! -e "$HOME/agsb/port_vm_ws" ]; then
+            port_vm_ws=$(shuf -i 10000-65535 -n 1)
+            echo "$port_vm_ws" > "$HOME/agsb/port_vm_ws"
+        fi
+        port_vm_ws=$(cat "$HOME/agsb/port_vm_ws")
+        echo "Vmess端口：$port_vm_ws"
+        cat >> "$HOME/agsb/sb.json" <<EOF
+{"type": "vmess", "tag": "vmess-sb", "listen": "::", "listen_port": ${port_vm_ws},"sniff": true,"users": [{"uuid": "${uuid}"}]},
+EOF
+    fi
+
+    # 处理 Hysteria 相关逻辑
+    if [ -n "$hyp" ]; then
+        if [ -z "$port_hy2" ] && [ ! -e "$HOME/agsb/port_hy2" ]; then
+            port_hy2=$(shuf -i 10000-65535 -n 1)
+            echo "$port_hy2" > "$HOME/agsb/port_hy2"
+        fi
+        port_hy2=$(cat "$HOME/agsb/port_hy2")
+        echo "Hysteria2端口：$port_hy2"
+        cat >> "$HOME/agsb/sb.json" <<EOF
+{"type": "hysteria2", "tag": "hysteria2-sb", "listen": "::", "listen_port": ${port_hy2},"sniff": true,"users": [{"uuid": "${uuid}"}]},
 EOF
     fi
 }
@@ -195,9 +232,10 @@ EOF
 
 ins() {
     installsb; set_sbyx; sbbout
+
     if [ -n "$argo" ] && [ -n "$vmag" ]; then
         echo; echo "========启用Cloudflared-argo内核========="
-        if [ ! -e "$HOME/agsb/cloudflared" ]; then 
+        if [ ! -e "$HOME/agsb/cloudflared" ]; then
             argocore=$({ curl -Ls https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared || wget -qO- https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared; } | grep -Eo '"[0-9.]+"' | sed -n 1p | tr -d '",')
             echo "下载Cloudflared-argo最新正式版内核：$argocore"
             url="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$cpu"
@@ -205,10 +243,10 @@ ins() {
             (curl -Lo "$out" -# --retry 2 "$url") || (wget -O "$out" --tries=2 "$url")
             chmod +x "$HOME/agsb/cloudflared"
         fi
-        if [ "$argo" = "vmpt" ]; then 
+        if [ "$argo" = "vmpt" ]; then
             argoport=$(cat "$HOME/agsb/port_vm_ws" 2>/dev/null)
             echo "Vmess" > "$HOME/agsb/vlvm"
-        elif [ "$argo" = "trpt" ]; then 
+        elif [ "$argo" = "trpt" ]; then
             argoport=$(cat "$HOME/agsb/port_tr" 2>/dev/null)
             echo "Trojan" > "$HOME/agsb/vlvm"
         fi
@@ -252,29 +290,28 @@ EOF
         fi
         echo "申请Argo$argoname隧道中……请稍等"
         sleep 8
-        if [ -n "${ARGO_DOMAIN}" ] && [ -n "${ARGO_AUTH}" ]; then 
+        if [ -n "${ARGO_DOMAIN}" ] && [ -n "${ARGO_AUTH}" ]; then
             argodomain=$(cat "$HOME/agsb/sbargoym.log" 2>/dev/null)
-        else 
+        else
             argodomain=$(grep -a trycloudflare.com "$HOME/agsb/argo.log" 2>/dev/null | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')
         fi
-        if [ -n "${argodomain}" ]; then 
+        if [ -n "${argodomain}" ]; then
             echo "Argo$argoname隧道申请成功"
-        else 
+        else
             echo "Argo$argoname隧道申请失败"
         fi
     fi
-
     sleep 5
     echo
-    if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsb/(sing-box|c)' || pgrep -f 'agsb/(sing-box|c)' >/dev/null 2>&1 ; then
+    if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsb/(sing-box|c)' || pgrep -f 'agsb/(sing-box|c)' >/dev/null 2>&1; then
         [ -f ~/.bashrc ] || touch ~/.bashrc
-        sed -i '/agsbx/d' ~/.bashrc  # 同时清理旧版
-        sed -i '/agsb/d' ~/.bashrc
+        sed -i '\|$HOME/bin/agsbx|d' ~/.bashrc
+        sed -i '\|$HOME/bin/agsb|d' ~/.bashrc
         SCRIPT_PATH="$HOME/bin/agsb"
         mkdir -p "$HOME/bin"
         (curl -sL "$agsburl" -o "$SCRIPT_PATH") || (wget -qO "$SCRIPT_PATH" "$agsburl")
         chmod +x "$SCRIPT_PATH"
-        if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then 
+        if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then
             echo "if ! pgrep -f 'agsb/sing-box' >/dev/null 2>&1; then export cdnym=\"${cdnym}\" name=\"${name}\" ippz=\"${ippz}\" argo=\"${argo}\" uuid=\"${uuid}\" $vmp=\"${port_vm_ws}\" $trp=\"${port_tr}\" $hyp=\"${port_hy2}\" $vlr=\"${port_vlr}\" agn=\"${ARGO_DOMAIN}\" agk=\"${ARGO_AUTH}\"; bash \"$HOME/bin/agsb\"; fi" >> ~/.bashrc
         fi
         sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc
@@ -282,17 +319,17 @@ EOF
         grep -qxF 'source ~/.bashrc' ~/.bash_profile 2>/dev/null || echo 'source ~/.bashrc' >> ~/.bash_profile
         . ~/.bashrc 2>/dev/null
         crontab -l > /tmp/crontab.tmp 2>/dev/null
-        if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then 
+        if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then
             sed -i '/agsb\/sing-box/d' /tmp/crontab.tmp
             echo '@reboot sleep 10 && nohup $HOME/agsb/sing-box run -c $HOME/agsb/sb.json >/dev/null 2>&1 &' >> /tmp/crontab.tmp
         fi
         sed -i '/agsb\/cloudflared/d' /tmp/crontab.tmp
         if [ -n "$argo" ] && [ -n "$vmag" ]; then
-            if [ -n "${ARGO_DOMAIN}" ] && [ -n "${ARGO_AUTH}" ]; then 
-                if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then 
+            if [ -n "${ARGO_DOMAIN}" ] && [ -n "${ARGO_AUTH}" ]; then
+                if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then
                     echo '@reboot sleep 10 && nohup $HOME/agsb/cloudflared tunnel --no-autoupdate --edge-ip-version auto run --token $(cat $HOME/agsb/sbargotoken.log) >/dev/null 2>&1 &' >> /tmp/crontab.tmp
                 fi
-            else 
+            else
                 echo '@reboot sleep 10 && nohup $HOME/agsb/cloudflared tunnel --url http://localhost:$(cat $HOME/agsb/argoport.log) --edge-ip-version auto --no-autoupdate > $HOME/agsb/argo.log 2>&1 &' >> /tmp/crontab.tmp
             fi
         fi
@@ -307,14 +344,14 @@ EOF
 agsbstatus() {  # 函数名已更改
     echo "=========当前内核运行状态========="
     procs=$(find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null)
-    if echo "$procs" | grep -Eq 'agsb/sing-box' || pgrep -f 'agsb/sing-box' >/dev/null 2>&1; then 
+    if echo "$procs" | grep -Eq 'agsb/sing-box' || pgrep -f 'agsb/sing-box' >/dev/null 2>&1; then
         echo "Sing-box (版本V$("$HOME/agsb/sing-box" version 2>/dev/null | awk '/version/{print $NF}'))：运行中"
-    else 
+    else
         echo "Sing-box：未启用"
     fi
-    if echo "$procs" | grep -Eq 'agsb/c' || pgrep -f 'agsb/c' >/dev/null 2>&1; then 
+    if echo "$procs" | grep -Eq 'agsb/c' || pgrep -f 'agsb/c' >/dev/null 2>&1; then
         echo "Argo (版本V$("$HOME/agsb/cloudflared" version 2>/dev/null | awk '{print $3}'))：运行中"
-    else 
+    else
         echo "Argo：未启用"
     fi
 }
@@ -322,32 +359,30 @@ agsbstatus() {  # 函数名已更改
 cip() {
     ipbest() {
         serip=$( (curl -s4m5 -k "$v46url") || (wget -4 -qO- --tries=2 "$v46url") )
-        if echo "$serip" | grep -q ':'; then 
+        if echo "$serip" | grep -q ':'; then
             server_ip="[$serip]"
-        else 
+        else
             server_ip="$serip"
         fi
         echo "$server_ip" > "$HOME/agsb/server_ip.log"
     }
-
     ipchange() {
         v4v6
         v4dq=$( (curl -s4m5 -k https://ip.fm 2>/dev/null | sed -E 's/.*Location: ([^,]+(, [^,]+)*),.*/\1/') || (wget -4 -qO- --tries=2 https://ip.fm 2>/dev/null | grep '<span class="has-text-grey-light">Location:' | tail -n1 | sed -E 's/.*>Location: <\/span>([^<]+)<.*/\1/') )
         v6dq=$( (curl -s6m5 -k https://ip.fm 2>/dev/null | sed -E 's/.*Location: ([^,]+(, [^,]+)*),.*/\1/') || (wget -6 -qO- --tries=2 https://ip.fm 2>/dev/null | grep '<span class="has-text-grey-light">Location:' | tail -n1 | sed -E 's/.*>Location: <\/span>([^<]+)<.*/\1/') )
-        if [ -z "$v4" ]; then 
+        if [ -z "$v4" ]; then
             vps_ipv4='无IPV4'
             vps_ipv6="$v6"
             location=$v6dq
-        elif [ -n "$v4" ] && [ -n "$v6" ]; then 
+        elif [ -n "$v4" ] && [ -n "$v6" ]; then
             vps_ipv4="$v4"
             vps_ipv6="$v6"
             location=$v4dq
-        else 
+        else
             vps_ipv4="$v4"
             vps_ipv6='无IPV6'
             location=$v4dq
         fi
-
         echo
         agsbstatus  # 更新为新的函数调用
         echo
@@ -357,26 +392,24 @@ cip() {
         echo "服务器地区：$location"
         echo
         sleep 2
-
-        if [ "$ippz" = "4" ]; then 
-            if [ -z "$v4" ]; then 
+        if [ "$ippz" = "4" ]; then
+            if [ -z "$v4" ]; then
                 ipbest
-            else 
+            else
                 server_ip="$v4"
                 echo "$server_ip" > "$HOME/agsb/server_ip.log"
             fi
-        elif [ "$ippz" = "6" ]; then 
-            if [ -z "$v6" ]; then 
+        elif [ "$ippz" = "6" ]; then
+            if [ -z "$v6" ]; then
                 ipbest
-            else 
+            else
                 server_ip="[$v6]"
                 echo "$server_ip" > "$HOME/agsb/server_ip.log"
             fi
-        else 
+        else
             ipbest
         fi
     }
-
     ipchange
     rm -rf "$HOME/agsb/jh.txt"
     uuid=$(cat "$HOME/agsb/uuid")
@@ -385,25 +418,22 @@ cip() {
     echo "*********************************************************"
     echo "Agsb脚本输出节点配置如下："
     echo
-
-    if grep -q "hy2-sb" "$HOME/agsb/sb.json"; then 
+    if grep -q "hy2-sb" "$HOME/agsb/sb.json"; then
         port_hy2=$(cat "$HOME/agsb/port_hy2")
         hy2_link="hysteria2://$uuid@$server_ip:$port_hy2?security=tls&alpn=h3&insecure=1&sni=www.bing.com#${sxname}hy2-$hostname"
         echo "💣【 Hysteria2 】(直接连接)"
         echo "$hy2_link" | tee -a "$HOME/agsb/jh.txt"
         echo
     fi
-
     if grep -q "vless-reality-vision-sb" "$HOME/agsb/sb.json"; then
         port_vlr=$(cat "$HOME/agsb/port_vlr")
         public_key=$(sed -n '2p' "$HOME/agsb/reality.key" | awk '{print $2}')
-        short_id=$(tr -d '\r\n ' < "$HOME/agsb/short_id" 2>/dev/null)  # 已加入读取
+        short_id=$(tr -d '\r\n ' < "$HOME/agsb/short_id" 2>/dev/null)
         vless_link="vless://${uuid}@${server_ip}:${port_vlr}?encryption=none&security=reality&sni=www.ua.edu&fp=chrome&flow=xtls-rprx-vision&publicKey=${public_key}&shortId=${short_id}#${sxname}vless-reality-$hostname"
         echo "💣【 VLESS-Reality-Vision 】(直接连接)"
         echo "$vless_link" | tee -a "$HOME/agsb/jh.txt"
         echo
     fi
-
     argodomain=$(cat "$HOME/agsb/sbargoym.log" 2>/dev/null)
     [ -z "$argodomain" ] && argodomain=$(grep -a trycloudflare.com "$HOME/agsb/argo.log" 2>/dev/null | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')
     if [ -n "$argodomain" ]; then
@@ -431,17 +461,18 @@ cip() {
 }
 
 cleandel() {
-    for P in /proc/[0-9]*; do 
-        if [ -L "$P/exe" ]; then 
+    for P in /proc/[0-9]*; do
+        if [ -L "$P/exe" ]; then
             TARGET=$(readlink -f "$P/exe" 2>/dev/null)
-            if echo "$TARGET" | grep -qE '/agsb/c|/agsb/sing-box'; then 
+            if echo "$TARGET" | grep -qE '/agsb/c|/agsb/sing-box'; then
                 kill "$(basename "$P")" 2>/dev/null
             fi
         fi
     done
     kill -15 $(pgrep -f 'agsb/c' 2>/dev/null) $(pgrep -f 'agsb/sing-box' 2>/dev/null) >/dev/null 2>&1
-    sed -i '/agsbx/d' ~/.bashrc  # 同时清理旧版
-    sed -i '/agsb/d' ~/.bashrc
+    [ -f ~/.bashrc ] || touch ~/.bashrc
+    sed -i '\|$HOME/bin/agsbx|d' ~/.bashrc
+    sed -i '\|$HOME/bin/agsb|d' ~/.bashrc
     . ~/.bashrc 2>/dev/null
     crontab -l > /tmp/crontab.tmp 2>/dev/null
     sed -i '/agsb/d' /tmp/crontab.tmp
@@ -449,14 +480,15 @@ cleandel() {
     rm /tmp/crontab.tmp
     rm -rf "$HOME/bin/agsbx"  # 删除旧版文件
     rm -rf "$HOME/bin/agsb"   # 删除新版文件
-    if pidof systemd >/dev/null 2>&1; then 
-        for svc in sb argo; do 
+    
+    if pidof systemd >/dev/null 2>&1; then
+        for svc in sb argo; do
             systemctl stop "$svc" >/dev/null 2>&1
             systemctl disable "$svc" >/dev/null 2>&1
         done
         rm -f /etc/systemd/system/{sb.service,argo.service}
-    elif command -v rc-service >/dev/null 2>&1; then 
-        for svc in sing-box argo; do 
+    elif command -v rc-service >/dev/null 2>&1; then
+        for svc in sing-box argo; do
             rc-service "$svc" stop >/dev/null 2>&1
             rc-update del "$svc" default >/dev/null 2>&1
         done
@@ -490,33 +522,40 @@ argorestart() {
     fi
 }
 
-if [ "$1" = "del" ]; then 
+
+if [ "$1" = "del" ]; then
     cleandel; rm -rf "$HOME/agsb"; echo "卸载完成"; showmode; exit
 fi
-if [ "$1" = "rep" ]; then 
-    cleandel; rm -rf "$HOME/agsb"/{sb.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name}; echo "重置完成..."; sleep 2; 
+
+if [ "$1" = "rep" ]; then
+    cleandel; rm -rf "$HOME/agsb"/{sb.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name}; echo "重置完成..."; sleep 2;
 fi
-if [ "$1" = "list" ]; then 
-    cip; exit 
+
+if [ "$1" = "list" ]; then
+    cip; exit
 fi
+
 if [ "$1" = "ups" ]; then
     kill -15 $(pgrep -f 'agsb/sing-box' 2>/dev/null)
     upsingbox && sbrestart && echo "Sing-box内核更新完成" && sleep 2 && cip; exit
 fi
-if [ "$1" = "res" ]; then 
+
+if [ "$1" = "res" ]; then
     sbrestart; argorestart; sleep 5 && echo "重启完成" && sleep 3 && cip; exit
 fi
+
 if ! pgrep -f 'agsb/sing-box' >/dev/null 2>&1 && [ "$1" != "rep" ]; then
     cleandel
 fi
+
 if ! pgrep -f 'agsb/sing-box' >/dev/null 2>&1 || [ "$1" = "rep" ]; then
-    if [ -z "$( (curl -s4m5 -k "$v46url") || (wget -4 -qO- --tries=2 "$v46url") )" ]; then 
+    if [ -z "$( (curl -s4m5 -k "$v46url") || (wget -4 -qO- --tries=2 "$v46url") )" ]; then
         echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a00:1098:2c::1" > /etc/resolv.conf
     fi
     echo "VPS系统：$op"
     echo "CPU架构：$cpu"
     echo "Agsb脚本开始安装/更新…………" && sleep 1
-    if [ -n "$oap" ]; then 
+    if [ -n "$oap" ]; then
         setenforce 0 >/dev/null 2>&1
         iptables -F
         iptables -P INPUT ACCEPT

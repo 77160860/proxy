@@ -104,17 +104,14 @@ jobs:
           fi
           CLEAN=$(echo "$RAW" | sed 's/-reF1nd$//')
 
-          echo "RAW_REF1ND_VERSION=$RAW" >> "$GITHUB_ENV"
           echo "REF1ND_VERSION=$CLEAN" >> "$GITHUB_ENV"
-
-          echo "raw=$RAW" >> "$GITHUB_OUTPUT"
           echo "version=$CLEAN" >> "$GITHUB_OUTPUT"
 
       - name: Build TIPA (reF1nd)
         run: |
           set -ex
 
-          echo "sing-box reF1nd ${REF1ND_VERSION} (raw: ${RAW_REF1ND_VERSION}) @ ${SHORT_SHA}" >> "$GITHUB_STEP_SUMMARY"
+          echo "sing-box ${REF1ND_VERSION} @ ${SHORT_SHA}" >> "$GITHUB_STEP_SUMMARY"
 
           if [ "${{ inputs.update_apple }}" = "true" ]; then
             rm -rf "$HOME/sing-box-ref1nd/clients/apple"
@@ -134,16 +131,6 @@ jobs:
 
           cd clients/apple
 
-          grep -rl \
-            --exclude-dir=.git \
-            --exclude-dir=DerivedData \
-            --exclude='*.a' \
-            --exclude='*.framework' \
-            --exclude='*.xcframework' \
-            'io.nekohasekai.sfavt' . \
-          | xargs perl -0777 -pi -e \
-              's/io\.nekohasekai\.sfavt/io.nekohasekai.sfavt-reF1nd/g'
-
           xcodebuild \
             -project "$XCODEPROJ_NAME.xcodeproj" \
             -scheme "$SCHEME_NAME" \
@@ -153,8 +140,8 @@ jobs:
             build install \
             INFOPLIST_KEY_CFBundleDisplayName="Singbox" \
             INFOPLIST_KEY_CFBundleName="Singbox" \
-            PRODUCT_BUNDLE_IDENTIFIER="io.nekohasekai.sfavt-reF1nd" \
-            EXTENSION_PRODUCT_BUNDLE_IDENTIFIER="io.nekohasekai.sfavt-reF1nd.extension" \
+            PRODUCT_BUNDLE_IDENTIFIER="io.nekohasekai.sfavt" \
+            EXTENSION_PRODUCT_BUNDLE_IDENTIFIER="io.nekohasekai.sfavt.extension" \
             STRIP_INSTALLED_PRODUCT=NO \
             ARCHS=arm64 \
             CODE_SIGNING_ALLOWED=NO \

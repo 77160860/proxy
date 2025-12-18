@@ -1,4 +1,4 @@
-name: Build sing-box-for-ios (reF1nd only)
+name: Build singbox-ios (reF1nd)
 
 on:
   workflow_dispatch:
@@ -15,7 +15,7 @@ on:
         type: choice
         options: ['true', 'false']
       update_apple:
-        description: '是否重新拉取最新 sing-box-for-apple 仓库?'
+        description: '是否重新拉取最新 singbox-apple 仓库?'
         required: false
         default: 'false'
         type: choice

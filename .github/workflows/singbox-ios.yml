@@ -151,7 +151,8 @@ jobs:
             -configuration Debug \
             -sdk iphoneos \
             build install \
-            INFOPLIST_KEY_CFBundleDisplayName="${APPLICATION_NAME}-reF1nd" \
+            INFOPLIST_KEY_CFBundleDisplayName="Singbox" \
+            INFOPLIST_KEY_CFBundleName="Singbox" \
             PRODUCT_BUNDLE_IDENTIFIER="io.nekohasekai.sfavt-reF1nd" \
             EXTENSION_PRODUCT_BUNDLE_IDENTIFIER="io.nekohasekai.sfavt-reF1nd.extension" \
             STRIP_INSTALLED_PRODUCT=NO \
@@ -196,9 +197,7 @@ jobs:
           body: |
             Source: ${{ env.REF }}
             Version: ${{ env.REF1ND_VERSION }}
-            Raw Version: ${{ env.RAW_REF1ND_VERSION }}
             Commit: ${{ env.SHORT_SHA }}
-            Upstream: ${{ steps.prep.outputs.upstream }}
           prerelease: ${{ inputs.prerelease == 'true' }}
           files: |
             sing-box-ios-reF1nd-*.tipa

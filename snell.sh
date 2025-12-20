@@ -2,7 +2,6 @@
 set -euo pipefail
 
 VERSION="${VERSION:-v5.0.1}"
-
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
@@ -65,7 +64,7 @@ detect_arch() {
   a="$(uname -m)"
   case "$a" in
     aarch64|arm64) echo "aarch64" ;;
-    x86_64|amd64)  echo "amd64" ;;
+    x86_64|amd64) echo "amd64" ;;
     *)
       echo -e "${RED}不支持的架构: ${a}${RESET}"
       exit 1
@@ -140,7 +139,7 @@ EOF
 
   cat > /etc/systemd/system/snell.service <<EOF
 [Unit]
-Description=snell Proxy Service
+Description=Snell Proxy Service
 After=network.target
 
 [Service]
@@ -173,12 +172,12 @@ EOF
 ${ip_country} = snell, ${host_ip}, ${final_port}, psk = ${final_psk}, version = 5, reuse = true
 EOF
 
-  echo -e "${GREEN}配置已写入: /etc/snell/snell-server.conf${RESET}"
-  echo -e "${GREEN}示例配置已写入: /etc/snell/config.txt${RESET}"
+  echo -e "${GREEN}Snell 安装成功${RESET}"
+  cat /etc/snell/config.txt || true
 }
 
 install_snell() {
-  echo -e "${GREEN}正在安装 snell${RESET}"
+  echo -e "${GREEN}正在安装 Snell${RESET}"
   wait_for_package_manager
   install_required_packages
   validate_port_psk
@@ -188,27 +187,25 @@ install_snell() {
   systemctl restart snell
   sleep 2
   systemctl --no-pager --full status snell || true
-  echo -e "${GREEN}安装完成${RESET}"
-  cat /etc/snell/config.txt || true
 }
 
 update_snell() {
   if [ ! -x "/usr/local/bin/snell-server" ]; then
-    echo -e "${YELLOW}snell 未安装，无法更新${RESET}"
+    echo -e "${YELLOW}Snell 未安装，无法更新${RESET}"
     exit 1
   fi
-  echo -e "${GREEN}snell 正在更新${RESET}"
+  echo -e "${GREEN}Snell 正在更新${RESET}"
   wait_for_package_manager
   install_required_packages
   download_and_install_binary
   systemctl restart snell
   sleep 2
   journalctl -u snell.service -n 8 --no-pager || true
-  echo -e "${GREEN}更新完成${RESET}"
+  cat /etc/snell/config.txt 2>/dev/null || true
 }
 
 uninstall_snell() {
-  echo -e "${GREEN}正在卸载 snell${RESET}"
+  echo -e "${GREEN}正在卸载 Snell${RESET}"
   systemctl stop snell 2>/dev/null || true
   systemctl disable snell 2>/dev/null || true
   rm -f /etc/systemd/system/snell.service
@@ -216,33 +213,16 @@ uninstall_snell() {
   systemctl reset-failed 2>/dev/null || true
   rm -f /usr/local/bin/snell-server
   rm -rf /etc/snell
-  echo -e "${GREEN}snell 卸载成功${RESET}"
+  echo -e "${GREEN}Snell 卸载成功${RESET}"
 }
 
 show_config() {
   if [ -f /etc/snell/config.txt ]; then
     cat /etc/snell/config.txt
   else
-    echo -e "${RED}配置文件不存在: /etc/snell/config.txt${RESET}"
+    echo -e "${RED}配置文件不存在${RESET}"
     exit 1
   fi
-}
-
-usage() {
-  cat <<EOF
-用法（非交互）:
-  action=install [port=xxx] [psk=xxx] bash snell.sh
-  action=update   bash snell.sh
-  action=uninstall bash snell.sh
-  action=start|stop|status bash snell.sh
-  action=show-config bash snell.sh
-
-一键安装示例:
-  port=自定义 psk=自定义 bash <(curl -fsSL https://raw.githubusercontent.com/77160860/snell/main/snell.sh)
-
-可选:
-  VERSION=v5.0.1 action=install port=... psk=... bash snell.sh
-EOF
 }
 
 case "${action}" in
@@ -272,12 +252,8 @@ case "${action}" in
   show-config)
     show_config
     ;;
-  help|-h|--help)
-    usage
-    ;;
   *)
-    echo -e "${RED}未知 action: ${action}${RESET}"
-    usage
+    echo -e "${RED}无效参数${RESET}"
     exit 1
     ;;
 esac

@@ -6,4 +6,6 @@ agsb支持4协议：vmess(vmpt)/trojan(trpt)+argo and hy2(hypt)/Realty(vlrt)
 
 snell：port=自定义端口 psk=自定义密码 bash <(curl -fsSL https://raw.githubusercontent.com/77160860/proxy/main/snell.sh)
 
+查看配置：action=show-config bash <(curl -fsSL https://raw.githubusercontent.com/77160860/proxy/main/snell.sh)
+
 卸载：action=uninstall bash <(curl -fsSL https://raw.githubusercontent.com/77160860/proxy/main/snell.sh)

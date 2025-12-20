@@ -34,6 +34,7 @@ wait_for_package_manager() {
   if [ "$system_type" = "debian" ]; then
     while fuser /var/lib/dpkg/lock >/dev/null 2>&1 \
       || fuser /var/lib/apt/lists/lock >/dev/null 2>&1 \
+      || fuser /var/lib/apt/lists/lock-frontend >/dev/null 2>&1 \
       || fuser /var/cache/apt/archives/lock >/dev/null 2>&1; do
       echo -e "${YELLOW}等待其他 apt 进程完成${RESET}"
       sleep 1
@@ -49,10 +50,10 @@ install_required_packages() {
   if [ "$system_type" = "debian" ]; then
     export DEBIAN_FRONTEND=noninteractive
     apt-get update -y
-    apt-get install -y wget unzip curl
+    apt-get install -y wget unzip curl ca-certificates
   elif [ "$system_type" = "centos" ]; then
     yum -y update
-    yum -y install wget unzip curl
+    yum -y install wget unzip curl ca-certificates
   else
     echo -e "${RED}不支持的系统类型${RESET}"
     exit 1
@@ -95,12 +96,13 @@ ensure_user() {
 }
 
 download_and_install_binary() {
-  local arch url tmpdir
+  local arch url
   arch="$(detect_arch)"
   url="https://dl.nssurge.com/snell/snell-server-${VERSION}-linux-${arch}.zip"
 
+  local tmpdir
   tmpdir="$(mktemp -d)"
-  trap 'rm -rf "${tmpdir}"' RETURN
+  trap 'rm -rf "${tmpdir:-}"' EXIT
 
   echo -e "${GREEN}下载: ${url}${RESET}"
   wget -qO "${tmpdir}/snell-server.zip" "${url}"
@@ -112,6 +114,9 @@ download_and_install_binary() {
   fi
 
   install -m 0755 "${tmpdir}/snell-server" /usr/local/bin/snell-server
+
+  rm -rf "${tmpdir}"
+  trap - EXIT
 }
 
 write_config_and_service() {

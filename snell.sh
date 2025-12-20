@@ -174,11 +174,8 @@ EOF
   fi
 
   cat > /etc/snell/config.txt <<EOF
-${ip_country} = snell, ${host_ip}, ${final_port}, psk = ${final_psk}, version = 5, reuse = true
+${ip_country} = snell, ${host_ip}, ${final_port}, psk = ${final_psk}, version = 5, reuse = true, tfo = true
 EOF
-
-  echo -e "${GREEN}Snell 安装成功${RESET}"
-  cat /etc/snell/config.txt || true
 }
 
 install_snell() {
@@ -192,6 +189,8 @@ install_snell() {
   systemctl restart snell
   sleep 2
   systemctl --no-pager --full status snell || true
+  echo -e "${GREEN}Snell 安装成功${RESET}"
+  cat /etc/snell/config.txt || true
 }
 
 update_snell() {

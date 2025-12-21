@@ -15,7 +15,6 @@ DOMAIN-SUFFIX,localdomain
 DOMAIN-SUFFIX,home.arpa
 DOMAIN-SUFFIX,gov.cn
 # Media
-DOMAIN,cloudapi.bytedance.net
 DOMAIN,yinhai.aiinyue.com
 DOMAIN-SUFFIX,ottiptv.cc
 DOMAIN-SUFFIX,cmdns.xyz

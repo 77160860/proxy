@@ -22,16 +22,17 @@
   ],
   "dns": {
     "servers": [
-      {"tag": "public", "type": "https", "server": "223.5.5.5"},
+      {"tag": "local", "type": "local"},
+      {"tag": "public", "type": "https", "server": "dns.alidns.com", "domain_resolver": "local"},
       {"tag": "foreign", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/16"}
     ],
     "rules": [
-      {"clash_mode": "direct", "server": "public"},
+      {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
-      {"query_type":["SVCB", "HTTPS"], "action": "predefined", "rcode": "NOTIMP"},
-      {"rule_set": ["cn-ip", "ap-ip", "cn", "me", "apple", "games@cn"], "server": "public"},
-      {"query_type": "A", "server": "fakeip", "rewrite_ttl": 1}
+      {"query_type": "HTTPS", "action": "reject"},
+      {"rule_set": ["cn", "me", "apple", "bilibili", "games@cn"], "server": "local"},
+      {"query_type": "A", "server": "fakeip", "rewrite_ttl": 0}
     ],
     "final": "foreign",
     "strategy": "ipv4_only",
@@ -45,12 +46,13 @@
     {"tag": "dns-in", "type": "direct", "listen": "0.0.0.0", "listen_port": 1053},
     {"tag": "redirect-in", "type": "redirect", "listen": "0.0.0.0", "listen_port": 7897},
     {"tag": "tproxy-in", "type": "tproxy", "listen": "0.0.0.0", "listen_port": 7898},
-    {"tag": "tun-in", "type": "tun", "interface_name": "momo", "address": ["172.31.0.1/30"], "mtu": 9000, "auto_route": false, "auto_redirect": false}
+    {"tag": "tun-in", "type": "tun", "interface_name": "momo", "address": ["168.18.0.1/30"], "mtu": 9000, "auto_route": false, "auto_redirect": false}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"], "interrupt_exist_connections": true},
     {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true, "url": "http://www.gstatic.com/generate_204", "interrupt_exist_connections": true},
     {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"], "interrupt_exist_connections": true},
+    {"tag": "GLOBAL", "type": "selector", "use_all_providers": true, "outbounds": ["🐝 Proxy", "🚀 Urltest"]},
     {"tag": "🐸 Direct", "type": "direct"}
   ],
   "route": {

@@ -39,8 +39,8 @@
     "reverse_mapping": true,
     "independent_cache": true,
     "round_robin_cache": true,
-    "cache_capacity": 8192,
-    "lazy_cache_ttl": 86400
+    "cache_capacity": 16000,
+    "lazy_cache_ttl": 180000
   },
   "inbounds": [
     {"tag": "dns-in", "type": "direct", "listen": "0.0.0.0", "listen_port": 1053},

@@ -1,157 +1,218 @@
 #!/usr/bin/env bash
+# ------------------------------------------------------------
+# Snell Server 安装/管理脚本（改进版）
+# 支持：Debian/Ubuntu、CentOS/RHEL、Alpine
+# 功能：install / update / uninstall / start / stop / status / show-config
+# ------------------------------------------------------------
 set -euo pipefail
 
-VERSION="${VERSION:-v5.0.1}"
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-RESET='\033[0m'
+# ==========================
+#   常量 & 默认配置
+# ==========================
+DEFAULT_VERSION="v5.0.1"
+DEFAULT_USER="snell"
+DEFAULT_SERVICE="snell"
+DEFAULT_INSTALL_DIR="/usr/local/bin"
+DEFAULT_CONF_DIR="/etc/snell"
+DEFAULT_PORT_RANGE_START=30000
+DEFAULT_PORT_RANGE_END=65000
+DEFAULT_PSK_LEN=20
 
-action="${action:-install}"
-port="${port:-}"
-psk="${psk:-}"
+# 颜色（如果输出不是终端则不使用颜色）
+if [[ -t 1 ]]; then
+  RED='\033[0;31m'
+  GREEN='\033[0;32m'
+  YELLOW='\033[0;33m'
+  RESET='\033[0m'
+else
+  RED=''
+  GREEN=''
+  YELLOW=''
+  RESET=''
+fi
 
-get_system_type() {
-  if [ -f /etc/debian_version ]; then
-    echo "debian"
-  elif [ -f /etc/redhat-release ]; then
-    echo "centos"
-  else
-    echo "unknown"
-  fi
+# ==========================
+#   辅助函数
+# ==========================
+msg()    { printf "${GREEN}%s${RESET}\n" "$*"; }
+warn()   { printf "${YELLOW}%s${RESET}\n" "$*"; }
+error()  { printf "${RED}%s${RESET}\n" "$*" >&2; }
+
+require_cmd() {
+  command -v "$1" >/dev/null || { error "缺少必备命令: $1"; exit 1; }
 }
 
 check_root() {
-  if [ "$(id -u)" != "0" ]; then
-    echo -e "${RED}请以 root 权限运行此脚本.${RESET}"
-    exit 1
-  fi
+  [[ "$(id -u)" -eq 0 ]] || { error "请以 root 身份运行此脚本。"; exit 1; }
+}
+
+get_system_type() {
+  if [[ -f /etc/debian_version ]]; then echo "debian";
+  elif [[ -f /etc/redhat-release ]]; then echo "centos";
+  elif [[ -f /etc/alpine-release ]]; then echo "alpine";
+  else echo "unknown"; fi
 }
 
 wait_for_package_manager() {
-  local system_type
-  system_type="$(get_system_type)"
-  if [ "$system_type" = "debian" ]; then
-    while fuser /var/lib/dpkg/lock >/dev/null 2>&1 \
-      || fuser /var/lib/apt/lists/lock >/dev/null 2>&1 \
-      || fuser /var/lib/apt/lists/lock-frontend >/dev/null 2>&1 \
-      || fuser /var/cache/apt/archives/lock >/dev/null 2>&1; do
-      echo -e "${YELLOW}等待其他 apt 进程完成${RESET}"
-      sleep 1
-    done
-  fi
-}
-
-install_required_packages() {
-  local system_type
-  system_type="$(get_system_type)"
-  echo -e "${GREEN}安装必要软件包${RESET}"
-
-  if [ "$system_type" = "debian" ]; then
-    export DEBIAN_FRONTEND=noninteractive
-    apt-get update -y
-    apt-get install -y wget unzip curl ca-certificates
-  elif [ "$system_type" = "centos" ]; then
-    yum -y update
-    yum -y install wget unzip curl ca-certificates
-  else
-    echo -e "${RED}不支持的系统类型${RESET}"
-    exit 1
-  fi
-}
-
-detect_arch() {
-  local a
-  a="$(uname -m)"
-  case "$a" in
-    aarch64|arm64) echo "aarch64" ;;
-    x86_64|amd64) echo "amd64" ;;
-    *)
-      echo -e "${RED}不支持的架构: ${a}${RESET}"
-      exit 1
+  local sys
+  sys=$(get_system_type)
+  case "$sys" in
+    debian)
+      while fuser /var/lib/dpkg/lock >/dev/null 2>&1 \
+        || fuser /var/lib/apt/lists/lock >/dev/null 2>&1 \
+        || fuser /var/lib/apt/lists/lock-frontend >/dev/null 2>&1 \
+        || fuser /var/cache/apt/archives/lock >/dev/null 2>&1; do
+        warn "检测到其他 apt 进程正在运行，等待中..."
+        sleep 1
+      done
       ;;
+    centos)
+      while fuser /var/run/rpm.lock >/dev/null 2>&1; do
+        warn "检测到其他 yum/dnf 进程正在运行，等待中..."
+        sleep 1
+      done
+      ;;
+    alpine) ;;   # apk 没有锁文件
+    *) error "未知系统类型，无法等待包管理器"; exit 1 ;;
   esac
 }
 
-validate_port_psk() {
-  if [ -n "${port}" ]; then
-    if ! [[ "${port}" =~ ^[0-9]+$ ]] || [ "${port}" -lt 1 ] || [ "${port}" -gt 65535 ]; then
-      echo -e "${RED}port 无效(1-65535): ${port}${RESET}"
-      exit 1
-    fi
-  fi
+install_required_packages() {
+  local sys
+  sys=$(get_system_type)
+  msg "安装必要的软件包..."
+  case "$sys" in
+    debian)
+      export DEBIAN_FRONTEND=noninteractive
+      apt-get update -y
+      apt-get install -y wget unzip curl ca-certificates
+      ;;
+    centos)
+      yum -y update
+      yum -y install wget unzip curl ca-certificates
+      ;;
+    alpine)
+      apk update
+      apk add --no-cache wget unzip curl ca-certificates
+      ;;
+    *) error "不支持的系统类型"; exit 1 ;;
+  esac
+}
 
-  if [ -n "${psk}" ]; then
-    if [ "${#psk}" -lt 8 ]; then
-      echo -e "${RED}psk 太短(建议>=8位)${RESET}"
-      exit 1
+detect_arch() {
+  case "$(uname -m)" in
+    aarch64|arm64) echo "aarch64" ;;
+    x86_64|amd64)   echo "amd64" ;;
+    *) error "不支持的 CPU 架构: $(uname -m)"; exit 1 ;;
+  esac
+}
+
+validate_port() {
+  [[ "$1" =~ ^[0-9]+$ ]] && (( $1 >= 1 && $1 <= 65535 ))
+}
+
+pick_free_port() {
+  local p
+  for _ in {1..10}; do
+    p=$(shuf -i "${DEFAULT_PORT_RANGE_START}-${DEFAULT_PORT_RANGE_END}" -n 1)
+    # 检查是否被占用
+    if ! ss -ltn "sport = :$p" >/dev/null 2>&1; then
+      echo "$p"
+      return
     fi
-  fi
+  done
+  error "无法在随机范围内找到空闲端口"
+  exit 1
+}
+
+validate_psk() {
+  (( ${#1} >= 8 ))
+}
+
+generate_psk() {
+  tr -dc A-Za-z0-9 </dev/urandom | head -c "${DEFAULT_PSK_LEN}"
 }
 
 ensure_user() {
-  if ! id "snell" &>/dev/null; then
-    useradd -r -s /usr/sbin/nologin snell
+  if ! id "${DEFAULT_USER}" &>/dev/null; then
+    useradd -r -s /usr/sbin/nologin "${DEFAULT_USER}"
+  elif [[ "$(id -u "${DEFAULT_USER}")" -ge 1000 ]]; then
+    warn "已存在同名普通用户 ${DEFAULT_USER}，请自行确认其是否可用。"
   fi
 }
 
 download_and_install_binary() {
-  local arch url
-  arch="$(detect_arch)"
+  local arch url tmpdir
+  arch=$(detect_arch)
   url="https://dl.nssurge.com/snell/snell-server-${VERSION}-linux-${arch}.zip"
 
-  local tmpdir
-  tmpdir="$(mktemp -d)"
-  trap 'rm -rf "${tmpdir:-}"' EXIT
+  tmpdir=$(mktemp -d)
+  trap 'rm -rf "$tmpdir"' EXIT
 
-  echo -e "${GREEN}下载: ${url}${RESET}"
-  wget -qO "${tmpdir}/snell-server.zip" "${url}"
+  msg "下载 Snell 二进制文件: $url"
+  wget -qO "${tmpdir}/snell-server.zip" "$url"
 
-  unzip -oq "${tmpdir}/snell-server.zip" -d "${tmpdir}"
-  if [ ! -f "${tmpdir}/snell-server" ]; then
-    echo -e "${RED}解压失败：未找到 snell-server${RESET}"
-    exit 1
-  fi
+  # ----- 可选的 SHA256 校验（若官方提供 .sha256 文件） -----
+  # wget -qO "${tmpdir}/snell-server.zip.sha256" "${url}.sha256"
+  # (cd "$tmpdir" && sha256sum -c snell-server.zip.sha256)
 
-  install -m 0755 "${tmpdir}/snell-server" /usr/local/bin/snell-server
+  unzip -oq "${tmpdir}/snell-server.zip" -d "$tmpdir"
+  [[ -f "${tmpdir}/snell-server" ]] || { error "解压后未找到 snell-server 可执行文件"; exit 1; }
 
-  rm -rf "${tmpdir}"
-  trap - EXIT
+  install -m 0755 "${tmpdir}/snell-server" "${DEFAULT_INSTALL_DIR}/snell-server"
+  msg "已将 snell-server 安装至 ${DEFAULT_INSTALL_DIR}/snell-server"
 }
 
 write_config_and_service() {
-  local final_port final_psk
-  mkdir -p /etc/snell
+  local final_port final_psk host_ip ip_country
 
-  if [ -z "${port}" ]; then
-    final_port="$(shuf -i 30000-65000 -n 1)"
+  mkdir -p "${DEFAULT_CONF_DIR}"
+
+  # ----- 端口 -----
+  if [[ -n "${port:-}" ]]; then
+    if ! validate_port "$port"; then
+      error "提供的端口非法: $port"
+      exit 1
+    fi
+    final_port=$port
+    if ss -ltn "sport = :$final_port" >/dev/null 2>&1; then
+      error "端口 $final_port 已被占用"
+      exit 1
+    fi
   else
-    final_port="${port}"
+    final_port=$(pick_free_port)
   fi
 
-  if [ -z "${psk}" ]; then
-    final_psk="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 20)"
+  # ----- PSK -----
+  if [[ -n "${psk:-}" ]]; then
+    if ! validate_psk "$psk"; then
+      error "PSK 太短（至少 8 位）"
+      exit 1
+    fi
+    final_psk=$psk
   else
-    final_psk="${psk}"
+    final_psk=$(generate_psk)
   fi
 
-  cat > /etc/snell/snell-server.conf <<EOF
+  # ----- Snell 配置文件 -----
+  cat > "${DEFAULT_CONF_DIR}/snell-server.conf" <<EOF
 [snell-server]
-listen = :::${final_port}
+listen = 0.0.0.0:${final_port},:::${final_port}
 psk = ${final_psk}
 ipv6 = true
 EOF
 
-  cat > /etc/systemd/system/snell.service <<EOF
+  # ----- systemd service -----
+  cat > "/etc/systemd/system/${DEFAULT_SERVICE}.service" <<EOF
 [Unit]
 Description=Snell Proxy Service
 After=network.target
 
 [Service]
 Type=simple
-User=snell
-Group=snell
-ExecStart=/usr/local/bin/snell-server -c /etc/snell/snell-server.conf
+User=${DEFAULT_USER}
+Group=${DEFAULT_USER}
+ExecStart=${DEFAULT_INSTALL_DIR}/snell-server -c ${DEFAULT_CONF_DIR}/snell-server.conf
 LimitNOFILE=32768
 Restart=on-failure
 StandardOutput=journal
@@ -163,73 +224,153 @@ WantedBy=multi-user.target
 EOF
 
   systemctl daemon-reload
-  systemctl enable snell
+  systemctl enable "${DEFAULT_SERVICE}.service"
 
-  local host_ip ip_country
-  host_ip="$(curl -fsSL --max-time 5 https://checkip.amazonaws.com 2>/dev/null | tr -d '[:space:]' || true)"
-  if [ -n "${host_ip}" ]; then
-    ip_country="$(curl -fsSL --max-time 5 "https://ipinfo.io/${host_ip}/country" 2>/dev/null | tr -d '[:space:]' || true)"
-  else
-    ip_country=""
+  # ----- 为客户端生成一行可直接复制的配置 -----
+  host_ip=$(curl -fsSL --max-time 5 https://checkip.amazonaws.com 2>/dev/null | tr -d '[:space:]' || true)
+  if [[ -z "$host_ip" ]]; then
+    host_ip=$(curl -fsSL --max-time 5 https://api.ipify.org 2>/dev/null || true)
   fi
 
-  cat > /etc/snell/config.txt <<EOF
+  ip_country=""
+  if [[ -n "$host_ip" ]]; then
+    ip_country=$(curl -fsSL --max-time 5 "https://ipinfo.io/${host_ip}/country" 2>/dev/null | tr -d '[:space:]' || true)
+  fi
+
+  cat > "${DEFAULT_CONF_DIR}/config.txt" <<EOF
 ${ip_country} = snell, ${host_ip}, ${final_port}, psk = ${final_psk}, version = 5, reuse = true, tfo = true
 EOF
+
+  msg "Snell 配置文件已写入 ${DEFAULT_CONF_DIR}/snell-server.conf"
+  msg "Systemd 服务已创建 ${DEFAULT_SERVICE}.service"
+  msg "客户端使用的配置行如下（已保存至 ${DEFAULT_CONF_DIR}/config.txt）："
+  cat "${DEFAULT_CONF_DIR}/config.txt"
 }
 
 install_snell() {
-  echo -e "${GREEN}正在安装 Snell${RESET}"
+  msg ">>> 开始安装 Snell <<<"
   wait_for_package_manager
   install_required_packages
-  validate_port_psk
   ensure_user
   download_and_install_binary
   write_config_and_service
-  systemctl restart snell
+  systemctl restart "${DEFAULT_SERVICE}.service"
   sleep 2
-  systemctl --no-pager --full status snell || true
-  echo -e "${GREEN}Snell 安装成功${RESET}"
-  cat /etc/snell/config.txt || true
+  systemctl --no-pager --full status "${DEFAULT_SERVICE}.service" || true
+  msg "Snell 安装完成！"
 }
 
 update_snell() {
-  if [ ! -x "/usr/local/bin/snell-server" ]; then
-    echo -e "${YELLOW}Snell 未安装，无法更新${RESET}"
+  msg ">>> 更新 Snell <<<"
+  if [[ ! -x "${DEFAULT_INSTALL_DIR}/snell-server" ]]; then
+    warn "Snell 尚未安装，无法执行更新."
     exit 1
   fi
-  echo -e "${GREEN}Snell 正在更新${RESET}"
   wait_for_package_manager
   install_required_packages
   download_and_install_binary
-  systemctl restart snell
+  systemctl restart "${DEFAULT_SERVICE}.service"
   sleep 2
-  journalctl -u snell.service -n 8 --no-pager || true
-  cat /etc/snell/config.txt 2>/dev/null || true
+  journalctl -u "${DEFAULT_SERVICE}.service" -n 8 --no-pager || true
+  msg "更新完成"
 }
 
 uninstall_snell() {
-  echo -e "${GREEN}正在卸载 Snell${RESET}"
-  systemctl stop snell 2>/dev/null || true
-  systemctl disable snell 2>/dev/null || true
-  rm -f /etc/systemd/system/snell.service
+  msg ">>> 卸载 Snell <<<"
+  systemctl stop "${DEFAULT_SERVICE}.service" 2>/dev/null || true
+  systemctl disable "${DEFAULT_SERVICE}.service" 2>/dev/null || true
+  rm -f "/etc/systemd/system/${DEFAULT_SERVICE}.service"
   systemctl daemon-reload
   systemctl reset-failed 2>/dev/null || true
-  rm -f /usr/local/bin/snell-server
-  rm -rf /etc/snell
-  echo -e "${GREEN}Snell 卸载成功${RESET}"
+  rm -f "${DEFAULT_INSTALL_DIR}/snell-server"
+  rm -rf "${DEFAULT_CONF_DIR}"
+  msg "Snell 已彻底移除"
 }
 
 show_config() {
-  if [ -f /etc/snell/config.txt ]; then
-    cat /etc/snell/config.txt
+  if [[ -f "${DEFAULT_CONF_DIR}/config.txt" ]]; then
+    cat "${DEFAULT_CONF_DIR}/config.txt"
   else
-    echo -e "${RED}配置文件不存在${RESET}"
+    error "配置文件不存在：${DEFAULT_CONF_DIR}/config.txt"
     exit 1
   fi
 }
 
-case "${action}" in
+print_usage() {
+  cat <<EOF
+Snell Server 管理脚本
+
+用法：
+  $0 [选项] <动作>
+
+动作（必选）：
+  install        安装 Snell 并启动服务
+  update         更新已安装的 Snell
+  uninstall      完全卸载 Snell
+  start          启动服务
+  stop           停止服务
+  status         查看服务状态
+  show-config    输出可直接复制的客户端配置行
+
+选项：
+  -v|--version <ver>   指定 Snell 版本（默认: ${DEFAULT_VERSION})
+  -p|--port   <num>    手动指定监听端口 (1‑65535)
+  -k|--psk    <str>    手动指定 PSK（至少 8 位）
+  -h|--help            显示本帮助信息
+
+示例：
+  $0 -p 443 -k MyStrongPsk install
+EOF
+}
+
+# ==========================
+#   参数解析
+# ==========================
+VERSION="${DEFAULT_VERSION}"
+port=""
+psk=""
+action=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    install|update|uninstall|start|stop|status|show-config)
+      action=$1
+      shift
+      ;;
+    -v|--version)
+      VERSION=$2
+      shift 2
+      ;;
+    -p|--port)
+      port=$2
+      shift 2
+      ;;
+    -k|--psk|--key)
+      psk=$2
+      shift 2
+      ;;
+    -h|--help)
+      print_usage
+      exit 0
+      ;;
+    *)
+      error "未知参数: $1"
+      print_usage
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z "$action" ]]; then
+  error "未指定动作 (install|update|... )"
+  print_usage
+  exit 1
+fi
+
+# ==========================
+#   主入口分发
+# ==========================
+case "$action" in
   install)
     check_root
     install_snell
@@ -244,20 +385,21 @@ case "${action}" in
     ;;
   start)
     check_root
-    systemctl start snell
+    systemctl start "${DEFAULT_SERVICE}.service"
     ;;
   stop)
     check_root
-    systemctl stop snell
+    systemctl stop "${DEFAULT_SERVICE}.service"
     ;;
   status)
-    systemctl --no-pager --full status snell
+    systemctl --no-pager --full status "${DEFAULT_SERVICE}.service"
     ;;
   show-config)
     show_config
     ;;
   *)
-    echo -e "${RED}无效参数${RESET}"
+    error "无效的动作: $action"
+    print_usage
     exit 1
     ;;
 esac

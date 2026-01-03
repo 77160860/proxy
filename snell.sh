@@ -7,15 +7,27 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RESET='\033[0m'
 
-action="${action:-install}"
+action="${1:-${action:-install}}"
 port="${port:-}"
 psk="${psk:-}"
 
 get_system_type() {
-  if [ -f /etc/debian_version ]; then
+  if [ -f /etc/alpine-release ]; then
+    echo "alpine"
+  elif [ -f /etc/debian_version ]; then
     echo "debian"
   elif [ -f /etc/redhat-release ]; then
     echo "centos"
+  else
+    echo "unknown"
+  fi
+}
+
+get_init_system() {
+  if command -v systemctl >/dev/null 2>&1 && [ -d /run/systemd/system ]; then
+    echo "systemd"
+  elif command -v rc-service >/dev/null 2>&1; then
+    echo "openrc"
   else
     echo "unknown"
   fi
@@ -39,6 +51,11 @@ wait_for_package_manager() {
       echo -e "${YELLOW}等待其他 apt 进程完成${RESET}"
       sleep 1
     done
+  elif [ "$system_type" = "alpine" ]; then
+    while fuser /var/lib/apk/db/lock >/dev/null 2>&1; do
+      echo -e "${YELLOW}等待其他 apk 进程完成${RESET}"
+      sleep 1
+    done
   fi
 }
 
@@ -54,6 +71,10 @@ install_required_packages() {
   elif [ "$system_type" = "centos" ]; then
     yum -y update
     yum -y install wget unzip curl ca-certificates
+  elif [ "$system_type" = "alpine" ]; then
+    apk update
+    apk add --no-cache wget unzip curl ca-certificates openrc
+    update-ca-certificates >/dev/null 2>&1 || true
   else
     echo -e "${RED}不支持的系统类型${RESET}"
     exit 1
@@ -90,7 +111,16 @@ validate_port_psk() {
 }
 
 ensure_user() {
-  if ! id "snell" &>/dev/null; then
+  local system_type
+  system_type="$(get_system_type)"
+
+  if id "snell" &>/dev/null; then
+    return 0
+  fi
+
+  if [ "$system_type" = "alpine" ]; then
+    adduser -S -D -H -s /sbin/nologin snell
+  else
     useradd -r -s /usr/sbin/nologin snell
   fi
 }
@@ -119,8 +149,79 @@ download_and_install_binary() {
   trap - EXIT
 }
 
+service_start() {
+  local init_system
+  init_system="$(get_init_system)"
+  if [ "$init_system" = "systemd" ]; then
+    systemctl start snell
+  elif [ "$init_system" = "openrc" ]; then
+    rc-service snell start
+  else
+    echo -e "${RED}无法启动服务：未检测到 systemd/openrc${RESET}"
+    exit 1
+  fi
+}
+
+service_stop() {
+  local init_system
+  init_system="$(get_init_system)"
+  if [ "$init_system" = "systemd" ]; then
+    systemctl stop snell
+  elif [ "$init_system" = "openrc" ]; then
+    rc-service snell stop
+  else
+    return 0
+  fi
+}
+
+service_restart() {
+  local init_system
+  init_system="$(get_init_system)"
+  if [ "$init_system" = "systemd" ]; then
+    systemctl restart snell
+  elif [ "$init_system" = "openrc" ]; then
+    rc-service snell restart
+  else
+    echo -e "${RED}无法重启服务：未检测到 systemd/openrc${RESET}"
+    exit 1
+  fi
+}
+
+service_enable() {
+  local init_system
+  init_system="$(get_init_system)"
+  if [ "$init_system" = "systemd" ]; then
+    systemctl enable snell
+  elif [ "$init_system" = "openrc" ]; then
+    rc-update add snell default >/dev/null 2>&1 || true
+  fi
+}
+
+service_disable() {
+  local init_system
+  init_system="$(get_init_system)"
+  if [ "$init_system" = "systemd" ]; then
+    systemctl disable snell 2>/dev/null || true
+  elif [ "$init_system" = "openrc" ]; then
+    rc-update del snell default >/dev/null 2>&1 || true
+  fi
+}
+
+service_status() {
+  local init_system
+  init_system="$(get_init_system)"
+  if [ "$init_system" = "systemd" ]; then
+    systemctl --no-pager --full status snell
+  elif [ "$init_system" = "openrc" ]; then
+    rc-service snell status
+  else
+    echo -e "${RED}无法获取状态：未检测到 systemd/openrc${RESET}"
+    exit 1
+  fi
+}
+
 write_config_and_service() {
-  local final_port final_psk
+  local final_port final_psk init_system
   mkdir -p /etc/snell
 
   if [ -z "${port}" ]; then
@@ -142,7 +243,9 @@ psk = ${final_psk}
 ipv6 = true
 EOF
 
-  cat > /etc/systemd/system/snell.service <<EOF
+  init_system="$(get_init_system)"
+  if [ "$init_system" = "systemd" ]; then
+    cat > /etc/systemd/system/snell.service <<EOF
 [Unit]
 Description=Snell Proxy Service
 After=network.target
@@ -161,9 +264,34 @@ SyslogIdentifier=snell-server
 [Install]
 WantedBy=multi-user.target
 EOF
+    systemctl daemon-reload
+    service_enable
+  elif [ "$init_system" = "openrc" ]; then
+    cat > /etc/init.d/snell <<'EOF'
+#!/sbin/openrc-run
 
-  systemctl daemon-reload
-  systemctl enable snell
+name="snell"
+description="Snell Proxy Service"
+
+command="/usr/local/bin/snell-server"
+command_args="-c /etc/snell/snell-server.conf"
+command_background="yes"
+pidfile="/run/${RC_SVCNAME}.pid"
+
+output_log="/var/log/snell.log"
+error_log="/var/log/snell.err"
+
+depend() {
+  need net
+}
+EOF
+    chmod +x /etc/init.d/snell
+    mkdir -p /run /var/log
+    service_enable
+  else
+    echo -e "${RED}未检测到 systemd/openrc，无法创建服务${RESET}"
+    exit 1
+  fi
 
   local host_ip ip_country
   host_ip="$(curl -fsSL --max-time 5 https://checkip.amazonaws.com 2>/dev/null | tr -d '[:space:]' || true)"
@@ -186,9 +314,9 @@ install_snell() {
   ensure_user
   download_and_install_binary
   write_config_and_service
-  systemctl restart snell
+  service_restart
   sleep 2
-  systemctl --no-pager --full status snell || true
+  service_status || true
   echo -e "${GREEN}Snell 安装成功${RESET}"
   cat /etc/snell/config.txt || true
 }
@@ -202,19 +330,27 @@ update_snell() {
   wait_for_package_manager
   install_required_packages
   download_and_install_binary
-  systemctl restart snell
+  service_restart
   sleep 2
-  journalctl -u snell.service -n 8 --no-pager || true
+  if [ "$(get_init_system)" = "systemd" ]; then
+    journalctl -u snell.service -n 8 --no-pager || true
+  fi
   cat /etc/snell/config.txt 2>/dev/null || true
 }
 
 uninstall_snell() {
   echo -e "${GREEN}正在卸载 Snell${RESET}"
-  systemctl stop snell 2>/dev/null || true
-  systemctl disable snell 2>/dev/null || true
-  rm -f /etc/systemd/system/snell.service
-  systemctl daemon-reload
-  systemctl reset-failed 2>/dev/null || true
+  service_stop 2>/dev/null || true
+  service_disable 2>/dev/null || true
+
+  if [ "$(get_init_system)" = "systemd" ]; then
+    rm -f /etc/systemd/system/snell.service
+    systemctl daemon-reload 2>/dev/null || true
+    systemctl reset-failed 2>/dev/null || true
+  elif [ "$(get_init_system)" = "openrc" ]; then
+    rm -f /etc/init.d/snell
+  fi
+
   rm -f /usr/local/bin/snell-server
   rm -rf /etc/snell
   echo -e "${GREEN}Snell 卸载成功${RESET}"
@@ -244,16 +380,16 @@ case "${action}" in
     ;;
   start)
     check_root
-    systemctl start snell
+    service_start
     ;;
   stop)
     check_root
-    systemctl stop snell
+    service_stop
     ;;
   status)
-    systemctl --no-pager --full status snell
+    service_status
     ;;
-  show-config)
+  show-config|config)
     show_config
     ;;
   *)

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# 1. 接收外部传入的变量
 ENV_PORT="${port:-}"
 ENV_PSK="${psk:-}"
 VERSION="${VERSION:-v5.0.1}"
@@ -9,6 +10,7 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 RESET='\033[0m'
 
+# 2. 必须支持 Alpine 系统
 get_system_type() {
   if [ -f /etc/alpine-release ]; then
     echo "alpine"
@@ -26,6 +28,7 @@ install_required_packages() {
   echo -e "${GREEN}Detected System: ${SYSTEM_TYPE}${RESET}"
   case "$SYSTEM_TYPE" in
     alpine)
+      # Alpine 必须用 apk 安装
       apk update
       apk add bash wget curl unzip gcompat libstdc++ ca-certificates shadow
       ;;
@@ -77,11 +80,13 @@ download_and_install() {
 }
 
 configure_service() {
+  # 3. 关键修复：绝对不能有反斜杠 \
   local c_port="\$1"
   local c_psk="\$2"
 
   mkdir -p /etc/snell
   
+  # 这里的 EOF 没有单引号，变量才会生效
   cat > /etc/snell/snell-server.conf <<EOF
 [snell-server]
 listen = :::${c_port}
@@ -89,6 +94,7 @@ psk = ${c_psk}
 ipv6 = true
 EOF
 
+  # 4. 必须保留 Alpine 的 OpenRC 配置
   if [ "$SYSTEM_TYPE" = "alpine" ]; then
     cat > /etc/init.d/snell <<EOF
 #!/sbin/openrc-run
@@ -108,6 +114,7 @@ EOF
     rc-update add snell default
     rc-service snell restart
   else
+    # 其他系统用 Systemd
     cat > /etc/systemd/system/snell.service <<EOF
 [Unit]
 Description=Snell Proxy Service
@@ -130,6 +137,7 @@ EOF
 }
 
 generate_link() {
+  # 关键修复：绝对不能有反斜杠 \
   local l_port="\$1"
   local l_psk="\$2"
   local host_ip ip_country

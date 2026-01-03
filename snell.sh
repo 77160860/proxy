@@ -1,3 +1,4 @@
+cat > snell.sh << 'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -39,8 +40,8 @@ install_required_packages() {
 
   case "$SYSTEM_TYPE" in
     alpine)
-      # Alpine 需要 gcompat 来运行 glibc 的二进制文件
       apk update
+      # 安装 bash, curl, unzip, gcompat (运行 glibc 程序), shadow (useradd)
       apk add bash wget curl unzip gcompat libstdc++ ca-certificates shadow
       ;;
     debian)
@@ -132,13 +133,12 @@ download_and_install_binary() {
   trap - EXIT
 }
 
-# --- 服务管理抽象 ---
+# --- 服务配置 ---
 
 service_install() {
   local final_port="\$1"
   local final_psk="\$2"
   
-  # 1. 写入配置文件
   mkdir -p /etc/snell
   cat > /etc/snell/snell-server.conf <<EOF
 [snell-server]
@@ -147,9 +147,8 @@ psk = ${final_psk}
 ipv6 = true
 EOF
 
-  # 2. 根据系统类型配置服务
   if [ "$SYSTEM_TYPE" = "alpine" ]; then
-    # OpenRC 配置
+    # OpenRC
     cat > /etc/init.d/snell <<EOF
 #!/sbin/openrc-run
 
@@ -169,7 +168,7 @@ EOF
     chmod +x /etc/init.d/snell
     rc-update add snell default
   else
-    # Systemd 配置
+    # Systemd
     cat > /etc/systemd/system/snell.service <<EOF
 [Unit]
 Description=Snell Proxy Service
@@ -194,22 +193,6 @@ EOF
   fi
 }
 
-service_start() {
-  if [ "$SYSTEM_TYPE" = "alpine" ]; then
-    rc-service snell start
-  else
-    systemctl start snell
-  fi
-}
-
-service_stop() {
-  if [ "$SYSTEM_TYPE" = "alpine" ]; then
-    rc-service snell stop || true
-  else
-    systemctl stop snell || true
-  fi
-}
-
 service_restart() {
   if [ "$SYSTEM_TYPE" = "alpine" ]; then
     rc-service snell restart
@@ -218,11 +201,11 @@ service_restart() {
   fi
 }
 
-service_status() {
+service_stop() {
   if [ "$SYSTEM_TYPE" = "alpine" ]; then
-    rc-service snell status
+    rc-service snell stop || true
   else
-    systemctl --no-pager --full status snell
+    systemctl stop snell || true
   fi
 }
 
@@ -239,20 +222,26 @@ service_uninstall() {
   fi
 }
 
+# --- 关键修复：正确生成配置文本 ---
 generate_share_link() {
-  local final_port="\$1"
-  local final_psk="\$2"
+  local p_port="\$1"
+  local p_psk="\$2"
   local host_ip ip_country
 
+  # 获取IP
   host_ip="$(curl -fsSL --max-time 5 https://checkip.amazonaws.com 2>/dev/null | tr -d '[:space:]' || true)"
+  
+  # 获取国家代码，如果失败默认为 UN
   if [ -n "${host_ip}" ]; then
     ip_country="$(curl -fsSL --max-time 5 "https://ipinfo.io/${host_ip}/country" 2>/dev/null | tr -d '[:space:]' || true)"
-  else
-    ip_country=""
+  fi
+  if [ -z "${ip_country}" ]; then
+    ip_country="UN"
   fi
 
+  # 写入文件，注意这里使用的是变量 p_port 和 p_psk
   cat > /etc/snell/config.txt <<EOF
-${ip_country} = snell, ${host_ip}, ${final_port}, psk = ${final_psk}, version = 5, reuse = true, tfo = true
+${ip_country} = snell, ${host_ip}, ${p_port}, psk = ${p_psk}, version = 5, reuse = true, tfo = true
 EOF
 }
 
@@ -277,12 +266,18 @@ install_snell() {
     final_psk="${psk}"
   fi
 
+  # 1. 安装服务配置
   service_install "${final_port}" "${final_psk}"
+  
+  # 2. 生成分享链接 (修复了这里)
   generate_share_link "${final_port}" "${final_psk}"
+  
+  # 3. 启动服务
   service_restart
   
   sleep 2
   echo -e "${GREEN}Snell 安装成功${RESET}"
+  # 4. 显示配置
   cat /etc/snell/config.txt || true
 }
 
@@ -332,21 +327,23 @@ case "${action}" in
     ;;
   start)
     check_root
-    service_start
+    if [ "$SYSTEM_TYPE" = "alpine" ]; then rc-service snell start; else systemctl start snell; fi
     ;;
   stop)
     check_root
     service_stop
     ;;
   status)
-    service_status
+    if [ "$SYSTEM_TYPE" = "alpine" ]; then rc-service snell status; else systemctl status snell; fi
     ;;
   show-config)
     show_config
     ;;
   *)
     echo -e "${RED}无效参数: ${action}${RESET}"
-    echo "用法: action=[install|update|uninstall|start|stop|status|show-config] ./snell.sh"
     exit 1
     ;;
 esac
+EOF
+chmod +x snell.sh
+bash snell.sh

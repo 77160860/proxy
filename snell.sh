@@ -130,7 +130,6 @@ EOF
 }
 
 generate_link() {
-  # 修正点：去掉了 \$1 和 \$2 前面的反斜杠
   local l_port="\$1"
   local l_psk="\$2"
   local host_ip ip_country

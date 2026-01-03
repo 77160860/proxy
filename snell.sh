@@ -12,22 +12,10 @@ port="${port:-}"
 psk="${psk:-}"
 
 get_system_type() {
-  if [ -f /etc/alpine-release ]; then
-    echo "alpine"
-  elif [ -f /etc/debian_version ]; then
+  if [ -f /etc/debian_version ]; then
     echo "debian"
   elif [ -f /etc/redhat-release ]; then
     echo "centos"
-  else
-    echo "unknown"
-  fi
-}
-
-get_init_system() {
-  if command -v systemctl >/dev/null 2>&1 && [ -d /run/systemd/system ]; then
-    echo "systemd"
-  elif command -v rc-service >/dev/null 2>&1; then
-    echo "openrc"
   else
     echo "unknown"
   fi
@@ -66,17 +54,11 @@ install_required_packages() {
   elif [ "$system_type" = "centos" ]; then
     yum -y update
     yum -y install wget unzip curl ca-certificates
-  elif [ "$system_type" = "alpine" ]; then
-    apk update
-    apk add --no-cache wget unzip curl ca-certificates openrc
-    update-ca-certificates >/dev/null 2>&1 || true
-    rc-update add networking default >/dev/null 2>&1 || true
   else
     echo -e "${RED}不支持的系统类型${RESET}"
     exit 1
   fi
 }
-
 
 detect_arch() {
   local a
@@ -160,11 +142,7 @@ psk = ${final_psk}
 ipv6 = true
 EOF
 
-  local init_system
-  init_system="$(get_init_system)"
-
-  if [ "$init_system" = "systemd" ]; then
-    cat > /etc/systemd/system/snell.service <<EOF
+  cat > /etc/systemd/system/snell.service <<EOF
 [Unit]
 Description=Snell Proxy Service
 After=network.target
@@ -184,33 +162,8 @@ SyslogIdentifier=snell-server
 WantedBy=multi-user.target
 EOF
 
-    systemctl daemon-reload
-    systemctl enable snell
-
-  elif [ "$init_system" = "openrc" ]; then
-    cat > /etc/init.d/snell <<'EOF'
-#!/sbin/openrc-run
-
-name="snell"
-description="Snell Proxy Service"
-command="/usr/local/bin/snell-server"
-command_args="-c /etc/snell/snell-server.conf"
-command_background="yes"
-pidfile="/run/${RC_SVCNAME}.pid"
-output_log="/var/log/snell.log"
-error_log="/var/log/snell.err"
-
-depend() {
-  need net
-}
-EOF
-    chmod +x /etc/init.d/snell
-    mkdir -p /run /var/log
-    rc-update add snell default >/dev/null 2>&1 || true
-  else
-    echo -e "${RED}未检测到 systemd/openrc，无法创建服务${RESET}"
-    exit 1
-  fi
+  systemctl daemon-reload
+  systemctl enable snell
 
   local host_ip ip_country
   host_ip="$(curl -fsSL --max-time 5 https://checkip.amazonaws.com 2>/dev/null | tr -d '[:space:]' || true)"

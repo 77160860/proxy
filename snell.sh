@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# --- 变量获取 ---
 ENV_PORT="${port:-}"
 ENV_PSK="${psk:-}"
 VERSION="${VERSION:-v5.0.1}"
@@ -10,7 +9,6 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 RESET='\033[0m'
 
-# --- 1. 系统检测 ---
 get_system_type() {
   if [ -f /etc/alpine-release ]; then
     echo "alpine"
@@ -24,7 +22,6 @@ get_system_type() {
 }
 SYSTEM_TYPE="$(get_system_type)"
 
-# --- 2. 依赖安装 ---
 install_required_packages() {
   echo -e "${GREEN}Detected System: ${SYSTEM_TYPE}${RESET}"
   case "$SYSTEM_TYPE" in
@@ -48,7 +45,6 @@ install_required_packages() {
   esac
 }
 
-# --- 3. 架构检测 ---
 detect_arch() {
   local a
   a="$(uname -m)"
@@ -59,7 +55,6 @@ detect_arch() {
   esac
 }
 
-# --- 4. 下载与安装 ---
 download_and_install() {
   if ! id "snell" &>/dev/null; then
     if [ "$SYSTEM_TYPE" = "alpine" ]; then
@@ -81,7 +76,6 @@ download_and_install() {
   rm -rf "${tmpdir}"
 }
 
-# --- 5. 配置服务 ---
 configure_service() {
   local c_port="\$1"
   local c_psk="\$2"
@@ -95,7 +89,6 @@ ipv6 = true
 EOF
 
   if [ "$SYSTEM_TYPE" = "alpine" ]; then
-    # Alpine OpenRC
     cat > /etc/init.d/snell <<EOF
 #!/sbin/openrc-run
 name="snell"
@@ -114,7 +107,6 @@ EOF
     rc-update add snell default
     rc-service snell restart
   else
-    # Systemd
     cat > /etc/systemd/system/snell.service <<EOF
 [Unit]
 Description=Snell Proxy Service
@@ -136,7 +128,6 @@ EOF
   fi
 }
 
-# --- 6. 生成链接 ---
 generate_link() {
   local l_port="\$1"
   local l_psk="\$2"
@@ -153,7 +144,6 @@ ${ip_country} = snell, ${host_ip}, ${l_port}, psk = ${l_psk}, version = 5, reuse
 EOF
 }
 
-# --- 主流程 ---
 main() {
   install_required_packages
   download_and_install

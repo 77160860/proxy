@@ -77,7 +77,6 @@ download_and_install() {
 }
 
 configure_service() {
-  # 修正点：去掉了 \$1 和 \$2 前面的反斜杠
   local c_port="\$1"
   local c_psk="\$2"
 

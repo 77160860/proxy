@@ -30,9 +30,9 @@
     "rules": [
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
-      {"query_type": "HTTPS", "action": "reject"},
+      {"query_type":["SVCB", "HTTPS"], "action": "predefined", "rcode": "NOTIMP"},
       {"rule_set": ["cn", "me", "apple", "bilibili", "games@cn"], "server": "local"},
-      {"query_type": "A", "server": "fakeip", "rewrite_ttl": 0}
+      {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 0}
     ],
     "final": "foreign",
     "strategy": "ipv4_only",
@@ -44,7 +44,7 @@
   },
   "inbounds": [
     {"tag": "mixed-in", "type": "mixed", "listen": "0.0.0.0", "listen_port": 7890},
-    {"tag": "tun-in", "type": "tun", "address": ["168.18.0.1/30"], "mtu": 1500, "auto_route": true, "strict_route": true, "route_exclude_address": ["192.168.0.0/16", "fc00::/7"]}
+    {"tag": "tun-in", "type": "tun", "address": ["168.18.0.1/30"], "mtu": 1500, "auto_route": true, "strict_route": true, "sniff": true, "route_exclude_address": ["192.168.0.0/16", "fc00::/7"]}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"], "interrupt_exist_connections": true},
@@ -59,7 +59,8 @@
     "auto_detect_interface": true,
     "default_domain_resolver": {"server": "public"},
     "rules": [
-      {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns"]},
+      {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns", "stun"]},
+      {"protocol": ["quic", "stun"], "action": "reject"},
       {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},

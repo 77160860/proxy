@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
-# ------------------------------------------------------------
-# Snell Server installer / manager (clean of Chinese comments)
-# Supports: Debian/Ubuntu, CentOS/RHEL, Alpine
-# Actions: install / update / uninstall / start / stop / status / show-config
-# ------------------------------------------------------------
 set -euo pipefail
 
-# ==========================
-#   Constants & defaults
-# ==========================
 DEFAULT_VERSION="v5.0.1"
 DEFAULT_USER="snell"
 DEFAULT_SERVICE="snell"
@@ -18,7 +10,6 @@ DEFAULT_PORT_RANGE_START=30000
 DEFAULT_PORT_RANGE_END=65000
 DEFAULT_PSK_LEN=20
 
-# Colors (disable when stdout is not a terminal)
 if [[ -t 1 ]]; then
   RED='\033[0;31m'
   GREEN='\033[0;32m'
@@ -31,20 +22,12 @@ else
   RESET=''
 fi
 
-# ==========================
-#   Helper functions
-# ==========================
 msg()    { printf "${GREEN}%s${RESET}\n" "$*"; }
 warn()   { printf "${YELLOW}%s${RESET}\n" "$*"; }
 error()  { printf "${RED}%s${RESET}\n" "$*" >&2; }
 
-require_cmd() {
-  command -v "$1" >/dev/null || { error "Missing required command: $1"; exit 1; }
-}
-
-check_root() {
-  [[ "$(id -u)" -eq 0 ]] || { error "Please run this script as root."; exit 1; }
-}
+require_cmd() { command -v "$1" >/dev/null || { error "Missing required command: $1"; exit 1; }; }
+check_root() { [[ "$(id -u)" -eq 0 ]] || { error "Please run this script as root."; exit 1; }; }
 
 get_system_type() {
   if [[ -f /etc/debian_version ]]; then echo "debian";
@@ -54,8 +37,7 @@ get_system_type() {
 }
 
 wait_for_package_manager() {
-  local sys
-  sys=$(get_system_type)
+  local sys; sys=$(get_system_type)
   case "$sys" in
     debian)
       while fuser /var/lib/dpkg/lock >/dev/null 2>&1 \
@@ -72,14 +54,13 @@ wait_for_package_manager() {
         sleep 1
       done
       ;;
-    alpine) ;;   # apk has no lock file
+    alpine) ;;
     *) error "Unsupported system type for lock waiting."; exit 1 ;;
   esac
 }
 
 install_required_packages() {
-  local sys
-  sys=$(get_system_type)
+  local sys; sys=$(get_system_type)
   msg "Installing required packages..."
   case "$sys" in
     debian)
@@ -107,30 +88,21 @@ detect_arch() {
   esac
 }
 
-validate_port() {
-  [[ "$1" =~ ^[0-9]+$ ]] && (( $1 >= 1 && $1 <= 65535 ))
-}
+validate_port() { [[ "$1" =~ ^[0-9]+$ ]] && (( $1 >= 1 && $1 <= 65535 )); }
 
 pick_free_port() {
   local p
   for _ in {1..10}; do
     p=$(shuf -i "${DEFAULT_PORT_RANGE_START}-${DEFAULT_PORT_RANGE_END}" -n 1)
-    if ! ss -ltn "sport = :$p" >/dev/null 2>&1; then
-      echo "$p"
-      return
-    fi
+    if ! ss -ltn "sport = :$p" >/dev/null 2>&1; then echo "$p"; return; fi
   done
   error "Could not find a free port in the random range."
   exit 1
 }
 
-validate_psk() {
-  (( ${#1} >= 8 ))
-}
+validate_psk() { (( ${#1} >= 8 )); }
 
-generate_psk() {
-  tr -dc A-Za-z0-9 </dev/urandom | head -c "${DEFAULT_PSK_LEN}"
-}
+generate_psk() { tr -dc A-Za-z0-9 </dev/urandom | head -c "${DEFAULT_PSK_LEN}"; }
 
 ensure_user() {
   if ! id "${DEFAULT_USER}" &>/dev/null; then
@@ -144,64 +116,38 @@ download_and_install_binary() {
   local arch url tmpdir
   arch=$(detect_arch)
   url="https://dl.nssurge.com/snell/snell-server-${VERSION}-linux-${arch}.zip"
-
   tmpdir=$(mktemp -d)
   trap 'rm -rf "$tmpdir"' EXIT
-
   msg "Downloading Snell binary from: $url"
   wget -qO "${tmpdir}/snell-server.zip" "$url"
-
-  # Optional SHA256 verification (uncomment if .sha256 file is available)
-  # wget -qO "${tmpdir}/snell-server.zip.sha256" "${url}.sha256"
-  # (cd "$tmpdir" && sha256sum -c snell-server.zip.sha256)
-
   unzip -oq "${tmpdir}/snell-server.zip" -d "$tmpdir"
   [[ -f "${tmpdir}/snell-server" ]] || { error "snell-server not found after unzip."; exit 1; }
-
   install -m 0755 "${tmpdir}/snell-server" "${DEFAULT_INSTALL_DIR}/snell-server"
   msg "Installed snell-server to ${DEFAULT_INSTALL_DIR}/snell-server"
 }
 
 write_config_and_service() {
   local final_port final_psk host_ip ip_country
-
   mkdir -p "${DEFAULT_CONF_DIR}"
-
-  # Port handling
   if [[ -n "${port:-}" ]]; then
-    if ! validate_port "$port"; then
-      error "Invalid port supplied: $port"
-      exit 1
-    fi
+    if ! validate_port "$port"; then error "Invalid port supplied: $port"; exit 1; fi
     final_port=$port
-    if ss -ltn "sport = :$final_port" >/dev/null 2>&1; then
-      error "Port $final_port is already in use."
-      exit 1
-    fi
+    if ss -ltn "sport = :$final_port" >/dev/null 2>&1; then error "Port $final_port is already in use."; exit 1; fi
   else
     final_port=$(pick_free_port)
   fi
-
-  # PSK handling
   if [[ -n "${psk:-}" ]]; then
-    if ! validate_psk "$psk"; then
-      error "PSK is too short (minimum 8 characters)."
-      exit 1
-    fi
+    if ! validate_psk "$psk"; then error "PSK is too short (minimum 8 characters)."; exit 1; fi
     final_psk=$psk
   else
     final_psk=$(generate_psk)
   fi
-
-  # Snell configuration file (dual stack)
   cat > "${DEFAULT_CONF_DIR}/snell-server.conf" <<EOF
 [snell-server]
 listen = 0.0.0.0:${final_port},:::${final_port}
 psk = ${final_psk}
 ipv6 = true
 EOF
-
-  # systemd service unit
   cat > "/etc/systemd/system/${DEFAULT_SERVICE}.service" <<EOF
 [Unit]
 Description=Snell Proxy Service
@@ -221,25 +167,15 @@ SyslogIdentifier=snell-server
 [Install]
 WantedBy=multi-user.target
 EOF
-
   systemctl daemon-reload
   systemctl enable "${DEFAULT_SERVICE}.service"
-
-  # Gather public IP and country for client config line
   host_ip=$(curl -fsSL --max-time 5 https://checkip.amazonaws.com 2>/dev/null | tr -d '[:space:]' || true)
-  if [[ -z "$host_ip" ]]; then
-    host_ip=$(curl -fsSL --max-time 5 https://api.ipify.org 2>/dev/null || true)
-  fi
-
+  if [[ -z "$host_ip" ]]; then host_ip=$(curl -fsSL --max-time 5 https://api.ipify.org 2>/dev/null || true); fi
   ip_country=""
-  if [[ -n "$host_ip" ]]; then
-    ip_country=$(curl -fsSL --max-time 5 "https://ipinfo.io/${host_ip}/country" 2>/dev/null | tr -d '[:space:]' || true)
-  fi
-
+  if [[ -n "$host_ip" ]]; then ip_country=$(curl -fsSL --max-time 5 "https://ipinfo.io/${host_ip}/country" 2>/dev/null | tr -d '[:space:]' || true); fi
   cat > "${DEFAULT_CONF_DIR}/config.txt" <<EOF
 ${ip_country} = snell, ${host_ip}, ${final_port}, psk = ${final_psk}, version = 5, reuse = true, tfo = true
 EOF
-
   msg "Snell configuration written to ${DEFAULT_CONF_DIR}/snell-server.conf"
   msg "Systemd service unit created at ${DEFAULT_SERVICE}.service"
   msg "Client configuration line (saved to ${DEFAULT_CONF_DIR}/config.txt):"
@@ -261,10 +197,7 @@ install_snell() {
 
 update_snell() {
   msg ">>> Updating Snell <<<"
-  if [[ ! -x "${DEFAULT_INSTALL_DIR}/snell-server" ]]; then
-    warn "Snell is not installed; cannot update."
-    exit 1
-  fi
+  if [[ ! -x "${DEFAULT_INSTALL_DIR}/snell-server" ]]; then warn "Snell is not installed; cannot update."; exit 1; fi
   wait_for_package_manager
   install_required_packages
   download_and_install_binary
@@ -287,12 +220,8 @@ uninstall_snell() {
 }
 
 show_config() {
-  if [[ -f "${DEFAULT_CONF_DIR}/config.txt" ]]; then
-    cat "${DEFAULT_CONF_DIR}/config.txt"
-  else
-    error "Config file not found: ${DEFAULT_CONF_DIR}/config.txt"
-    exit 1
-  fi
+  if [[ -f "${DEFAULT_CONF_DIR}/config.txt" ]]; then cat "${DEFAULT_CONF_DIR}/config.txt"
+  else error "Config file not found: ${DEFAULT_CONF_DIR}/config.txt"; exit 1; fi
 }
 
 print_usage() {
@@ -322,9 +251,6 @@ Example:
 EOF
 }
 
-# ==========================
-#   Argument parsing
-# ==========================
 VERSION="${DEFAULT_VERSION}"
 port=""
 psk=""
@@ -332,73 +258,24 @@ action=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    install|update|uninstall|start|stop|status|show-config)
-      action=$1
-      shift
-      ;;
-    -v|--version)
-      VERSION=$2
-      shift 2
-      ;;
-    -p|--port)
-      port=$2
-      shift 2
-      ;;
-    -k|--psk|--key)
-      psk=$2
-      shift 2
-      ;;
-    -h|--help)
-      print_usage
-      exit 0
-      ;;
-    *)
-      error "Unknown parameter: $1"
-      print_usage
-      exit 1
-      ;;
+    install|update|uninstall|start|stop|status|show-config) action=$1; shift ;;
+    -v|--version) VERSION=$2; shift 2 ;;
+    -p|--port) port=$2; shift 2 ;;
+    -k|--psk|--key) psk=$2; shift 2 ;;
+    -h|--help) print_usage; exit 0 ;;
+    *) error "Unknown parameter: $1"; print_usage; exit 1 ;;
   esac
 done
 
-if [[ -z "$action" ]]; then
-  error "No action specified."
-  print_usage
-  exit 1
-fi
+if [[ -z "$action" ]]; then error "No action specified."; print_usage; exit 1; fi
 
-# ==========================
-#   Main dispatch
-# ==========================
 case "$action" in
-  install)
-    check_root
-    install_snell
-    ;;
-  update)
-    check_root
-    update_snell
-    ;;
-  uninstall)
-    check_root
-    uninstall_snell
-    ;;
-  start)
-    check_root
-    systemctl start "${DEFAULT_SERVICE}.service"
-    ;;
-  stop)
-    check_root
-    systemctl stop "${DEFAULT_SERVICE}.service"
-    ;;
-  status)
-    systemctl --no-pager --full status "${DEFAULT_SERVICE}.service"
-    ;;
-  show-config)
-    show_config
-    ;;
-  *)
-    error "Invalid action: $action"
-    print_usage
-    exit 1
-    ;;
+  install)   check_root; install_snell ;;
+  update)    check_root; update_snell ;;
+  uninstall) check_root; uninstall_snell ;;
+  start)     check_root; systemctl start "${DEFAULT_SERVICE}.service" ;;
+  stop)      check_root; systemctl stop "${DEFAULT_SERVICE}.service" ;;
+  status)    systemctl --no-pager --full status "${DEFAULT_SERVICE}.service" ;;
+  show-config) show_config ;;
+  *) error "Invalid action: $action"; print_usage; exit 1 ;;
 esac

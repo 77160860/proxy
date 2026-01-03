@@ -22,7 +22,7 @@
   ],
   "dns": {
     "servers": [
-      {"tag": "local", "type": "dhcp"},
+      {"tag": "local", "type": "local"},
       {"tag": "public", "type": "https", "server": "dns.alidns.com", "domain_resolver": "local"},
       {"tag": "foreign", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/16"}
@@ -30,9 +30,9 @@
     "rules": [
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
-      {"query_type": "HTTPS", "action": "reject"},
+      {"query_type":["SVCB", "HTTPS"], "action": "predefined", "rcode": "NOTIMP"},
       {"rule_set": ["cn", "me", "apple", "bilibili", "games@cn"], "server": "local"},
-      {"query_type": "A", "server": "fakeip", "rewrite_ttl": 0}
+      {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 0}
     ],
     "final": "foreign",
     "strategy": "ipv4_only",
@@ -46,7 +46,7 @@
     {"tag": "dns-in", "type": "direct", "listen": "0.0.0.0", "listen_port": 1053},
     {"tag": "redirect-in", "type": "redirect", "listen": "0.0.0.0", "listen_port": 7897},
     {"tag": "tproxy-in", "type": "tproxy", "listen": "0.0.0.0", "listen_port": 7898},
-    {"tag": "tun-in", "type": "tun", "interface_name": "momo", "address": ["168.18.0.1/30"], "mtu": 9000, "auto_route": false, "auto_redirect": false}
+    {"tag": "tun-in", "type": "tun", "interface_name": "momo", "address": ["168.18.0.1/30"], "mtu": 9000, "auto_route": false, "auto_redirect": false, "sniff": true}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"], "interrupt_exist_connections": true},
@@ -60,7 +60,8 @@
     "auto_detect_interface": true,
     "default_domain_resolver": {"server": "public"},
     "rules": [
-      {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns"]},
+      {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns", "stun"]},
+      {"protocol": ["quic", "stun"], "action": "reject"},
       {"inbound": "dns-in", "action": "hijack-dns"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
@@ -89,7 +90,7 @@
     ],
     "rule_set": [
       {"tag": "me", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/singbox-rule/main/rule/me.srs", "download_detour": "🐸 Direct"},
-      {"tag": "adblock", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/217heidai/adblockfilters/main/rules/adblocksingboxlite.srs", "download_detour": "🐸 Direct"},
+      {"tag": "adblock", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Singbox.json", "download_detour": "🐸 Direct"},
       {"tag": "tracker", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/tracker.srs", "download_detour": "🐸 Direct"},
       {"tag": "youtube", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/youtube.srs", "download_detour": "🐸 Direct"},
       {"tag": "google", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/google.srs", "download_detour": "🐸 Direct"},

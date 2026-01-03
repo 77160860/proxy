@@ -74,7 +74,7 @@ install_required_packages() {
       ;;
     alpine)
       apk update
-      apk add --no-cache wget unzip curl ca-certificates
+      apk add --no-cache wget unzip curl ca-certificates shadow   # ← added shadow
       ;;
     *) error "Unsupported system type."; exit 1 ;;
   esac
@@ -106,7 +106,11 @@ generate_psk() { tr -dc A-Za-z0-9 </dev/urandom | head -c "${DEFAULT_PSK_LEN}"; 
 
 ensure_user() {
   if ! id "${DEFAULT_USER}" &>/dev/null; then
-    useradd -r -s /usr/sbin/nologin "${DEFAULT_USER}"
+    if command -v useradd >/dev/null 2>&1; then
+      useradd -r -s /usr/sbin/nologin "${DEFAULT_USER}"
+    else
+      adduser -D -H -s /sbin/nologin "${DEFAULT_USER}"
+    fi
   elif [[ "$(id -u "${DEFAULT_USER}")" -ge 1000 ]]; then
     warn "A regular user named ${DEFAULT_USER} already exists; please verify it is safe to use."
   fi
@@ -243,7 +247,7 @@ Actions (required):
 Options:
   -v|--version <ver>   Snell version to install (default: ${DEFAULT_VERSION})
   -p|--port   <num>    Listening port (1‑65535)
-  -k|--psk    <str>    Pre-shared key (minimum 8 characters)
+  -k|--psk    <str>    Pre‑shared key (minimum 8 characters)
   -h|--help            Show this help message
 
 Example:

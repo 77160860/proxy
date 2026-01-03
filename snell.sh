@@ -225,32 +225,6 @@ ${ip_country} = snell, ${host_ip}, ${final_port}, psk = ${final_psk}, version = 
 EOF
 }
 
-service_enable() {
-  local init_system
-  init_system="$(get_init_system)"
-  if [ "$init_system" = "systemd" ]; then systemctl enable snell
-  elif [ "$init_system" = "openrc" ]; then rc-update add snell default >/dev/null 2>&1 || true
-  fi
-}
-
-service_restart() {
-  local init_system
-  init_system="$(get_init_system)"
-  if [ "$init_system" = "systemd" ]; then systemctl restart snell
-  elif [ "$init_system" = "openrc" ]; then rc-service snell restart
-  else return 1
-  fi
-}
-
-service_status() {
-  local init_system
-  init_system="$(get_init_system)"
-  if [ "$init_system" = "systemd" ]; then systemctl --no-pager --full status snell
-  elif [ "$init_system" = "openrc" ]; then rc-service snell status
-  else return 1
-  fi
-}
-
 install_snell() {
   echo -e "${GREEN}正在安装 Snell${RESET}"
   wait_for_package_manager

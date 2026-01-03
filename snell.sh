@@ -7,9 +7,9 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RESET='\033[0m'
 
-cmd="${1:-install}"
-port="${2:-}"
-psk="${3:-}"
+action="${action:-install}"
+port="${port:-}"
+psk="${psk:-}"
 
 get_system_type() {
   if [ -f /etc/debian_version ]; then
@@ -49,7 +49,7 @@ install_required_packages() {
 
   if [ "$system_type" = "debian" ]; then
     export DEBIAN_FRONTEND=noninteractive
-    apt-get update
+    apt-get update -y
     apt-get install -y wget unzip curl ca-certificates
   elif [ "$system_type" = "centos" ]; then
     yum -y update
@@ -229,6 +229,10 @@ show_config() {
   fi
 }
 
+cmd="${1:-install}"
+port="${2:-${port:-}}"
+psk="${3:-${psk:-}}"
+
 case "${cmd}" in
   install)
     check_root
@@ -253,7 +257,7 @@ case "${cmd}" in
   status)
     systemctl --no-pager --full status snell
     ;;
-  config)
+  config|show-config)
     show_config
     ;;
   *)

@@ -81,6 +81,8 @@ configure_service() {
   local c_psk="\$2"
 
   mkdir -p /etc/snell
+  
+  # 注意：下面的 EOF 没有单引号，这样变量才能生效
   cat > /etc/snell/snell-server.conf <<EOF
 [snell-server]
 listen = :::${c_port}
@@ -139,6 +141,7 @@ generate_link() {
   fi
   if [ -z "${ip_country}" ]; then ip_country="UN"; fi
 
+  # 注意：下面的 EOF 没有单引号
   cat > /etc/snell/config.txt <<EOF
 ${ip_country} = snell, ${host_ip}, ${l_port}, psk = ${l_psk}, version = 5, reuse = true, tfo = true
 EOF

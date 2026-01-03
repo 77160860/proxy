@@ -2,8 +2,6 @@
 set -euo pipefail
 
 # --- 变量获取 ---
-# 允许从环境变量传入 port 和 psk
-# 如果未传入，留空以便后续生成
 ENV_PORT="${port:-}"
 ENV_PSK="${psk:-}"
 VERSION="${VERSION:-v5.0.1}"
@@ -31,7 +29,6 @@ install_required_packages() {
   echo -e "${GREEN}Detected System: ${SYSTEM_TYPE}${RESET}"
   case "$SYSTEM_TYPE" in
     alpine)
-      # Alpine 必须安装 gcompat 才能运行 Snell
       apk update
       apk add bash wget curl unzip gcompat libstdc++ ca-certificates shadow
       ;;
@@ -64,7 +61,6 @@ detect_arch() {
 
 # --- 4. 下载与安装 ---
 download_and_install() {
-  # 创建用户
   if ! id "snell" &>/dev/null; then
     if [ "$SYSTEM_TYPE" = "alpine" ]; then
       useradd -r -s /sbin/nologin snell
@@ -85,7 +81,7 @@ download_and_install() {
   rm -rf "${tmpdir}"
 }
 
-# --- 5. 配置服务 (兼容 Alpine OpenRC 和 Systemd) ---
+# --- 5. 配置服务 ---
 configure_service() {
   local c_port="\$1"
   local c_psk="\$2"
@@ -99,7 +95,7 @@ ipv6 = true
 EOF
 
   if [ "$SYSTEM_TYPE" = "alpine" ]; then
-    # --- Alpine OpenRC 配置 ---
+    # Alpine OpenRC
     cat > /etc/init.d/snell <<EOF
 #!/sbin/openrc-run
 name="snell"
@@ -118,7 +114,7 @@ EOF
     rc-update add snell default
     rc-service snell restart
   else
-    # --- Systemd 配置 ---
+    # Systemd
     cat > /etc/systemd/system/snell.service <<EOF
 [Unit]
 Description=Snell Proxy Service
@@ -140,7 +136,7 @@ EOF
   fi
 }
 
-# --- 6. 生成分享链接 ---
+# --- 6. 生成链接 ---
 generate_link() {
   local l_port="\$1"
   local l_psk="\$2"
@@ -152,7 +148,6 @@ generate_link() {
   fi
   if [ -z "${ip_country}" ]; then ip_country="UN"; fi
 
-  # 写入文件
   cat > /etc/snell/config.txt <<EOF
 ${ip_country} = snell, ${host_ip}, ${l_port}, psk = ${l_psk}, version = 5, reuse = true, tfo = true
 EOF
@@ -165,7 +160,6 @@ main() {
 
   local final_port final_psk
 
-  # 优先使用环境变量传入的值
   if [ -n "${ENV_PORT}" ]; then
     final_port="${ENV_PORT}"
   else

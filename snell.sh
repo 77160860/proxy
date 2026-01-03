@@ -1,4 +1,5 @@
-cat > snell.sh << 'EOF'
+# 1. 创建脚本文件
+cat > snell_fix.sh << 'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 
@@ -36,16 +37,15 @@ check_root() {
 
 # --- 依赖安装 ---
 install_required_packages() {
-  echo -e "${GREEN}安装必要软件包 (${SYSTEM_TYPE})...${RESET}"
+  echo -e "${GREEN}检测系统: ${SYSTEM_TYPE}${RESET}"
+  echo -e "${GREEN}安装必要软件包...${RESET}"
 
   case "$SYSTEM_TYPE" in
     alpine)
       apk update
-      # 安装 bash, curl, unzip, gcompat (运行 glibc 程序), shadow (useradd)
       apk add bash wget curl unzip gcompat libstdc++ ca-certificates shadow
       ;;
     debian)
-      wait_for_apt_lock
       export DEBIAN_FRONTEND=noninteractive
       apt-get update -y
       apt-get install -y wget unzip curl ca-certificates
@@ -61,16 +61,6 @@ install_required_packages() {
   esac
 }
 
-wait_for_apt_lock() {
-  while fuser /var/lib/dpkg/lock >/dev/null 2>&1 \
-    || fuser /var/lib/apt/lists/lock >/dev/null 2>&1 \
-    || fuser /var/lib/apt/lists/lock-frontend >/dev/null 2>&1 \
-    || fuser /var/cache/apt/archives/lock >/dev/null 2>&1; do
-    echo -e "${YELLOW}等待其他 apt 进程完成${RESET}"
-    sleep 1
-  done
-}
-
 detect_arch() {
   local a
   a="$(uname -m)"
@@ -84,25 +74,8 @@ detect_arch() {
   esac
 }
 
-validate_port_psk() {
-  if [ -n "${port}" ]; then
-    if ! [[ "${port}" =~ ^[0-9]+$ ]] || [ "${port}" -lt 1 ] || [ "${port}" -gt 65535 ]; then
-      echo -e "${RED}port 无效(1-65535): ${port}${RESET}"
-      exit 1
-    fi
-  fi
-
-  if [ -n "${psk}" ]; then
-    if [ "${#psk}" -lt 8 ]; then
-      echo -e "${RED}psk 太短(建议>=8位)${RESET}"
-      exit 1
-    fi
-  fi
-}
-
 ensure_user() {
   if ! id "snell" &>/dev/null; then
-    echo -e "${GREEN}创建 snell 用户...${RESET}"
     if [ "$SYSTEM_TYPE" = "alpine" ]; then
       useradd -r -s /sbin/nologin snell
     else
@@ -123,33 +96,26 @@ download_and_install_binary() {
   wget -qO "${tmpdir}/snell-server.zip" "${url}"
 
   unzip -oq "${tmpdir}/snell-server.zip" -d "${tmpdir}"
-  if [ ! -f "${tmpdir}/snell-server" ]; then
-    echo -e "${RED}解压失败：未找到 snell-server${RESET}"
-    exit 1
-  fi
-
   install -m 0755 "${tmpdir}/snell-server" /usr/local/bin/snell-server
   rm -rf "${tmpdir}"
   trap - EXIT
 }
-
-# --- 服务配置 ---
 
 service_install() {
   local final_port="\$1"
   local final_psk="\$2"
   
   mkdir -p /etc/snell
-  cat > /etc/snell/snell-server.conf <<EOF
+  cat > /etc/snell/snell-server.conf <<CONF
 [snell-server]
 listen = :::${final_port}
 psk = ${final_psk}
 ipv6 = true
-EOF
+CONF
 
   if [ "$SYSTEM_TYPE" = "alpine" ]; then
-    # OpenRC
-    cat > /etc/init.d/snell <<EOF
+    # OpenRC 配置 (Alpine 专用)
+    cat > /etc/init.d/snell <<INIT
 #!/sbin/openrc-run
 
 name="snell"
@@ -164,12 +130,12 @@ depend() {
     need net
     after firewall
 }
-EOF
+INIT
     chmod +x /etc/init.d/snell
     rc-update add snell default
   else
-    # Systemd
-    cat > /etc/systemd/system/snell.service <<EOF
+    # Systemd 配置
+    cat > /etc/systemd/system/snell.service <<SERVICE
 [Unit]
 Description=Snell Proxy Service
 After=network.target
@@ -181,13 +147,11 @@ Group=snell
 ExecStart=/usr/local/bin/snell-server -c /etc/snell/snell-server.conf
 LimitNOFILE=32768
 Restart=on-failure
-StandardOutput=journal
-StandardError=journal
 SyslogIdentifier=snell-server
 
 [Install]
 WantedBy=multi-user.target
-EOF
+SERVICE
     systemctl daemon-reload
     systemctl enable snell
   fi
@@ -201,149 +165,46 @@ service_restart() {
   fi
 }
 
-service_stop() {
-  if [ "$SYSTEM_TYPE" = "alpine" ]; then
-    rc-service snell stop || true
-  else
-    systemctl stop snell || true
-  fi
-}
-
-service_uninstall() {
-  service_stop
-  if [ "$SYSTEM_TYPE" = "alpine" ]; then
-    rc-update del snell default || true
-    rm -f /etc/init.d/snell
-  else
-    systemctl disable snell || true
-    rm -f /etc/systemd/system/snell.service
-    systemctl daemon-reload
-    systemctl reset-failed || true
-  fi
-}
-
-# --- 关键修复：正确生成配置文本 ---
 generate_share_link() {
   local p_port="\$1"
   local p_psk="\$2"
   local host_ip ip_country
 
-  # 获取IP
   host_ip="$(curl -fsSL --max-time 5 https://checkip.amazonaws.com 2>/dev/null | tr -d '[:space:]' || true)"
-  
-  # 获取国家代码，如果失败默认为 UN
   if [ -n "${host_ip}" ]; then
     ip_country="$(curl -fsSL --max-time 5 "https://ipinfo.io/${host_ip}/country" 2>/dev/null | tr -d '[:space:]' || true)"
   fi
-  if [ -z "${ip_country}" ]; then
-    ip_country="UN"
-  fi
+  if [ -z "${ip_country}" ]; then ip_country="UN"; fi
 
-  # 写入文件，注意这里使用的是变量 p_port 和 p_psk
-  cat > /etc/snell/config.txt <<EOF
+  cat > /etc/snell/config.txt <<INFO
 ${ip_country} = snell, ${host_ip}, ${p_port}, psk = ${p_psk}, version = 5, reuse = true, tfo = true
-EOF
+INFO
 }
-
-# --- 主逻辑 ---
 
 install_snell() {
   install_required_packages
-  validate_port_psk
   ensure_user
   download_and_install_binary
 
   local final_port final_psk
-  if [ -z "${port}" ]; then
-    final_port="$(shuf -i 30000-65000 -n 1)"
-  else
-    final_port="${port}"
-  fi
+  # 优先使用环境变量，否则随机生成
+  if [ -n "${port}" ]; then final_port="${port}"; else final_port="$(shuf -i 30000-65000 -n 1)"; fi
+  if [ -n "${psk}" ]; then final_psk="${psk}"; else final_psk="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 20)"; fi
 
-  if [ -z "${psk}" ]; then
-    final_psk="$(tr -dc A-Za-z0-9 </dev/urandom | head -c 20)"
-  else
-    final_psk="${psk}"
-  fi
-
-  # 1. 安装服务配置
   service_install "${final_port}" "${final_psk}"
-  
-  # 2. 生成分享链接 (修复了这里)
   generate_share_link "${final_port}" "${final_psk}"
-  
-  # 3. 启动服务
   service_restart
   
   sleep 2
   echo -e "${GREEN}Snell 安装成功${RESET}"
-  # 4. 显示配置
   cat /etc/snell/config.txt || true
 }
 
-update_snell() {
-  if [ ! -x "/usr/local/bin/snell-server" ]; then
-    echo -e "${YELLOW}Snell 未安装，无法更新${RESET}"
-    exit 1
-  fi
-  echo -e "${GREEN}Snell 正在更新...${RESET}"
-  install_required_packages
-  download_and_install_binary
-  service_restart
-  sleep 2
-  echo -e "${GREEN}更新完成${RESET}"
-  cat /etc/snell/config.txt 2>/dev/null || true
-}
-
-uninstall_snell() {
-  echo -e "${GREEN}正在卸载 Snell...${RESET}"
-  service_uninstall
-  rm -f /usr/local/bin/snell-server
-  rm -rf /etc/snell
-  echo -e "${GREEN}Snell 卸载成功${RESET}"
-}
-
-show_config() {
-  if [ -f /etc/snell/config.txt ]; then
-    cat /etc/snell/config.txt
-  else
-    echo -e "${RED}配置文件不存在${RESET}"
-    exit 1
-  fi
-}
-
-case "${action}" in
-  install)
-    check_root
-    install_snell
-    ;;
-  update)
-    check_root
-    update_snell
-    ;;
-  uninstall)
-    check_root
-    uninstall_snell
-    ;;
-  start)
-    check_root
-    if [ "$SYSTEM_TYPE" = "alpine" ]; then rc-service snell start; else systemctl start snell; fi
-    ;;
-  stop)
-    check_root
-    service_stop
-    ;;
-  status)
-    if [ "$SYSTEM_TYPE" = "alpine" ]; then rc-service snell status; else systemctl status snell; fi
-    ;;
-  show-config)
-    show_config
-    ;;
-  *)
-    echo -e "${RED}无效参数: ${action}${RESET}"
-    exit 1
-    ;;
-esac
+install_snell
 EOF
-chmod +x snell.sh
-bash snell.sh
+
+# 2. 赋予权限
+chmod +x snell_fix.sh
+
+# 3. 运行脚本 (带上你的端口和密码)
+port=36818 psk=8c3f2083-62e8-56ad-fe13-872a266a8ed8 ./snell_fix.sh

@@ -129,7 +129,7 @@ rules:
   - RULE-SET,twitter,Porxy
   - RULE-SET,facebook,Porxy
   - RULE-SET,openai,Porxy
-  - RULE-SET,!cn,Porxy
+  - RULE-SET,xcn,Porxy
   - RULE-SET,cn,DIRECT
   - RULE-SET,tg-ip,Porxy,no-resolve
   - RULE-SET,gg-ip,Porxy,no-resolve
@@ -188,7 +188,7 @@ rule-providers:
   cn:
     <<: *domain
     url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"
-  !cn:
+  xcn:
     <<: *domain
     url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs"
   tg-ip:

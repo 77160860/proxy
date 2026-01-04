@@ -60,8 +60,8 @@
     "auto_detect_interface": true,
     "default_domain_resolver": {"server": "public"},
     "rules": [
-      {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns", "stun"]},
-      {"protocol": ["quic", "stun"], "action": "reject"},
+      {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns"]},
+      {"type": "logical", "mode": "and", "rules": [{"network": "udp"}, {"port": 443}, {"rule_set": "cn-ip", "invert": true}], "action": "reject"},
       {"inbound": "dns-in", "action": "hijack-dns"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},

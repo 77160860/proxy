@@ -2,7 +2,14 @@
 DOMAIN-SUFFIX,lan
 DOMAIN-SUFFIX,local
 DOMAIN-SUFFIX,localhost
-DOMAIN-SUFFIX,gov.cn
+DOMAIN-SUFFIX,10099.com.cn
+DOMAIN-SUFFIX,market.xiaomi.com
+DOMAIN,captive.apple.com
+DOMAIN,dev.10086.cn
+DOMAIN,open.e.189.cn
+DOMAIN,mdn.open.wo.cn
+DOMAIN,auth.wosms.cn
+DOMAIN,opencloud.wostore.cn
 DOMAIN,localhost.ptlogin2.qq.com
 DOMAIN,localhost.sec.qq.com
 DOMAIN,localhost.work.weixin.qq.com
@@ -11,13 +18,6 @@ DOMAIN-SUFFIX,wechat.com
 DOMAIN,time.windows.com
 DOMAIN-SUFFIX,msftconnecttest.com
 DOMAIN-SUFFIX,msftncsi.com
-DOMAIN,10099.com.cn
-DOMAIN,dev.10086.cn
-DOMAIN,open.e.189.cn
-DOMAIN,mdn.open.wo.cn
-DOMAIN,auth.wosms.cn
-DOMAIN,captive.apple.com
-DOMAIN,opencloud.wostore.cn
 # Media
 DOMAIN,yinhai.aiinyue.com
 DOMAIN-SUFFIX,ottiptv.cc

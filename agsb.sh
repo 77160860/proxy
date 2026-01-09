@@ -95,7 +95,7 @@ EOF
         port_vlr=$(cat "$HOME/agsb/port_vlr"); echo "VLESS-Reality-Vision端口：$port_vlr"
         if [ ! -f "$HOME/agsb/reality.key" ]; then "$HOME/agsb/sing-box" generate reality-keypair > "$HOME/agsb/reality.key"; fi
         private_key=$(sed -n '1p' "$HOME/agsb/reality.key" | awk '{print $2}')
-        [ -f "$HOME/agsb/short_id" ] && short_id=$(cat "$HOME/agsb/short_id") || { short_id=$(openssl rand -hex 16); echo "$short_id" > "$HOME/agsb/short_id"; }
+        [ -f "$HOME/agsb/short_id" ] && short_id=$(cat "$HOME/agsb/short_id") || { short_id=$(openssl rand -hex 8); echo "$short_id" > "$HOME/agsb/short_id"; }
 
         cat >> "$HOME/agsb/sb.json" <<EOF
 {"type": "vless", "tag": "vless-reality-vision-sb", "listen": "::", "listen_port": ${port_vlr},"sniff": true,"users": [{"uuid": "${uuid}","flow": "xtls-rprx-vision"}],"tls": {"enabled": true,"server_name": "www.ua.edu","reality": {"enabled": true,"handshake": {"server": "www.ua.edu","server_port": 443},"private_key": "${private_key}","short_id": ["${short_id}"]}}},

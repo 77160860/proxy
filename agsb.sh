@@ -291,3 +291,4 @@ if ! pgrep -f 'agsb/sing-box' >/dev/null 2>&1 || [ "$1" = "rep" ]; then
     ins; cip
 else
     echo "agsb脚本已安装"; echo; agsbstatus; echo; echo "相关快捷方式如下："; showmode; exit
+fi

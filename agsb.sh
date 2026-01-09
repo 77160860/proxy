@@ -1,4 +1,3 @@
-
 #!/bin/sh
 export LANG=en_US.UTF-8
 [ -z "${trpt+x}" ] || { trp=yes; vmag=yes; }
@@ -43,7 +42,6 @@ ensure_short_id(){
     if [ -f "$HOME/agsb/short_id" ]; then
         short_id=$(tr -d '\r\n\t ' < "$HOME/agsb/short_id" 2>/dev/null)
     fi
-
     case "$short_id" in
         (""|*[!0-9a-fA-F]*)
             if command -v openssl >/dev/null 2>&1; then
@@ -54,7 +52,6 @@ ensure_short_id(){
             echo "$short_id" > "$HOME/agsb/short_id"
             ;;
     esac
-
     echo "$short_id"
 }
 
@@ -67,8 +64,6 @@ cf_version(){
 }
 
 reality_private_key(){
-    # Accept both possible formats:
-    # "PrivateKey: xxx" or "PrivateKey xxx"
     sed -n '1{s/.*[Pp]rivate[Kk]ey[:[:space:]]\{1,\}\([^[:space:]]\{1,\}\).*/\1/p;}' "$HOME/agsb/reality.key" | head -n1
 }
 
@@ -77,8 +72,6 @@ reality_public_key(){
 }
 
 argo_try_domain(){
-    # Extract first trycloudflare domain from log, tolerant to format changes
-    # Examples: "https://xxx.trycloudflare.com" or "trycloudflare.com"
     sed -n 's/.*https\?:\/\/\([a-zA-Z0-9.-]*trycloudflare\.com\).*/\1/p' "$HOME/agsb/argo.log" 2>/dev/null | head -n1
 }
 
@@ -437,21 +430,65 @@ argorestart(){
     fi
 }
 
-if [ "\$1" = "del" ]; then cleandel; rm -rf "$HOME/agsb"; echo "卸载完成"; showmode; exit; fi
-if [ "\$1" = "rep" ]; then cleandel; rm -rf "$HOME/agsb"/{sb.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name}; echo "重置完成..."; sleep 2; fi
-if [ "\$1" = "list" ]; then cip; exit; fi
-if [ "\$1" = "ups" ]; then kill -15 $(pgrep -f 'agsb/sing-box' 2>/dev/null); upsingbox && sbrestart && echo "Sing-box内核更新完成" && sleep 2 && cip; exit; fi
-if [ "\$1" = "res" ]; then sbrestart; argorestart; sleep 5 && echo "重启完成" && sleep 3 && cip; exit; fi
-
-if ! pgrep -f 'agsb/sing-box' >/dev/null 2>&1 && [ "\$1" != "rep" ]; then
+# --- commands always take priority ---
+case "\$1" in
+  del)
     cleandel
+    rm -rf "$HOME/agsb"
+    echo "卸载完成"
+    showmode
+    exit
+    ;;
+  rep)
+    cleandel
+    rm -rf "$HOME/agsb"/{sb.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name}
+    echo "重置完成..."
+    sleep 2
+    ;;
+  list)
+    cip
+    exit
+    ;;
+  ups)
+    kill -15 $(pgrep -f 'agsb/sing-box' 2>/dev/null) >/dev/null 2>&1
+    upsingbox && sbrestart && echo "Sing-box内核更新完成" && sleep 2 && cip
+    exit
+    ;;
+  res)
+    sbrestart
+    argorestart
+    sleep 5 && echo "重启完成" && sleep 3 && cip
+    exit
+    ;;
+esac
+
+# --- normal install/update flow ---
+if pgrep -f 'agsb/sing-box' >/dev/null 2>&1; then
+    echo "agsb脚本已安装"
+    echo
+    agsbstatus
+    echo
+    echo "相关快捷方式如下："
+    showmode
+    exit
 fi
 
-if ! pgrep -f 'agsb/sing-box' >/dev/null 2>&1 || [ "\$1" = "rep" ]; then
-    if [ -z "$( (curl -s4m5 -k "$v46url") || (wget -4 -qO- --tries=2 "$v46url") )" ]; then echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a00:1098:2c::1" > /etc/resolv.conf; fi
-    echo "VPS系统：$op"; echo "CPU架构：$cpu"; echo "agsb脚本开始安装/更新…………" && sleep 1
-    if [ -n "$oap" ]; then setenforce 0 >/dev/null 2>&1; iptables -F; iptables -P INPUT ACCEPT; netfilter-persistent save >/dev/null 2>&1; echo "iptables执行开放所有端口"; fi
-    ins; cip
-else
-    echo "agsb脚本已安装"; echo; agsbstatus; echo; echo "相关快捷方式如下："; showmode; exit
+# Not running -> install/update
+cleandel
+
+if [ -z "$( (curl -s4m5 -k "$v46url") || (wget -4 -qO- --tries=2 "$v46url") )" ]; then
+    echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a00:1098:2c::1" > /etc/resolv.conf
 fi
+echo "VPS系统：$op"
+echo "CPU架构：$cpu"
+echo "agsb脚本开始安装/更新…………"
+sleep 1
+if [ -n "$oap" ]; then
+    setenforce 0 >/dev/null 2>&1
+    iptables -F
+    iptables -P INPUT ACCEPT
+    netfilter-persistent save >/dev/null 2>&1
+    echo "iptables执行开放所有端口"
+fi
+ins
+cip

@@ -1,5 +1,5 @@
 mode: rule
-ipv6: false
+ipv6: true
 allow-lan: true
 mixed-port: 7890
 log-level: error
@@ -15,12 +15,6 @@ external-ui: ui
 external-ui-name: zashboard
 external-controller: 0.0.0.0:9090
 external-ui-url: "https://ghfast.top/github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip"
-
-skip-auth-prefixes:
-  - 192.168.1.0/24
-  - 192.168.31.0/24
-  - 192.168.100.0/24
-  - 127.0.0.1/8
 
 profile:
   store-selected: true
@@ -59,7 +53,7 @@ tun:
 
 dns:
   enable: true
-  ipv6: false
+  ipv6: true
   fake-ip-ttl: 1
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.0/16
@@ -67,24 +61,12 @@ dns:
   default-nameserver:
     - 223.5.5.5
     - 119.29.29.29
+    - 202.102.224.68
   nameserver:
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
   fake-ip-filter:
-    - "+.lan"
-    - "+.local"
-    - "+.localhost"
-    - "+.localdomain"
-    - "+.10099.com.cn"
-    - "+.market.xiaomi.com"
-    - "captive.apple.com"
-    - "msftncsi.com"
-    - "msftconnecttest.com"
-    - "dev.10086.cn"
-    - "open.e.189.cn"
-    - "mdn.open.wo.cn"
-    - "auth.wosms.cn"
-    - "opencloud.wostore.cn"
+    - "rule-set:filter"
     - "rule-set:cn"
 
 proxy-groups:
@@ -114,27 +96,17 @@ proxy-groups:
     icon: https://ghfast.top/github.com/Orz-3/mini/blob/master/Color/Skicat.png
 
 rules:
-  - AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((RULE-SET,cn-ip,no-resolve)))),REJECT
+  - AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((RULE-SET,cnip)))),REJECT
+  - RULE-SET,private,DIRECT
   - RULE-SET,adblock,REJECT-DROP
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT
-  - RULE-SET,bilibili,DIRECT
-  - RULE-SET,games@cn,DIRECT
-  - RULE-SET,tracker,DIRECT
-  - RULE-SET,tiktok,Porxy
-  - RULE-SET,github,Porxy
-  - RULE-SET,youtube,Porxy
-  - RULE-SET,google,Porxy
-  - RULE-SET,telegram,Porxy
-  - RULE-SET,twitter,Porxy
-  - RULE-SET,facebook,Porxy
-  - RULE-SET,openai,Porxy
-  - RULE-SET,xcn,Porxy
+  - RULE-SET,microsoft,DIRECT
+  - RULE-SET,proxy,Porxy
   - RULE-SET,cn,DIRECT
-  - RULE-SET,tg-ip,Porxy,no-resolve
-  - RULE-SET,gg-ip,Porxy,no-resolve
-  - RULE-SET,ap-ip,DIRECT,no-resolve
-  - RULE-SET,cn-ip,DIRECT,no-resolve
+  - RULE-SET,tgip,Porxy,no-resolve
+  - RULE-SET,privateip,DIRECT,no-resolve
+  - RULE-SET,cnip,DIRECT
   - MATCH,Final
 
 rule-anchor:
@@ -151,55 +123,28 @@ rule-providers:
     url: "https://ghfast.top/raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Clash.mrs"
   apple:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.mrs"
-  bilibili:
+    url: "https://ghfast.top/github.com/77160860/rules/releases/download/mihomo/apple-cn.mrs"
+  private:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/bilibili.mrs"
-  games@cn:
+    url: "https://ghfast.top/github.com/77160860/rules/releases/download/mihomo/private.mrs"
+  microsoft:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-games@cn.mrs"
-  tracker:
+    url: "https://ghfast.top/github.com/77160860/rules/releases/download/mihomo/microsoft-cn.mrs"
+  filter:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/tracker.mrs"
-  tiktok:
-    <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/tiktok.mrs"
-  github:
-    <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github.mrs"
-  youtube:
-    <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/youtube.mrs"
-  google:
-    <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.mrs"
-  telegram:
-    <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/telegram.mrs"
-  twitter:
-    <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/twitter.mrs"
-  facebook:
-    <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/facebook.mrs"
-  openai:
-    <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/openai.mrs"
+    url: "https://ghfast.top/github.com/77160860/rules/releases/download/mihomo/fakeip-filter.mrs"
   cn:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"
-  xcn:
+    url: "https://ghfast.top/github.com/77160860/rules/releases/download/mihomo/cn.mrs"
+  proxy:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs"
-  tg-ip:
+    url: "https://ghfast.top/github.com/77160860/rules/releases/download/mihomo/proxy.mrs"
+  tgip:
     <<: *ip
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/telegram.mrs"
-  gg-ip:
+    url: "https://ghfast.top/github.com/77160860/rules/releases/download/mihomo/telegramip.mrs"
+  privateip:
     <<: *ip
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/google.mrs"
-  ap-ip:
+    url: "https://ghfast.top/github.com/77160860/rules/releases/download/mihomo/privateip.mrs"
+  cnip:
     <<: *ip
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo-lite/geoip/apple.mrs"
-  cn-ip:
-    <<: *ip
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs"
+    url: "https://ghfast.top/github.com/77160860/rules/releases/download/mihomo/cnip.mrs"

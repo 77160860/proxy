@@ -210,7 +210,7 @@ agsbstatus(){
     if echo "$procs" | grep -Eq 'agsb/c' || pgrep -f 'agsb/c' >/dev/null 2>&1; then echo "Argo (版本$("$HOME/agsb/cloudflared" version 2>/dev/null | awk '{print $3}'))：运行中"; else echo "Argo：未启用"; fi
 }
 cip(){
-    ipbest(){ serip=$( (curl -s4m5 -k "$v46url") || (wget -4 -qO- --tries=2 "$v46url") ); if echo "$serip" | grep -q ':'; then server_ip="[$serip]"; else server_ip="$serip"; fi; echo "$server_ip" > "$HOME/agsb/server_ip.log"; }
+    ipbest(){ serip=$((curl -s4m5 -k "$v46url" 2>/dev/null)|| (wget -4 -qO- --tries=2 "$v46url" 2>/dev/null)|| (curl -s6m5 -k "$v46url" 2>/dev/null)|| (wget -6 -qO- --tries=2 "$v46url" 2>/dev/null)); serip=$(echo "$serip"|tr -d '\r\n'|head -n1); if echo "$serip"|grep -q ':'; then server_ip="[$serip]"; else server_ip="$serip"; fi; echo "$server_ip" > "$HOME/agsb/server_ip.log"; }
     ipchange(){
         v4v6
         v4dq=$( (curl -s4m5 -k https://ip.fm 2>/dev/null | sed -E 's/.*Location: ([^,]+(, [^,]+)*),.*/\1/') || (wget -4 -qO- --tries=2 https://ip.fm 2>/dev/null | grep '<span class="has-text-grey-light">Location:' | tail -n1 | sed -E 's/.*>Location: <\/span>([^<]+)<.*/\1/') )

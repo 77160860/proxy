@@ -74,7 +74,7 @@ jobs:
       - name: Define build metadata
         id: meta
         run: |
-          BUILD_TAGS="with_gvisor with_quic with_utls with_acme with_clash_api with_purego badlinkname tfogo_checklinkname0"
+          BUILD_TAGS="with_gvisor with_quic with_utls with_acme with_clash_api"
           # 直接命名为目标文件名
           OUT_LINUX_ARM64="sing-box-arm64"
           OUT_LINUX_AMD64="sing-box-amd64"

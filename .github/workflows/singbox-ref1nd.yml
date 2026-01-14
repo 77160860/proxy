@@ -74,34 +74,19 @@ jobs:
         id: meta
         run: |
           BUILD_TAGS="with_gvisor with_quic with_utls with_acme with_clash_api with_purego badlinkname tfogo_checklinkname0"
-          OUT_LINUX_ARM64="sing-box-linux-arm64-${VERSION}-${SHORT_SHA}"
-          ZIP_LINUX_ARM64="${OUT_LINUX_ARM64}.zip"
-          OUT_LINUX_AMD64="sing-box-linux-amd64-${VERSION}-${SHORT_SHA}"
-          ZIP_LINUX_AMD64="${OUT_LINUX_AMD64}.zip"
-          OUT_WIN_ARM64="sing-box-windows-arm64-${VERSION}-${SHORT_SHA}.exe"
-          ZIP_WIN_ARM64="sing-box-windows-arm64-${VERSION}-${SHORT_SHA}.zip"
-          OUT_WIN_AMD64="sing-box-windows-amd64-${VERSION}-${SHORT_SHA}.exe"
-          ZIP_WIN_AMD64="sing-box-windows-amd64-${VERSION}-${SHORT_SHA}.zip"
+          # 直接命名为目标文件名
+          OUT_LINUX_ARM64="sing-box-arm64"
+          OUT_LINUX_AMD64="sing-box-amd64"
           TAG="sing-box-${VERSION}-${SHORT_SHA}"
+          
           echo "BUILD_TAGS=$BUILD_TAGS" >> $GITHUB_ENV
           echo "OUT_LINUX_ARM64=$OUT_LINUX_ARM64" >> $GITHUB_ENV
-          echo "ZIP_LINUX_ARM64=$ZIP_LINUX_ARM64" >> $GITHUB_ENV
           echo "OUT_LINUX_AMD64=$OUT_LINUX_AMD64" >> $GITHUB_ENV
-          echo "ZIP_LINUX_AMD64=$ZIP_LINUX_AMD64" >> $GITHUB_ENV
-          echo "OUT_WIN_ARM64=$OUT_WIN_ARM64" >> $GITHUB_ENV
-          echo "ZIP_WIN_ARM64=$ZIP_WIN_ARM64" >> $GITHUB_ENV
-          echo "OUT_WIN_AMD64=$OUT_WIN_AMD64" >> $GITHUB_ENV
-          echo "ZIP_WIN_AMD64=$ZIP_WIN_AMD64" >> $GITHUB_ENV
           echo "TAG=$TAG" >> $GITHUB_ENV
+          
           echo "build_tags=$BUILD_TAGS" >> $GITHUB_OUTPUT
           echo "out_linux_arm64=$OUT_LINUX_ARM64" >> $GITHUB_OUTPUT
-          echo "zip_linux_arm64=$ZIP_LINUX_ARM64" >> $GITHUB_OUTPUT
           echo "out_linux_amd64=$OUT_LINUX_AMD64" >> $GITHUB_OUTPUT
-          echo "zip_linux_amd64=$ZIP_LINUX_AMD64" >> $GITHUB_OUTPUT
-          echo "out_win_arm64=$OUT_WIN_ARM64" >> $GITHUB_OUTPUT
-          echo "zip_win_arm64=$ZIP_WIN_ARM64" >> $GITHUB_OUTPUT
-          echo "out_win_amd64=$OUT_WIN_AMD64" >> $GITHUB_OUTPUT
-          echo "zip_win_amd64=$ZIP_WIN_AMD64" >> $GITHUB_OUTPUT
           echo "tag=$TAG" >> $GITHUB_OUTPUT
       - name: Build sing-box (linux arm64)
         env:
@@ -117,56 +102,18 @@ jobs:
           CGO_ENABLED: "0"
         run: |
           go build -trimpath -o "${OUT_LINUX_AMD64}" -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" -tags="${BUILD_TAGS}" ./cmd/sing-box
-      - name: Build sing-box (windows arm64)
-        env:
-          GOOS: windows
-          GOARCH: arm64
-          CGO_ENABLED: "0"
-        run: |
-          go build -trimpath -o "${OUT_WIN_ARM64}" -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" -tags="${BUILD_TAGS}" ./cmd/sing-box
-      - name: Build sing-box (windows amd64)
-        env:
-          GOOS: windows
-          GOARCH: amd64
-          CGO_ENABLED: "0"
-        run: |
-          go build -trimpath -o "${OUT_WIN_AMD64}" -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" -tags="${BUILD_TAGS}" ./cmd/sing-box
       - name: Verify arch
         run: |
           file "${OUT_LINUX_ARM64}" || true
           file "${OUT_LINUX_AMD64}" || true
-          file "${OUT_WIN_ARM64}" || true
-          file "${OUT_WIN_AMD64}" || true
-          ls -lh "${OUT_LINUX_ARM64}" "${OUT_LINUX_AMD64}" "${OUT_WIN_ARM64}" "${OUT_WIN_AMD64}"
-      - name: Package zip (linux arm64)
-        run: |
-          cp -f "${OUT_LINUX_ARM64}" sing-box
-          zip -9 -j "${ZIP_LINUX_ARM64}" sing-box
-          rm -f sing-box
-      - name: Package zip (linux amd64)
-        run: |
-          cp -f "${OUT_LINUX_AMD64}" sing-box
-          zip -9 -j "${ZIP_LINUX_AMD64}" sing-box
-          rm -f sing-box
-      - name: Package zip (windows arm64)
-        run: |
-          cp -f "${OUT_WIN_ARM64}" sing-box.exe
-          zip -9 -j "${ZIP_WIN_ARM64}" sing-box.exe
-          rm -f sing-box.exe
-      - name: Package zip (windows amd64)
-        run: |
-          cp -f "${OUT_WIN_AMD64}" sing-box.exe
-          zip -9 -j "${ZIP_WIN_AMD64}" sing-box.exe
-          rm -f sing-box.exe
+          ls -lh "${OUT_LINUX_ARM64}" "${OUT_LINUX_AMD64}"
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sing-box-lite-all-arch-${{ steps.upstream.outputs.short }}
+          name: sing-box-lite-linux-${{ steps.upstream.outputs.short }}
           path: |
-            ${{ steps.meta.outputs.zip_linux_arm64 }}
-            ${{ steps.meta.outputs.zip_linux_amd64 }}
-            ${{ steps.meta.outputs.zip_win_arm64 }}
-            ${{ steps.meta.outputs.zip_win_amd64 }}
+            ${{ steps.meta.outputs.out_linux_arm64 }}
+            ${{ steps.meta.outputs.out_linux_amd64 }}
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
@@ -176,11 +123,10 @@ jobs:
             Source: ${{ env.REF }}
             Version: ${{ env.VERSION }}
             Commit: ${{ steps.upstream.outputs.short }}
-            GOOS/GOARCH: linux:arm64/amd64 windows:arm64/amd64
+            GOOS/GOARCH: linux:arm64/amd64
             Build Tags: ${{ steps.meta.outputs.build_tags }}
-          prerelease: true
+          prerelease: false
+          make_latest: true
           files: |
-            ${{ steps.meta.outputs.zip_linux_arm64 }}
-            ${{ steps.meta.outputs.zip_linux_amd64 }}
-            ${{ steps.meta.outputs.zip_win_arm64 }}
-            ${{ steps.meta.outputs.zip_win_amd64 }}
+            ${{ steps.meta.outputs.out_linux_arm64 }}
+            ${{ steps.meta.outputs.out_linux_amd64 }}

@@ -54,7 +54,8 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: 'stable'
+          check-latest: true
       - name: Extract, Clean, and Prefix Version
         id: extract_version
         run: |

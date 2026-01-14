@@ -129,10 +129,9 @@ jobs:
             Source: ${{ env.REF }}
             Version: ${{ env.VERSION }}
             Commit: ${{ steps.upstream.outputs.short }}
-            GOOS/GOARCH: linux:arm64/amd64
+            Linux: arm64/amd64
             Build Tags: ${{ steps.meta.outputs.build_tags }}
-            
-            *此 Release 为滚动更新，Tag 固定为 singbox*
+          
           prerelease: false
           make_latest: true
           files: |

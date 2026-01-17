@@ -32,6 +32,24 @@ v4v6(){
     v4=$( (curl -s4m5 -k "$v46url" 2>/dev/null) || (wget -4 -qO- --tries=2 "$v46url" 2>/dev/null) )
     v6=$( (curl -s6m5 -k "$v46url" 2>/dev/null) || (wget -6 -qO- --tries=2 "$v46url" 2>/dev/null) )
 }
+
+port_in_use(){
+    local p="$1"
+    [ -z "$p" ] && return 1
+
+    if command -v ss >/dev/null 2>&1; then
+        ss -H -lntup 2>/dev/null | awk '{print $5}' | grep -Eq "[:.]${p}$" && return 0
+        return 1
+    fi
+
+    if command -v netstat >/dev/null 2>&1; then
+        netstat -lntup 2>/dev/null | awk '{print $4}' | grep -Eq "[:.]${p}$" && return 0
+        return 1
+    fi
+
+    return 1
+}
+
 set_sbyx(){
     if [ -n "$name" ]; then sxname=$name-; echo "$sxname" > "$HOME/agsb/name"; echo; echo "所有节点名称前缀：$name"; fi
     v4v6
@@ -138,7 +156,43 @@ depend() { need net; }
 EOF
             chmod +x /etc/init.d/sing-box; rc-update add sing-box default; rc-service sing-box start
         else
-            nohup "$HOME/agsb/sing-box" run -c "$HOME/agsb/sb.json" >/dev/null 2>&1 &
+            if pgrep -f 'agsb/sing-box' >/dev/null 2>&1; then
+                echo "Sing-box 已在运行，跳过重复 nohup 启动"
+            else
+                skip_sb=""
+                if grep -q '"tag": "hy2-sb"' "$HOME/agsb/sb.json" 2>/dev/null; then
+                    p="$(cat "$HOME/agsb/port_hy2" 2>/dev/null)"
+                    if port_in_use "$p"; then
+                        echo "端口已被占用：$p (hy2)，跳过 sing-box nohup 启动"
+                        skip_sb="yes"
+                    fi
+                fi
+                if grep -q '"tag": "trojan-ws-sb"' "$HOME/agsb/sb.json" 2>/dev/null; then
+                    p="$(cat "$HOME/agsb/port_tr" 2>/dev/null)"
+                    if port_in_use "$p"; then
+                        echo "端口已被占用：$p (trojan-ws)，跳过 sing-box nohup 启动"
+                        skip_sb="yes"
+                    fi
+                fi
+                if grep -q '"tag": "vmess-sb"' "$HOME/agsb/sb.json" 2>/dev/null; then
+                    p="$(cat "$HOME/agsb/port_vm_ws" 2>/dev/null)"
+                    if port_in_use "$p"; then
+                        echo "端口已被占用：$p (vmess-ws)，跳过 sing-box nohup 启动"
+                        skip_sb="yes"
+                    fi
+                fi
+                if grep -q '"tag": "vless-reality-vision-sb"' "$HOME/agsb/sb.json" 2>/dev/null; then
+                    p="$(cat "$HOME/agsb/port_vlr" 2>/dev/null)"
+                    if port_in_use "$p"; then
+                        echo "端口已被占用：$p (vless-reality)，跳过 sing-box nohup 启动"
+                        skip_sb="yes"
+                    fi
+                fi
+
+                if [ -z "$skip_sb" ]; then
+                    nohup "$HOME/agsb/sing-box" run -c "$HOME/agsb/sb.json" >/dev/null 2>&1 &
+                fi
+            fi
         fi
     fi
 }
@@ -177,12 +231,20 @@ depend() { need net; }
 EOF
                 chmod +x /etc/init.d/argo; rc-update add argo default; rc-service argo start
             else
-                nohup "$HOME/agsb/cloudflared" tunnel --no-autoupdate --edge-ip-version auto run --token "${ARGO_AUTH}" >/dev/null 2>&1 &
+                if pgrep -f 'agsb/cloudflared' >/dev/null 2>&1; then
+                    echo "Cloudflared 已在运行，跳过重复 nohup 启动"
+                else
+                    nohup "$HOME/agsb/cloudflared" tunnel --no-autoupdate --edge-ip-version auto run --token "${ARGO_AUTH}" >/dev/null 2>&1 &
+                fi
             fi
             echo "${ARGO_DOMAIN}" > "$HOME/agsb/sbargoym.log"; echo "${ARGO_AUTH}" > "$HOME/agsb/sbargotoken.log"
         else
             argoname='临时'
-            nohup "$HOME/agsb/cloudflared" tunnel --url http://localhost:$(cat $HOME/agsb/argoport.log) --edge-ip-version auto --no-autoupdate > $HOME/agsb/argo.log 2>&1 &
+            if pgrep -f 'agsb/cloudflared' >/dev/null 2>&1; then
+                echo "Cloudflared 已在运行，跳过重复 nohup 启动"
+            else
+                nohup "$HOME/agsb/cloudflared" tunnel --url http://localhost:$(cat $HOME/agsb/argoport.log) --edge-ip-version auto --no-autoupdate > $HOME/agsb/argo.log 2>&1 &
+            fi
         fi
         echo "申请Argo$argoname隧道中……请稍等"; sleep 8
         if [ -n "${ARGO_DOMAIN}" ] && [ -n "${ARGO_AUTH}" ]; then argodomain=$(cat "$HOME/agsb/sbargoym.log" 2>/dev/null); else argodomain=$(grep -a trycloudflare.com "$HOME/agsb/argo.log" 2>/dev/null | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}'); fi
@@ -195,23 +257,6 @@ EOF
         SCRIPT_PATH="/usr/local/bin/agsb"
         (curl -sL "$agsburl" -o "$SCRIPT_PATH") || (wget -qO "$SCRIPT_PATH" "$agsburl")
         chmod +x "$SCRIPT_PATH"
-
-        crontab -l > /tmp/crontab.tmp 2>/dev/null
-        if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then
-            sed -i '/agsb\/sing-box/d' /tmp/crontab.tmp
-            echo '@reboot sleep 10 && nohup $HOME/agsb/sing-box run -c $HOME/agsb/sb.json >/dev/null 2>&1 &' >> /tmp/crontab.tmp
-        fi
-        sed -i '/agsb\/cloudflared/d' /tmp/crontab.tmp
-        if [ -n "$argo" ] && [ -n "$vmag" ]; then
-            if [ -n "${ARGO_DOMAIN}" ] && [ -n "${ARGO_AUTH}" ]; then
-                if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then
-                    echo '@reboot sleep 10 && nohup $HOME/agsb/cloudflared tunnel --no-autoupdate --edge-ip-version auto run --token $(cat $HOME/agsb/sbargotoken.log) >/dev/null 2>&1 &' >> /tmp/crontab.tmp
-                fi
-            else
-                echo '@reboot sleep 10 && nohup $HOME/agsb/cloudflared tunnel --url http://localhost:$(cat $HOME/agsb/argoport.log) --edge-ip-version auto --no-autoupdate > $HOME/agsb/argo.log 2>&1 &' >> /tmp/crontab.tmp
-            fi
-        fi
-        crontab /tmp/crontab.tmp >/dev/null 2>&1; rm /tmp/crontab.tmp
 
         echo "agsb脚本进程启动成功，安装完毕" && sleep 2
     else
@@ -264,12 +309,6 @@ cleandel(){
     for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/exe" 2>/dev/null); if echo "$TARGET" | grep -qE '/agsb/c|/agsb/sing-box'; then kill "$(basename "$P")" 2>/dev/null; fi; fi; done
     kill -15 $(pgrep -f 'agsb/c' 2>/dev/null) $(pgrep -f 'agsb/sing-box' 2>/dev/null) >/dev/null 2>&1
 
-    crontab -l > /tmp/crontab.tmp 2>/dev/null
-    sed -i '/agsb/d' /tmp/crontab.tmp
-    crontab /tmp/crontab.tmp >/dev/null 2>&1
-    rm /tmp/crontab.tmp
-
-    # Remove shortcut (new global path) + legacy location if it exists
     rm -f /usr/local/bin/agsb "$HOME/bin/agsb"
 
     if pidof systemd >/dev/null 2>&1; then

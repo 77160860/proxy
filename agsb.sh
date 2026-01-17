@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 export LANG=en_US.UTF-8
 [ -z "${trpt+x}" ] || { trp=yes; vmag=yes; }
 [ -z "${hypt+x}" ] || hyp=yes

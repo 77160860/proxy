@@ -6,11 +6,11 @@ export LANG=en_US.UTF-8
 [ -z "${vlrt+x}" ] || vlr=yes
 if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -q 'agsb/sing-box' || pgrep -f 'agsb/sing-box' >/dev/null 2>&1; then
     if [ "$1" = "rep" ]; then
-        [ "$vlr" = yes ] || [ "$vmp" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || { echo "提示：rep重置协议时，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
+        [ "$vlr" = yes ] || [ "$vmp" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || { echo "提示：rep重置协议时，请在脚本前至少设置一个协议变量哦，再见！"; exit; }
     fi
 else
     if [ "$1" != "del" ]; then
-        [ "$vlr" = yes ] || [ "$vmp" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || { echo "提示：未安装agsb脚本，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
+        [ "$vlr" = yes ] || [ "$vmp" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || { echo "提示：未安装agsb脚本，请在脚本前至少设置一个协议变量哦，再见！"; exit; }
     fi
 fi
 export uuid=${uuid:-''}; export port_vm_ws=${vmpt:-''}; export port_tr=${trpt:-''}; export port_hy2=${hypt:-''}; export port_vlr=${vlrt:-''}; export cdnym=${cdnym:-''}; export argo=${argo:-''}; export ARGO_DOMAIN=${agn:-''}; export ARGO_AUTH=${agk:-''}; export ippz=${ippz:-''}; export name=${name:-''}; export oap=${oap:-''}
@@ -26,7 +26,7 @@ showmode(){
     echo "卸载脚本命令：agsb del"
     echo "---------------------------------------------------------"
 }
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"; echo "agsb一键无交互脚本💣 (Singbox内核版)"; echo "当前版本：26.1.18"; echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"; echo "agsb一键无交互脚本 (Singbox内核版)"; echo "当前版本：26.1.18"; echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 hostname=$(uname -a | awk '{print $2}'); op=$(cat /etc/redhat-release 2>/dev/null || cat /etc/os-release 2>/dev/null | grep -i pretty_name | cut -d \" -f2); case $(uname -m) in aarch64) cpu=arm64;; x86_64) cpu=amd64;; *) echo "目前脚本不支持$(uname -m)架构" && exit; esac; mkdir -p "$HOME/agsb"
 v4v6(){
     v4=$( (curl -s4m5 -k "$v46url" 2>/dev/null) || (wget -4 -qO- --tries=2 "$v46url" 2>/dev/null) )
@@ -236,13 +236,13 @@ cip(){
     }
     ipchange; rm -rf "$HOME/agsb/jh.txt"; uuid=$(cat "$HOME/agsb/uuid"); server_ip=$(cat "$HOME/agsb/server_ip.log"); sxname=$(cat "$HOME/agsb/name" 2>/dev/null);
     echo "*********************************************************"; echo "agsb脚本输出节点配置如下："; echo;
-    if grep -q "hy2-sb" "$HOME/agsb/sb.json"; then port_hy2=$(cat "$HOME/agsb/port_hy2"); hy2_link="hysteria2://$uuid@$server_ip:$port_hy2?security=tls&alpn=h3&insecure=1&sni=www.bing.com#${sxname}hy2-$hostname"; echo "💣【 Hysteria2 】(直连协议)"; echo "$hy2_link" | tee -a "$HOME/agsb/jh.txt"; echo; fi
+    if grep -q "hy2-sb" "$HOME/agsb/sb.json"; then port_hy2=$(cat "$HOME/agsb/port_hy2"); hy2_link="hysteria2://$uuid@$server_ip:$port_hy2?security=tls&alpn=h3&insecure=1&sni=www.bing.com#${sxname}hy2-$hostname"; echo "【 Hysteria2 】(直连协议)"; echo "$hy2_link" | tee -a "$HOME/agsb/jh.txt"; echo; fi
     if grep -q "vless-reality-vision-sb" "$HOME/agsb/sb.json"; then
         port_vlr=$(cat "$HOME/agsb/port_vlr")
         public_key=$(sed -n '2p' "$HOME/agsb/reality.key" | awk '{print $2}')
         short_id=$(cat "$HOME/agsb/short_id")
         vless_link="vless://${uuid}@${server_ip}:${port_vlr}?encryption=none&security=reality&sni=www.ua.edu&fp=chrome&flow=xtls-rprx-vision&publicKey=${public_key}&shortId=${short_id}#${sxname}vless-reality-$hostname"
-        echo "💣【 VLESS-Reality-Vision 】(直连协议)"; echo "$vless_link" | tee -a "$HOME/agsb/jh.txt"; echo;
+        echo "【 VLESS-Reality-Vision 】(直连协议)"; echo "$vless_link" | tee -a "$HOME/agsb/jh.txt"; echo;
     fi
     argodomain=$(cat "$HOME/agsb/sbargoym.log" 2>/dev/null); [ -z "$argodomain" ] && argodomain=$(grep -a trycloudflare.com "$HOME/agsb/argo.log" 2>/dev/null | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')
     if [ -n "$argodomain" ]; then
@@ -255,7 +255,7 @@ cip(){
             vmatls_link1=""
         fi
         sbtk=$(cat "$HOME/agsb/sbargotoken.log" 2>/dev/null); [ -n "$sbtk" ] && nametn="Argo固定隧道token:\n$sbtk"
-        argoshow="Argo隧道信息 (使用 $vlvm-ws 端口: $(cat $HOME/agsb/argoport.log 2>/dev/null))\n---------------------------------------------------------\nArgo域名: ${argodomain}\n\n${nametn}\n\n💣 443端口Argo-TLS节点 (优选IP可替换):\n${vmatls_link1}${tratls_link1}"
+        argoshow="Argo隧道信息 (使用 $vlvm-ws 端口: $(cat $HOME/agsb/argoport.log 2>/dev/null))\n---------------------------------------------------------\nArgo域名: ${argodomain}\n\n${nametn}\n\n 443端口Argo-TLS节点 (优选IP可替换):\n${vmatls_link1}${tratls_link1}"
         echo "---------------------------------------------------------"; echo -e "$argoshow"; echo "---------------------------------------------------------"
     fi
     echo; echo "聚合节点: cat $HOME/agsb/jh.txt"; echo "========================================================="; echo "相关快捷方式如下："; showmode

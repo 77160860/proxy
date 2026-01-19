@@ -110,6 +110,7 @@ rules:
 
 rule-anchor:
   classical: &txt {type: http, interval: 86400, behavior: classical, format: text}
+  domain_txt: &text {type: http, interval: 86400, behavior: domain, format: text}
   domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
   ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
 
@@ -117,9 +118,9 @@ rule-providers:
   me:
     <<: *txt
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/proxy/main/me.list"
-  adblock:
-    <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Clash.mrs"
+  filter:
+    <<: *text
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/filter.list"
   apple:
     <<: *domain
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/apple-cn.mrs"
@@ -129,9 +130,6 @@ rule-providers:
   cloudflare:
     <<: *domain
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/cloudflare-cn.mrs"
-  filter:
-    <<: *txt
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/filter.list"
   cn:
     <<: *domain
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/cn.mrs"
@@ -147,3 +145,6 @@ rule-providers:
   cnip:
     <<: *ip
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geoip/cn.mrs"
+  adblock:
+    <<: *domain
+    url: "https://ghfast.top/raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Clash.mrs"

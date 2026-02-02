@@ -68,7 +68,7 @@ jobs:
             echo "ERROR: 'go run ./cmd/internal/read_tag' failed to produce a version string."
             exit 1
           fi
-          CLEANED_VERSION=$(echo "$RAW_VERSION" | sed 's/-reF1nd$//')
+          CLEANED_VERSION=$(echo "$RAW_VERSION" | cut -d'-' -f1)
           FINAL_VERSION="r${CLEANED_VERSION}"
           echo "VERSION=$FINAL_VERSION" >> $GITHUB_ENV
           echo "version=$FINAL_VERSION" >> $GITHUB_OUTPUT

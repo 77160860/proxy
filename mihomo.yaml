@@ -103,7 +103,7 @@ rules:
   - RULE-SET,cloudflare,DIRECT
   - RULE-SET,proxy,Proxy
   - RULE-SET,cn,DIRECT
-  - RULE-SET,tgip,Porxy,no-resolve
+  - RULE-SET,tgip,Proxy,no-resolve
   - RULE-SET,privateip,DIRECT,no-resolve
   - RULE-SET,cnip,DIRECT
   - MATCH,Final

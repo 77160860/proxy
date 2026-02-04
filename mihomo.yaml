@@ -69,7 +69,7 @@ dns:
     - https://doh.pub/dns-query
 
 proxy-groups:
-  - name: Porxy
+  - name: Proxy
     type: select
     include-all: true
     proxies: [Urltest]
@@ -85,13 +85,13 @@ proxy-groups:
 
   - name: Final
     type: select
-    proxies: [Porxy, DIRECT]
+    proxies: [Proxy, DIRECT]
     icon: https://ghfast.top/github.com/Orz-3/mini/blob/master/Color/Available.png
   
   - name: GLOBAL
     type: select
     include-all: true
-    proxies: [Porxy, Urltest]
+    proxies: [Proxy, Urltest]
     icon: https://ghfast.top/github.com/Orz-3/mini/blob/master/Color/Skicat.png
 
 rules:

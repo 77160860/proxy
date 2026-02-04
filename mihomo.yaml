@@ -101,7 +101,7 @@ rules:
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT
   - RULE-SET,cloudflare,DIRECT
-  - RULE-SET,proxy,Porxy
+  - RULE-SET,proxy,Proxy
   - RULE-SET,cn,DIRECT
   - RULE-SET,tgip,Porxy,no-resolve
   - RULE-SET,privateip,DIRECT,no-resolve

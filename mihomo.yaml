@@ -95,14 +95,12 @@ proxy-groups:
 
 rules:
   - AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((RULE-SET,cnip)))),REJECT
-  - RULE-SET,private,DIRECT
   - RULE-SET,adblock,REJECT-DROP
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT
   - RULE-SET,proxy,Proxy
   - RULE-SET,cn,DIRECT
   - RULE-SET,tgip,Proxy,no-resolve
-  - RULE-SET,privateip,DIRECT,no-resolve
   - RULE-SET,cnip,DIRECT
   - MATCH,Final
 
@@ -122,9 +120,6 @@ rule-providers:
   apple:
     <<: *domain
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/apple-cn.mrs"
-  private:
-    <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/private.mrs"
   cn:
     <<: *domain
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/cn.mrs"
@@ -134,9 +129,6 @@ rule-providers:
   tgip:
     <<: *ip
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geoip/telegram.mrs"
-  privateip:
-    <<: *ip
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geoip/private.mrs"
   cnip:
     <<: *ip
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geoip/cn.mrs"

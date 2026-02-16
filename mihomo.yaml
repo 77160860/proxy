@@ -99,7 +99,6 @@ rules:
   - RULE-SET,adblock,REJECT-DROP
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT
-  - RULE-SET,cloudflare,DIRECT
   - RULE-SET,proxy,Proxy
   - RULE-SET,cn,DIRECT
   - RULE-SET,tgip,Proxy,no-resolve
@@ -126,9 +125,6 @@ rule-providers:
   private:
     <<: *domain
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/private.mrs"
-  cloudflare:
-    <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/cloudflare-cn.mrs"
   cn:
     <<: *domain
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/cn.mrs"

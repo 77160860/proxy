@@ -31,7 +31,7 @@
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
       {"query_type":["SVCB", "HTTPS"], "action": "predefined", "rcode": "NOTIMP"},
-      {"rule_set": ["filter", "private", "cn", "me", "apple"], "server": "local"},
+      {"rule_set": ["filter", "cn", "me", "apple"], "server": "local"},
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "foreign",
@@ -66,14 +66,12 @@
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
-      {"rule_set": "private", "outbound": "🐸 Direct"},
       {"rule_set": "adblock", "action": "reject", "method": "drop"},
       {"rule_set": "me", "outbound": "🐸 Direct"},
       {"rule_set": "apple", "outbound": "🐸 Direct"},
       {"rule_set": "proxy", "outbound": "🐝 Proxy"},
       {"rule_set": "cn", "outbound": "🐸 Direct"},
       {"action": "resolve", "match_only": true},
-      {"rule_set": "privateip", "outbound": "🐸 Direct"},
       {"rule_set": "tgip", "outbound": "🐝 Proxy"},
       {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
@@ -82,10 +80,8 @@
       {"tag": "cn", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/cn.srs", "download_detour": "🐸 Direct"},
       {"tag": "me", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/singbox-rule/main/rule/me.srs", "download_detour": "🐸 Direct"},
       {"tag": "apple", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/apple-cn.srs", "download_detour": "🐸 Direct"},
-      {"tag": "private", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/private.srs", "download_detour": "🐸 Direct"},
       {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geoip/cn.srs", "download_detour": "🐸 Direct"},
       {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geoip/telegram.srs", "download_detour": "🐸 Direct"},
-      {"tag": "privateip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geoip/private.srs", "download_detour": "🐸 Direct"},
       {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/geolocation-!cn.srs", "download_detour": "🐸 Direct"},
       {"tag": "adblock", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Singbox.json", "download_detour": "🐸 Direct"}
     ]

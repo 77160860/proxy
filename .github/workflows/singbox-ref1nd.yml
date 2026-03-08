@@ -117,8 +117,7 @@ jobs:
         with:
           tag_name: ${{ steps.meta.outputs.tag }}
           delete_release: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release
         uses: softprops/action-gh-release@v2

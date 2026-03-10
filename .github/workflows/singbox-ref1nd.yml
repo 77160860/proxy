@@ -6,7 +6,7 @@ on:
         description: 'Source ref to build (tag/branch/commit)'
         type: string
         required: true
-        default: 'reF1nd-stable'
+        default: 'reF1nd-oldstable'
 jobs:
   build:
     runs-on: ubuntu-latest

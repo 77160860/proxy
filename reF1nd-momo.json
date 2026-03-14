@@ -30,7 +30,8 @@
     "rules": [
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
-      {"query_type":["SVCB", "HTTPS"], "action": "predefined", "rcode": "NOTIMP"},
+      {"query_type": "PTR", "server": "local"},
+      {"query_type": ["SVCB", "HTTPS"], "action": "predefined", "rcode": "NOTIMP"},
       {"rule_set": ["filter", "me", "apple", "cn"], "server": "local"},
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
@@ -58,7 +59,8 @@
   "route": {
     "final": "🍓 Final",
     "auto_detect_interface": true,
-    "default_domain_resolver": {"server": "public"},
+    "default_domain_resolver": "public",
+    "default_domain_match_strategy": "prefer_fqdn",
     "rules": [
       {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns"]},
       {"type": "logical", "mode": "and", "rules": [{"network": "udp"}, {"port": 443}, {"rule_set": "cnip", "invert": true}], "action": "reject", "method": "drop"},

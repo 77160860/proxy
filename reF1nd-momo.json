@@ -46,12 +46,12 @@
     {"tag": "dns-in", "type": "direct", "listen": "::", "listen_port": 1053},
     {"tag": "redirect-in", "type": "redirect", "listen": "::", "listen_port": 7897},
     {"tag": "tproxy-in", "type": "tproxy", "listen": "::", "listen_port": 7898},
-    {"tag": "tun-in", "type": "tun", "interface_name": "momo", "address": ["198.18.0.1/30", "fd12:3456:789a::1/126"], "mtu": 9000, "auto_route": false, "auto_redirect": false, "sniff": true}
+    {"tag": "tun-in", "type": "tun", "interface_name": "momo", "address": ["198.18.0.1/30", "fd12:3456:789a::1/126"], "mtu": 9000, "auto_route": false, "auto_redirect": false}
   ],
   "outbounds": [
-    {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"], "interrupt_exist_connections": true},
-    {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true, "url": "http://www.gstatic.com/generate_204", "interrupt_exist_connections": true},
-    {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"], "interrupt_exist_connections": true},
+    {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"]},
+    {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true},
+    {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"]},
     {"tag": "GLOBAL", "type": "selector", "use_all_providers": true, "outbounds": ["🐝 Proxy", "🚀 Urltest"]},
     {"tag": "🐸 Direct", "type": "direct"}
   ],

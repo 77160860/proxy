@@ -1,0 +1,109 @@
+# LAN / Special-use
+direct
+example
+home.arpa
+invalid
+lan
+local
+localdomain
+localhost
+test
+
+# NTP / Time
+pool.ntp.org
+time-ios.apple.com
+time1.cloud.tencent.com
+
+# Music
+126.net
+amobile.music.tc.qq.com
+aqqmusic.tc.qq.com
+api-jooxtt.sanook.com
+api.joox.com
+dl.stream.qqmusic.qq.com
+isure.stream.qqmusic.qq.com
+joox.com
+mobileoc.music.tc.qq.com
+music.163.com
+music.migu.cn
+music.taihe.com
+musicapi.taihe.com
+songsearch.kugou.com
+streamoc.music.tc.qq.com
+trackercdn.kugou.com
+y.qq.com
+
+# Windows connectivity check
+msftconnecttest.com
+msftncsi.com
+
+# QQ login
+localhost.ptlogin2.qq.com
+localhost.sec.qq.com
+
+# Misc
+kk-rays.com
+proxy.golang.org
+shark007.net
+
+# Game / Platform
+battle.net
+battlenet.com.cn
+cdn.nintendo.net
+n.n.srv.nintendo.net
+srv.nintendo.net
+steamcontent.com
+wargaming.net
+wggames.cn
+wotgame.cn
+wowsgame.cn
+xnotify.xboxlive.com
+
+# Routers
+heartbeat.belkin.com
+
+# Apple update
+mesu.apple.com
+swcdn.apple.com
+swdist.apple.com
+swdownload.apple.com
+swquery.apple.com
+swscan.apple.com
+
+# Google
+lens.l.google.com
+na.b.g-tun.com
+
+# FFXIV
+ff.dorado.sdo.com
+
+# Xiaomi / Banking
+cmbchina.com
+cmbimg.com
+market.xiaomi.com
+
+# AdGuard
+adguardteam.github.io
+adrules.top
+anti-ad.net
+local.adguard.org
+static.adtidy.org
+
+# Downloaders
+n0808.com
+sandai.net
+
+# NetEase / UU
+ps.res.netease.com
+uu.163.com
+
+# Remote control
+oray.com
+orayimg.com
+
+# Tencent voice
+gcloudcs.com
+gcloudsdk.com
+
+# DDNS
+dynv6.net

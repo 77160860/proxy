@@ -8,7 +8,7 @@ unified-delay: true
 tcp-concurrent: true
 find-process-mode: off
 keep-alive-idle: 600
-keep-alive-interval: 15
+keep-alive-interval: 75
 
 external-ui: ui
 external-ui-name: zashboard
@@ -100,7 +100,7 @@ rules:
   - RULE-SET,apple,DIRECT
   - RULE-SET,proxy,Proxy
   - RULE-SET,cn,DIRECT
-  - RULE-SET,tgip,Proxy,no-resolve
+  - RULE-SET,tgip,Proxy
   - RULE-SET,cnip,DIRECT
   - MATCH,Final
 
@@ -116,22 +116,22 @@ rule-providers:
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/proxy/main/me.list"
   filter:
     <<: *text
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/filter.list"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/proxy/main/filter.list"
   apple:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/apple-cn.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple-cn.mrs"
   cn:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/cn.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"
   proxy:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/geolocation-!cn.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs"
   tgip:
     <<: *ip
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geoip/telegram.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/telegram.mrs"
   cnip:
     <<: *ip
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geoip/cn.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs"
   adblock:
     <<: *domain
     url: "https://ghfast.top/raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Clash.mrs"

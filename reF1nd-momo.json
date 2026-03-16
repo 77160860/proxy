@@ -14,8 +14,8 @@
   "providers": [
     {
       "type": "remote",
-      "tag": "sv",
-      "url": "https://ghfast.top/gist.githubusercontent.com/77160860/a24584073f2bf694c8208b3e2e740e7b/raw/sv",
+      "tag": "airport",
+      "url": "机场订阅",
       "health_check": {"enabled": false, "url": "http://www.gstatic.com/generate_204"},
       "download_detour": "🐸 Direct"
     }
@@ -30,7 +30,6 @@
     "rules": [
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
-      {"query_type": "PTR", "server": "local"},
       {"query_type": ["SVCB", "HTTPS"], "action": "predefined", "rcode": "NOTIMP"},
       {"rule_set": ["filter", "me", "apple", "cn"], "server": "local"},
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}

@@ -14,8 +14,8 @@
   "providers": [
     {
       "type": "remote",
-      "tag": "airport",
-      "url": "订阅链接",
+      "tag": "sv",
+      "url": "https://ghfast.top/gist.githubusercontent.com/77160860/a24584073f2bf694c8208b3e2e740e7b/raw/sv",
       "health_check": {"enabled": false, "url": "http://www.gstatic.com/generate_204"},
       "download_detour": "🐸 Direct"
     }
@@ -75,13 +75,13 @@
       {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [
-      {"tag": "filter", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/filter.json", "download_detour": "🐸 Direct"},
-      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/cn.srs", "download_detour": "🐸 Direct"},
-      {"tag": "me", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/singbox-rule/main/rule/me.srs", "download_detour": "🐸 Direct"},
-      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/apple.srs", "download_detour": "🐸 Direct"},
-      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geoip/cn.srs", "download_detour": "🐸 Direct"},
-      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geoip/telegram.srs", "download_detour": "🐸 Direct"},
-      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/geosite/geolocation-!cn.srs", "download_detour": "🐸 Direct"},
+      {"tag": "me", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/proxy/main/me.json", "download_detour": "🐸 Direct"},
+      {"tag": "filter", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/proxy/main/filter.json", "download_detour": "🐸 Direct"},
+      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/cn.srs", "download_detour": "🐸 Direct"},
+      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/apple-cn.srs", "download_detour": "🐸 Direct"},
+      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/geolocation-!cn.srs", "download_detour": "🐸 Direct"},
+      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/cn.srs", "download_detour": "🐸 Direct"},
+      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/telegram.srs", "download_detour": "🐸 Direct"},
       {"tag": "adblock", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Singbox.json", "download_detour": "🐸 Direct"}
     ]
   }

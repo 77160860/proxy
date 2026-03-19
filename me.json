@@ -4,6 +4,7 @@
       "domain": [
         "cdn.jsdelivr.net",
         "testingcf.jsdelivr.net"
+        "ocsp.usertrust.com"
       ]
     },
     {

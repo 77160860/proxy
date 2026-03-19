@@ -3,8 +3,7 @@
     {
       "domain": [
         "cdn.jsdelivr.net",
-        "testingcf.jsdelivr.net",
-        "ocsp.usertrust.com"
+        "testingcf.jsdelivr.net"
       ]
     },
     {
@@ -26,6 +25,7 @@
         "dytt-kan.com",
         "earthol.com",
         "earthol.me",
+        "eqing.tech",
         "enaturehome.com",
         "feiwang.cc",
         "feles.town",

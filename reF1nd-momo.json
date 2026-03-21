@@ -67,7 +67,6 @@
     "default_domain_match_strategy": "prefer_fqdn",
     "rules": [
       {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns"]},
-      {"type": "logical", "mode": "and", "rules": [{"network": "udp"}, {"port": 443}, {"rule_set": "cnip", "invert": true}], "action": "reject", "method": "drop"},
       {"inbound": "dns-in", "action": "hijack-dns"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},

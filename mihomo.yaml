@@ -1,5 +1,5 @@
 mode: rule
-ipv6: true
+ipv6: false
 allow-lan: true
 mixed-port: 7890
 log-level: error
@@ -52,17 +52,20 @@ tun:
 
 dns:
   enable: true
-  ipv6: true
+  ipv6: false
   fake-ip-ttl: 1
+  respect-rules: true
+  cache-algorithm: arc
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.0/16
-  fake-ip-filter-mode: rule
-  fake-ip-filter:
-    - rule-set,filter,real-ip
-    - rule-set,cn,real-ip
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter: ['rule-set:filter,cn']
   default-nameserver:
     - 223.5.5.5
     - 119.29.29.29
+  proxy-server-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
   nameserver:
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
@@ -78,7 +81,7 @@ proxy-groups:
     type: url-test
     url: http://www.gstatic.com/generate_204
     interval: 600
-    tolerance: 50
+    tolerance: 60
     include-all: true
     icon: https://ghfast.top/github.com/Orz-3/mini/blob/master/Color/Urltest.png
 
@@ -94,7 +97,6 @@ proxy-groups:
     icon: https://ghfast.top/github.com/Orz-3/mini/blob/master/Color/Skicat.png
 
 rules:
-  - AND,((NETWORK,UDP),(DST-PORT,443),(NOT,((RULE-SET,cnip)))),REJECT
   - RULE-SET,adblock,REJECT-DROP
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT

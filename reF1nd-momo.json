@@ -29,29 +29,30 @@
       {"tag": "cfdns", "type": "https", "server": "cloudflare-dns.com", "domain_resolver": "hosts", "detour": "🐝 Proxy"},
       {"tag": "public", "type": "group", "servers": ["aldns", "txdns"]},
       {"tag": "foreign", "type": "group", "servers": ["ggdns", "cfdns"]},
-      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
+      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/16"}
     ],
     "rules": [
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
-      {"query_type": ["SVCB", "HTTPS"], "action": "predefined", "rcode": "NOTIMP"},
       {"rule_set": "filter", "server": "local"},
-      {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1},
-      {"rule_set": ["me", "apple", "cn"], "server": "public"}
+      {"rule_set": "adblock", "action": "predefined"},
+      {"rule_set": ["me", "apple", "cn"], "server": "public"},
+      {"query_type": "A", "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "foreign",
-    "strategy": "prefer_ipv4",
+    "strategy": "ipv4_only",
     "reverse_mapping": true,
     "independent_cache": true,
     "round_robin_cache": true,
     "cache_capacity": 8000,
-    "lazy_cache_ttl": 180000
+    "lazy_cache_ttl": 180000,
+    "client_subnet": "202.102.224.0/24"
   },
   "inbounds": [
-    {"tag": "dns-in", "type": "direct", "listen": "::", "listen_port": 1053},
-    {"tag": "redirect-in", "type": "redirect", "listen": "::", "listen_port": 7898},
-    {"tag": "tproxy-in", "type": "tproxy", "listen": "::", "listen_port": 7899},
-    {"tag": "tun-in", "type": "tun", "interface_name": "momo", "address": ["198.18.0.1/30", "fd12:3456:789a::1/126"], "mtu": 9000, "auto_route": false, "auto_redirect": false}
+    {"tag": "dns-in", "type": "direct", "listen": "0.0.0.0", "listen_port": 1053},
+    {"tag": "redirect-in", "type": "redirect", "listen": "0.0.0.0", "listen_port": 7898},
+    {"tag": "tproxy-in", "type": "tproxy", "listen": "0.0.0.0", "listen_port": 7899},
+    {"tag": "tun-in", "type": "tun", "interface_name": "momo", "address": "198.18.0.1/30", "mtu": 9000, "auto_route": false, "auto_redirect": false}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"]},
@@ -71,7 +72,6 @@
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
-      {"rule_set": "adblock", "action": "reject", "method": "drop"},
       {"rule_set": "me", "outbound": "🐸 Direct"},
       {"rule_set": "apple", "outbound": "🐸 Direct"},
       {"rule_set": "proxy", "outbound": "🐝 Proxy"},

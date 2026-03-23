@@ -50,7 +50,7 @@
   },
   "inbounds": [
     {"tag": "mixed-in", "type": "mixed", "listen": "0.0.0.0", "listen_port": 7890},
-    {"tag": "tun-in", "type": "tun", "address": "198.18.0.1/30", "mtu": 65535, "auto_route": true, "strict_route": true, "route_exclude_address_set": ["cnip"]}
+    {"tag": "tun-in", "type": "tun", "address": "198.18.0.1/30", "auto_route": true, "strict_route": true, "route_exclude_address_set": ["cnip"]}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"]},

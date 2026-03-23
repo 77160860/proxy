@@ -49,7 +49,7 @@
     "client_subnet": "202.102.224.0/24"
   },
   "inbounds": [
-    {"tag": "mixed-in", "type": "mixed", "listen": "0.0.0.0", "listen_port": 7890},
+    {"tag": "mixed-in", "type": "mixed", "listen": "0.0.0.0", "listen_port": 7890, "set_system_proxy": false},
     {"tag": "tun-in", "type": "tun", "address": "198.18.0.1/30", "auto_route": true, "strict_route": true, "route_exclude_address_set": ["cnip"]}
   ],
   "outbounds": [

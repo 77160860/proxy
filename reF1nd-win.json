@@ -1,0 +1,92 @@
+{
+  "log": {"disabled": false, "level": "error", "timestamp": true},
+  "experimental": {
+    "urltest_unified_delay": true,
+    "cache_file": {"enabled": true, "store_fakeip": true, "store_rdrc": true},
+    "clash_api": {
+      "external_controller": "0.0.0.0:9090",
+      "external_ui": "ui",
+      "external_ui_download_url": "https://ghfast.top/github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip",
+      "external_ui_download_detour": "🐸 Direct",
+      "default_mode": "rule"
+    }
+  },
+  "providers": [
+    {
+      "type": "remote",
+      "tag": "airport",
+      "url": "订阅链接",
+      "download_detour": "🐸 Direct"
+    }
+  ],
+  "dns": {
+    "servers": [
+      {"tag": "local", "type": "local"},
+      {"tag": "hosts", "type": "hosts", "predefined": {"dns.alidns.com": ["223.5.5.5", "223.6.6.6"], "doh.pub": ["1.12.12.21", "120.53.53.53"], "dns.google": ["8.8.8.8", "8.8.4.4"], "cloudflare-dns.com": ["104.16.248.249", "104.16.249.249"]}},
+      {"tag": "txdns", "type": "https", "server": "doh.pub", "domain_resolver": "hosts"},
+      {"tag": "aldns", "type": "https", "server": "dns.alidns.com", "domain_resolver": "hosts"},
+      {"tag": "ggdns", "type": "https", "server": "dns.google", "domain_resolver": "hosts", "detour": "🐝 Proxy"},
+      {"tag": "cfdns", "type": "https", "server": "cloudflare-dns.com", "domain_resolver": "hosts", "detour": "🐝 Proxy"},
+      {"tag": "public", "type": "group", "servers": ["aldns", "txdns"]},
+      {"tag": "foreign", "type": "group", "servers": ["ggdns", "cfdns"]},
+      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/16"}
+    ],
+    "rules": [
+      {"clash_mode": "direct", "server": "local"},
+      {"clash_mode": "global", "server": "fakeip"},
+      {"rule_set": "filter", "server": "local"},
+      {"rule_set": "adblock", "action": "predefined"},
+      {"rule_set": ["me", "apple", "cn"], "server": "public"},
+      {"query_type": "A", "server": "fakeip", "rewrite_ttl": 1}
+    ],
+    "final": "foreign",
+    "strategy": "ipv4_only",
+    "reverse_mapping": true,
+    "independent_cache": true,
+    "round_robin_cache": true,
+    "cache_capacity": 8000,
+    "lazy_cache_ttl": 180000,
+    "client_subnet": "202.102.224.0/24"
+  },
+  "inbounds": [
+    {"tag": "mixed-in", "type": "mixed", "listen": "0.0.0.0", "listen_port": 7890},
+    {"tag": "tun-in", "type": "tun", "address": "198.18.0.1/30", "mtu": 65535, "auto_route": true, "strict_route": true, "route_exclude_address_set": ["cnip"]}
+  ],
+  "outbounds": [
+    {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"]},
+    {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true},
+    {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"]},
+    {"tag": "GLOBAL", "type": "selector", "use_all_providers": true, "outbounds": ["🐝 Proxy", "🚀 Urltest"]},
+    {"tag": "🐸 Direct", "type": "direct"}
+  ],
+  "route": {
+    "final": "🍓 Final",
+    "auto_detect_interface": true,
+    "default_domain_resolver": "public",
+    "default_domain_match_strategy": "prefer_fqdn",
+    "rules": [
+      {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns"]},
+      {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},
+      {"ip_is_private": true, "outbound": "🐸 Direct"},
+      {"clash_mode": "direct", "outbound": "🐸 Direct"},
+      {"clash_mode": "global", "outbound": "GLOBAL"},
+      {"rule_set": "me", "outbound": "🐸 Direct"},
+      {"rule_set": "apple", "outbound": "🐸 Direct"},
+      {"rule_set": "proxy", "outbound": "🐝 Proxy"},
+      {"rule_set": "cn", "outbound": "🐸 Direct"},
+      {"action": "resolve", "match_only": true},
+      {"rule_set": "tgip", "outbound": "🐝 Proxy"},
+      {"rule_set": "cnip", "outbound": "🐸 Direct"}
+    ],
+    "rule_set": [
+      {"tag": "me", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/proxy/main/me.json", "download_detour": "🐸 Direct"},
+      {"tag": "filter", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/proxy/main/filter.json", "download_detour": "🐸 Direct"},
+      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/cn.srs", "download_detour": "🐸 Direct"},
+      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/apple-cn.srs", "download_detour": "🐸 Direct"},
+      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/geolocation-!cn.srs", "download_detour": "🐸 Direct"},
+      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/cn.srs", "download_detour": "🐸 Direct"},
+      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/telegram.srs", "download_detour": "🐸 Direct"},
+      {"tag": "adblock", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Singbox.json", "download_detour": "🐸 Direct"}
+    ]
+  }
+}

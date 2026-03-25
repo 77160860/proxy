@@ -28,7 +28,7 @@
       {"tag": "ggdns", "type": "https", "server": "dns.google", "domain_resolver": "hosts", "detour": "🐝 Proxy"},
       {"tag": "qddns", "type": "https", "server": "dns.quad9.net", "domain_resolver": "hosts", "detour": "🐝 Proxy"},
       {"tag": "public", "type": "group", "servers": ["aldns", "txdns"]},
-      {"tag": "foreign", "type": "group", "servers": ["ggdns", "cfdns"]},
+      {"tag": "foreign", "type": "group", "servers": ["ggdns", "qddns"]},
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/16"}
     ],
     "rules": [

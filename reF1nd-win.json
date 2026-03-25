@@ -22,7 +22,7 @@
   "dns": {
     "servers": [
       {"tag": "local", "type": "local"},
-      {"tag": "hosts", "type": "hosts", "predefined": {"dns.alidns.com": ["223.5.5.5", "223.6.6.6"], "doh.pub": ["1.12.12.21", "120.53.53.53"], "dns.google": ["8.8.8.8", "8.8.4.4"], "dns.quad9.net": ["9.9.9.9", "9.9.9.11"]}},
+      {"tag": "hosts", "type": "hosts", "predefined": {"dns.alidns.com": ["223.5.5.5", "223.6.6.6"], "doh.pub": ["1.12.12.12", "120.53.53.53"], "dns.google": ["8.8.8.8", "8.8.4.4"], "dns.quad9.net": ["9.9.9.9", "9.9.9.11"]}},
       {"tag": "txdns", "type": "https", "server": "doh.pub", "domain_resolver": "hosts"},
       {"tag": "aldns", "type": "https", "server": "dns.alidns.com", "domain_resolver": "hosts"},
       {"tag": "ggdns", "type": "https", "server": "dns.google", "domain_resolver": "hosts", "detour": "🐝 Proxy"},

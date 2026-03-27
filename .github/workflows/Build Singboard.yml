@@ -1,0 +1,93 @@
+name: Build Singboard
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag"
+        required: true
+        default: "v1.0.0"
+      upstream_ref:
+        description: "Upstream branch"
+        required: true
+        default: "master"
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout workflow repo
+        uses: actions/checkout@v4
+
+      - name: Clone upstream source
+        shell: bash
+        run: |
+          git clone --depth 1 --branch "${{ github.event.inputs.upstream_ref }}" https://github.com/Yuu518/singboard.git upstream
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: upstream/pnpm-lock.yaml
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install frontend deps
+        working-directory: upstream
+        run: pnpm install
+
+      - name: Build frontend
+        working-directory: upstream
+        run: pnpm build
+
+      - name: Build tauri app
+        working-directory: upstream
+        run: pnpm tauri build
+
+      - name: Collect exe
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release-assets | Out-Null
+
+          if (Test-Path "upstream/src-tauri/target/release/bundle") {
+            Get-ChildItem -Path "upstream/src-tauri/target/release/bundle" -Recurse -File -Filter *.exe | ForEach-Object {
+              Copy-Item $_.FullName -Destination "release-assets" -Force
+            }
+          }
+
+          if (Test-Path "upstream/src-tauri/target/release") {
+            Get-ChildItem -Path "upstream/src-tauri/target/release" -File -Filter *.exe | ForEach-Object {
+              Copy-Item $_.FullName -Destination "release-assets" -Force
+            }
+          }
+
+          $files = Get-ChildItem release-assets -File -Filter *.exe -ErrorAction SilentlyContinue
+          if (-not $files) {
+            Write-Error "No .exe files found."
+            exit 1
+          }
+
+          Get-ChildItem release-assets -File -Filter *.exe | Select-Object Name,Length
+
+      - name: Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          name: Release ${{ github.event.inputs.tag }}
+          draft: false
+          prerelease: false
+          files: release-assets/*.exe

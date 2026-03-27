@@ -1,12 +1,12 @@
-name: Build Lite sing-box Core
+name: Build sing-box Core
 on:
   workflow_dispatch:
     inputs:
       source_ref:
-        description: 'Source ref to build (tag/branch/commit)'
+        description: 'Source ref to build (branch)'
         type: string
         required: true
-        default: 'reF1nd-stable'
+        default: 'reF1nd-oldstable'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -123,7 +123,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.meta.outputs.tag }}
-          name: singbox lite (${{ env.VERSION }})
+          name: Singbox lite (${{ env.VERSION }})
           body: |
             Source: ${{ env.REF }}
             Version: ${{ env.VERSION }}

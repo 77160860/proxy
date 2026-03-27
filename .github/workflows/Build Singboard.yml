@@ -30,7 +30,13 @@ jobs:
         shell: bash
         run: |
           git clone --depth 1 --branch "${{ github.event.inputs.upstream_ref }}" https://github.com/Yuu518/singboard.git upstream
-
+      - name: Read upstream commit
+        id: meta
+        shell: bash
+        run: |
+          cd upstream
+          COMMIT_SHORT=$(git rev-parse --short=7 HEAD)
+          echo "commit_short=$COMMIT_SHORT" >> $GITHUB_OUTPUT
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
@@ -88,6 +94,9 @@ jobs:
         with:
           tag_name: ${{ github.event.inputs.tag }}
           name: Singboard ${{ github.event.inputs.tag }}
+          body: |
+            Source: Yuu518/singboard
+            Commit: ${{ steps.meta.outputs.commit_short }}
           draft: false
           prerelease: false
           files: release-assets/*.exe

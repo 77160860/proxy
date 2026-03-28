@@ -76,7 +76,7 @@ jobs:
       - name: Define build metadata
         id: meta
         run: |
-          BUILD_TAGS="with_gvisor with_quic with_utls with_clash_api"
+          BUILD_TAGS="with_gvisor with_quic with_utls with_clash_api badlinkname tfogo_checklinkname0"
           OUT_LINUX_ARM64="sing-box-arm64"
           OUT_LINUX_AMD64="sing-box-amd64"
           

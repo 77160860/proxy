@@ -29,6 +29,8 @@ sniffer:
       ports: [443, 8443]
     QUIC:
       ports: [443, 8443]
+  skip-src-address:
+    - 149.154.0.0/16
   skip-domain:
     - "Mijia Cloud"
     - "dlg.io.mi.com"
@@ -98,7 +100,7 @@ proxy-groups:
     icon: https://ghfast.top/github.com/Orz-3/mini/blob/master/Color/Skicat.png
 
 rules:
-  - RULE-SET,adblock,REJECT-DROP
+  - RULE-SET,adblock,REJECT
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT
   - RULE-SET,proxy,Proxy
@@ -122,7 +124,7 @@ rule-providers:
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/proxy/main/filter.list"
   apple:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple-cn.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple@cn.mrs"
   cn:
     <<: *domain
     url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"

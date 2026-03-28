@@ -61,8 +61,9 @@ dns:
   fake-ip-filter-mode: blacklist
   fake-ip-filter: ['rule-set:filter,cn']
   default-nameserver:
-    - 223.5.5.5
-    - 119.29.29.29
+    - system
+    - tls://223.5.5.5
+    - tls://119.29.29.29
   proxy-server-nameserver:
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query

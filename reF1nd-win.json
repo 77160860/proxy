@@ -1,5 +1,5 @@
 {
-  "log": {"disabled": false, "level": "error", "timestamp": true},
+  "log": {"disabled": false, "level": "info", "timestamp": true},
   "experimental": {
     "urltest_unified_delay": true,
     "cache_file": {"enabled": true, "store_fakeip": true, "store_rdrc": true},
@@ -52,7 +52,7 @@
   },
   "inbounds": [
     {"tag": "mixed-in", "type": "mixed", "listen": "0.0.0.0", "listen_port": 7890, "set_system_proxy": false},
-    {"tag": "tun-in", "type": "tun", "address": "198.18.0.1/30", "auto_route": true, "strict_route": true, "route_exclude_address_set": ["cnip"], "route_exclude_address": ["192.168.0.0/16","fc00::/7"]}
+    {"tag": "tun-in", "type": "tun", "address": "168.18.0.1/30", "auto_route": true, "strict_route": true, "route_exclude_address_set": ["cnip"], "route_exclude_address": ["192.168.0.0/16","fc00::/7"]}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"]},

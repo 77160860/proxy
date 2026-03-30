@@ -1,27 +1,16 @@
 name: Build Singboard
-
 on:
   workflow_dispatch:
-
 permissions:
   contents: write
-
 env:
   CARGO_TERM_COLOR: always
-  CARGO_INCREMENTAL: 0
-
 jobs:
   build-windows:
     runs-on: windows-latest
     steps:
       - name: Checkout workflow repo
         uses: actions/checkout@v4
-
-      - name: Clone upstream source
-        shell: bash
-        run: |
-          git clone --depth 1 --branch master https://github.com/Yuu518/singboard.git upstream
-
       - name: Generate Metadata
         id: meta
         shell: bash
@@ -29,7 +18,10 @@ jobs:
           DATE_VER="v$(date +'%y.%-m.%-d')"
           echo "date_ver=$DATE_VER" >> $GITHUB_OUTPUT
           echo "tag=Singboard" >> $GITHUB_OUTPUT
-
+      - name: Clone upstream source
+        shell: bash
+        run: |
+          git clone --depth 1 --branch master https://github.com/Yuu518/singboard.git upstream
       - name: Read upstream commit
         id: commit
         shell: bash
@@ -37,77 +29,60 @@ jobs:
           cd upstream
           COMMIT_SHORT=$(git rev-parse --short=7 HEAD)
           echo "commit_short=$COMMIT_SHORT" >> $GITHUB_OUTPUT
-
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
           cache-dependency-path: upstream/pnpm-lock.yaml
-
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: "upstream/src-tauri"
-          prefix-key: "v1-rust"
-
+          workspaces: upstream/src-tauri -> target
       - name: Install frontend deps
         working-directory: upstream
         run: pnpm install
-
       - name: Build frontend
         working-directory: upstream
         run: pnpm build
-
       - name: Build tauri app
         working-directory: upstream
         run: pnpm tauri build
-
-      - name: Collect and Rename exe
+      - name: Collect exe
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path release-assets | Out-Null
-          $searchPaths = @("upstream/src-tauri/target/release/bundle", "upstream/src-tauri/target/release")
-          foreach ($path in $searchPaths) {
-              if (Test-Path $path) {
-                  Get-ChildItem -Path $path -Recurse -File -Filter *.exe | ForEach-Object {
-                      $newName = if ($_.Name -eq "singboard.exe") { "Singboard.exe" } else { $_.Name }
-                      Copy-Item $_.FullName -Destination "release-assets/$newName" -Force
-                  }
-              }
+          if (Test-Path "upstream/src-tauri/target/release/bundle") {
+            Get-ChildItem -Path "upstream/src-tauri/target/release/bundle" -Recurse -File -Filter *.exe | ForEach-Object {
+              Copy-Item $_.FullName -Destination "release-assets" -Force
+            }
+          }
+          if (Test-Path "upstream/src-tauri/target/release") {
+            Get-ChildItem -Path "upstream/src-tauri/target/release" -File -Filter *.exe | ForEach-Object {
+              Copy-Item $_.FullName -Destination "release-assets" -Force
+            }
           }
           $files = Get-ChildItem release-assets -File -Filter *.exe -ErrorAction SilentlyContinue
           if (-not $files) {
-              Write-Error "No .exe files found."
-              exit 1
+            Write-Error "No .exe files found."
+            exit 1
           }
           Get-ChildItem release-assets -File -Filter *.exe | Select-Object Name,Length
-
-      - name: Publish Release
-        shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          TAG="${{ steps.meta.outputs.tag }}"
-          TITLE="Singboard ${{ steps.meta.outputs.date_ver }}"
-          BODY=$(cat <<EOF
-          Source: Yuu518/singboard
-          Commit: ${{ steps.commit.outputs.commit_short }}
-          EOF
-          )
-          
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release edit "$TAG" --title "$TITLE" --notes "$BODY"
-          else
-            gh release create "$TAG" --title "$TITLE" --notes "$BODY"
-          fi
-          
-          gh release upload "$TAG" release-assets/*.exe --clobber
+      - name: Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: Singboard ${{ steps.meta.outputs.date_ver }}
+          body: |
+            Source: Yuu518/singboard
+            Commit: ${{ steps.commit.outputs.commit_short }}
+          draft: false
+          prerelease: false
+          files: release-assets/*.exe
+          make_latest: true 

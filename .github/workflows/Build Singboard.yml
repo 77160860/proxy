@@ -2,17 +2,13 @@ name: Build Singboard
 
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: "Release tag"
-        required: false
-        default: "Singboard"
 
 permissions:
   contents: write
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  CARGO_TERM_COLOR: always
 
 jobs:
   build-windows:
@@ -27,11 +23,7 @@ jobs:
         run: |
           DATE_VER="v$(date +'%y.%-m.%-d')"
           echo "date_ver=$DATE_VER" >> $GITHUB_OUTPUT
-          if [ -z "${{ github.event.inputs.tag }}" ]; then
-            echo "tag=Singboard" >> $GITHUB_OUTPUT
-          else
-            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
-          fi
+          echo "tag=Singboard" >> $GITHUB_OUTPUT
 
       - name: Clone upstream source
         shell: bash
@@ -60,6 +52,11 @@ jobs:
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: upstream/src-tauri -> target
 
       - name: Install frontend deps
         working-directory: upstream

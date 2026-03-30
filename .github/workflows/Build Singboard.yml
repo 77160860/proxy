@@ -7,7 +7,6 @@ permissions:
   contents: write
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   CARGO_TERM_COLOR: always
 
 jobs:
@@ -39,9 +38,9 @@ jobs:
           echo "commit_short=$COMMIT_SHORT" >> $GITHUB_OUTPUT
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
-          version: 8
+          version: 9
 
       - name: Setup Node
         uses: actions/setup-node@v4

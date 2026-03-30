@@ -3,6 +3,10 @@ name: Build Singboard
 on:
   workflow_dispatch:
     inputs:
+      tag:
+        description: "Release tag (leave empty for auto date vYY.M.D)"
+        required: false
+        default: "v"
       upstream_ref:
         description: "Upstream branch"
         required: true
@@ -21,11 +25,16 @@ jobs:
       - name: Checkout workflow repo
         uses: actions/checkout@v4
 
-      - name: Generate Date Version
+      - name: Generate Version
         id: date_tag
         shell: bash
         run: |
-          VERSION="v$(date +'%y.%-m.%-d')"
+          INPUT_TAG="${{ github.event.inputs.tag }}"
+          if [ -z "$INPUT_TAG" ]; then
+            VERSION="v$(date +'%y.%-m.%-d')"
+          else
+            VERSION="$INPUT_TAG"
+          fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Clone upstream source

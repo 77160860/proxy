@@ -4,13 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag (leave empty for auto date vYY.M.D)"
+        description: "Release tag (auto vYY.M.D)"
         required: false
-        default: "v"
-      upstream_ref:
-        description: "Upstream branch"
-        required: true
-        default: "master"
+        default: ""
 
 permissions:
   contents: write
@@ -29,18 +25,17 @@ jobs:
         id: date_tag
         shell: bash
         run: |
-          INPUT_TAG="${{ github.event.inputs.tag }}"
-          if [ -z "$INPUT_TAG" ]; then
+          if [ -z "${{ github.event.inputs.tag }}" ]; then
             VERSION="v$(date +'%y.%-m.%-d')"
           else
-            VERSION="$INPUT_TAG"
+            VERSION="${{ github.event.inputs.tag }}"
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Clone upstream source
         shell: bash
         run: |
-          git clone --depth 1 --branch "${{ github.event.inputs.upstream_ref }}" https://github.com/Yuu518/singboard.git upstream
+          git clone --depth 1 --branch master https://github.com/Yuu518/singboard.git upstream
 
       - name: Read upstream commit
         id: meta

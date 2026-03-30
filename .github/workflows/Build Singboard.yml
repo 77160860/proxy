@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Release tag (auto vYY.M.D)"
+        description: "Release tag"
         required: false
-        default: ""
+        default: "Singboard"
 
 permissions:
   contents: write
@@ -21,16 +21,17 @@ jobs:
       - name: Checkout workflow repo
         uses: actions/checkout@v4
 
-      - name: Generate Version
-        id: date_tag
+      - name: Generate Metadata
+        id: meta
         shell: bash
         run: |
+          DATE_VER="v$(date +'%y.%-m.%-d')"
+          echo "date_ver=$DATE_VER" >> $GITHUB_OUTPUT
           if [ -z "${{ github.event.inputs.tag }}" ]; then
-            VERSION="v$(date +'%y.%-m.%-d')"
+            echo "tag=Singboard" >> $GITHUB_OUTPUT
           else
-            VERSION="${{ github.event.inputs.tag }}"
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
           fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Clone upstream source
         shell: bash
@@ -38,7 +39,7 @@ jobs:
           git clone --depth 1 --branch master https://github.com/Yuu518/singboard.git upstream
 
       - name: Read upstream commit
-        id: meta
+        id: commit
         shell: bash
         run: |
           cd upstream
@@ -96,11 +97,11 @@ jobs:
       - name: Releases
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.date_tag.outputs.version }}
-          name: Singboard ${{ steps.date_tag.outputs.version }}
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: Singboard ${{ steps.meta.outputs.date_ver }}
           body: |
             Source: Yuu518/singboard
-            Commit: ${{ steps.meta.outputs.commit_short }}
+            Commit: ${{ steps.commit.outputs.commit_short }}
           draft: false
           prerelease: false
           files: release-assets/*.exe

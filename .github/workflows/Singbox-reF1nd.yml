@@ -20,8 +20,6 @@ jobs:
           REF="${{ github.event.inputs.source_ref }}"
           echo "REF=$REF" >> $GITHUB_ENV
           echo "UPSTREAM_REPO=$UPSTREAM_REPO" >> $GITHUB_ENV
-          echo "ref=$REF" >> $GITHUB_OUTPUT
-          echo "upstream=$UPSTREAM_REPO" >> $GITHUB_OUTPUT
 
       - name: Resolve SHA (tag/branch/commit)
         id: upstream
@@ -44,14 +42,12 @@ jobs:
           SHORT="${SHA:0:7}"
           echo "UPSTREAM_SHA=$SHA" >> $GITHUB_ENV
           echo "SHORT_SHA=$SHORT" >> $GITHUB_ENV
-          echo "sha=$SHA" >> $GITHUB_OUTPUT
-          echo "short=$SHORT" >> $GITHUB_OUTPUT
 
       - name: Checkout upstream with full history
         uses: actions/checkout@v4
         with:
           repository: reF1nd/sing-box
-          ref: ${{ steps.upstream.outputs.sha }}
+          ref: ${{ env.UPSTREAM_SHA }}
           fetch-depth: 0
 
       - name: Setup Go
@@ -71,7 +67,6 @@ jobs:
           CLEANED_VERSION=$(echo "$RAW_VERSION" | cut -d'-' -f1)
           FINAL_VERSION="r${CLEANED_VERSION}"
           echo "VERSION=$FINAL_VERSION" >> $GITHUB_ENV
-          echo "version=$FINAL_VERSION" >> $GITHUB_OUTPUT
 
       - name: Define build metadata
         id: meta
@@ -87,7 +82,6 @@ jobs:
           echo "OUT_WIN_AMD64=sing-box-windows-amd64.exe" >> $GITHUB_ENV
           
           echo "TAG=singbox" >> $GITHUB_ENV
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Build sing-box (linux arm64)
         env:
@@ -128,19 +122,19 @@ jobs:
       - name: Cleanup old release
         uses: dev-drprasad/delete-tag-and-release@v1.1
         with:
-          tag_name: ${{ steps.meta.outputs.tag }}
+          tag_name: ${{ env.TAG }}
           delete_release: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.meta.outputs.tag }}
+          tag_name: ${{ env.TAG }}
           name: Singbox lite (${{ env.VERSION }})
           body: |
             Source: ${{ env.REF }}
             Version: ${{ env.VERSION }}
-            Commit: ${{ steps.upstream.outputs.short }}
+            Commit: ${{ env.SHORT_SHA }}
             Platforms: Linux (arm64/amd64), Windows (arm64/amd64)
             Build Tags (Linux): ${{ env.BUILD_TAGS }}
             Build Tags (Windows): ${{ env.BUILD_TAGS_WIN }}

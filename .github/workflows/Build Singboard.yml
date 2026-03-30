@@ -91,15 +91,23 @@ jobs:
           }
           Get-ChildItem release-assets -File -Filter *.exe | Select-Object Name,Length
 
-      - name: Releases
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.meta.outputs.tag }}
-          name: Singboard ${{ steps.meta.outputs.date_ver }}
-          body: |
-            Source: Yuu518/singboard
-            Commit: ${{ steps.commit.outputs.commit_short }}
-          draft: false
-          prerelease: false
-          files: release-assets/*.exe
-          make_latest: true
+      - name: Publish Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.meta.outputs.tag }}"
+          TITLE="Singboard ${{ steps.meta.outputs.date_ver }}"
+          BODY=$(cat <<EOF
+          Source: Yuu518/singboard
+          Commit: ${{ steps.commit.outputs.commit_short }}
+          EOF
+          )
+          
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --title "$TITLE" --notes "$BODY"
+          else
+            gh release create "$TAG" --title "$TITLE" --notes "$BODY"
+          fi
+          
+          gh release upload "$TAG" release-assets/*.exe --clobber

@@ -8,7 +8,7 @@ unified-delay: true
 tcp-concurrent: true
 find-process-mode: off
 keep-alive-idle: 600
-keep-alive-interval: 75
+keep-alive-interval: 15
 
 external-ui: ui
 external-ui-name: zashboard
@@ -55,7 +55,6 @@ tun:
 dns:
   enable: true
   ipv6: false
-  fake-ip-ttl: 1
   respect-rules: true
   cache-algorithm: arc
   enhanced-mode: fake-ip

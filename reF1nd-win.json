@@ -41,8 +41,7 @@
     "independent_cache": true,
     "round_robin_cache": true,
     "cache_capacity": 8000,
-    "lazy_cache_ttl": 180000,
-    "client_subnet": "223.5.5.0/24"
+    "lazy_cache_ttl": 180000
   },
   "inbounds": [
     {"tag": "mixed-in", "type": "mixed", "listen": "::", "listen_port": 7890, "set_system_proxy": false},

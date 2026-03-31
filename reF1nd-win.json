@@ -43,10 +43,10 @@
     "round_robin_cache": true,
     "cache_capacity": 8000,
     "lazy_cache_ttl": 180000,
-    "client_subnet": "202.102.224.0/24"
+    "client_subnet": "223.5.5.0/24"
   },
   "inbounds": [
-    {"tag": "mixed-in", "type": "mixed", "listen": "0.0.0.0", "listen_port": 7890, "set_system_proxy": false},
+    {"tag": "mixed-in", "type": "mixed", "listen": "::", "listen_port": 7890, "set_system_proxy": false},
     {"tag": "tun-in", "type": "tun", "address": "168.18.0.1/30", "auto_route": true, "strict_route": true, "route_exclude_address_set": ["cnip"], "route_exclude_address": ["192.168.0.0/16","fc00::/7"]}
   ],
   "outbounds": [

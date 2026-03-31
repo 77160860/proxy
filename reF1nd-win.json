@@ -4,7 +4,7 @@
     "urltest_unified_delay": true,
     "cache_file": {"enabled": true, "store_fakeip": true, "store_rdrc": true},
     "clash_api": {
-      "external_controller": "0.0.0.0:9090",
+      "external_controller": "127.0.0.1:9090",
       "external_ui": "ui",
       "external_ui_download_url": "https://ghfast.top/github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip",
       "external_ui_download_detour": "🐸 Direct",
@@ -22,13 +22,8 @@
   "dns": {
     "servers": [
       {"tag": "local", "type": "local"},
-      {"tag": "hosts", "type": "hosts", "predefined": {"dns.alidns.com": ["223.5.5.5", "223.6.6.6"], "doh.pub": ["119.29.29.29", "182.254.116.116"], "dns.google": ["8.8.8.8", "8.8.4.4"], "dns.quad9.net": ["9.9.9.9", "9.9.9.11"]}},
-      {"tag": "txdns", "type": "https", "server": "doh.pub", "domain_resolver": "hosts"},
-      {"tag": "aldns", "type": "https", "server": "dns.alidns.com", "domain_resolver": "hosts"},
-      {"tag": "ggdns", "type": "https", "server": "dns.google", "domain_resolver": "hosts", "detour": "🐝 Proxy"},
-      {"tag": "qddns", "type": "https", "server": "dns.quad9.net", "domain_resolver": "hosts", "detour": "🐝 Proxy"},
-      {"tag": "public", "type": "group", "servers": ["aldns", "txdns"]},
-      {"tag": "foreign", "type": "group", "servers": ["ggdns", "qddns"]},
+      {"tag": "public", "type": "https", "server": "dns.alidns.com", "domain_resolver": "local"},
+      {"tag": "foreign", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/16"}
     ],
     "rules": [

@@ -30,7 +30,6 @@
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
       {"query_type": ["SVCB", "HTTPS"], "action": "predefined"},
-      {"ip_accept_any": true, "server": "hosts"},
       {"rule_set": "filter", "server": "local"},
       {"rule_set": "adblock", "action": "predefined"},
       {"rule_set": ["me", "apple", "cn"], "server": "public"},

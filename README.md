@@ -1,7 +1,7 @@
 agsb支持4协议：vmess(vmpt)/trojan(trpt)+argo and hy2(hypt)/Realty(vlrt)
 
 例如
-单协议：hy2：hypt="自定义端口" uuid="自定义uuid" bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/agsb.sh)
+单协议hy2：hypt="自定义端口" uuid="自定义uuid" bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/agsb.sh)
 
 组合协议trojan+hy2：trpt="自定义端口" hypt="自定义端口" uuid="自定义uuid" argo="trpt" agn="cf域名" agk="隧道token" bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/agsb.sh)
 

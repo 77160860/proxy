@@ -7,11 +7,11 @@ agsb支持4协议：vmess(vmpt)/trojan(trpt)+argo and hy2(hypt)/Realty(vlrt)
 
 使用argo才需要加入argo、agn、agk配置字段
 
-显示节点信息命令：agsb list" 
- 重置变量组命令： agsb rep"
- 更新内核命令：agsb ups"
- 重启脚本命令：agsb res"
- 卸载脚本命令：agsb del"
+显示节点信息命令：agsb list
+重置变量组命令： agsb rep
+更新内核命令：agsb ups
+重启脚本命令：agsb res
+卸载脚本命令：agsb del
 
 系统必装：apk add openssl/apt install openssl                                        
 

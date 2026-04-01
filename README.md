@@ -5,6 +5,8 @@ agsb支持4协议：vmess(vmpt)/trojan(trpt)+argo and hy2(hypt)/Realty(vlrt)
 
 组合协议trojan+hy2：trpt="自定义端口" hypt="自定义端口" uuid="自定义uuid" argo="trpt" agn="cf域名" agk="隧道token" bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/agsb.sh)
 
+使用argo才需要加入argo、agn、agk配置字段，重置协议需要在脚步后加 rep
+
 系统必装：apk add openssl/apt install openssl                                        
 
 snellv5：port=自定义端口 psk=自定义密码 bash <(curl -fsSL https://raw.githubusercontent.com/77160860/proxy/main/snell.sh)

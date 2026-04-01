@@ -108,8 +108,8 @@ EOF
         port_vlr=$(cat "$HOME/agsb/port_vlr"); echo "VLESS-Reality-Vision端口：$port_vlr"
         if [ ! -f "$HOME/agsb/reality.key" ]; then "$HOME/agsb/sing-box" generate reality-keypair > "$HOME/agsb/reality.key"; fi
         
-        private_key=$(grep -i "PrivateKey" "$HOME/agsb/reality.key" | awk '{print $NF}' | tr '_-' '/+')
-        [[ ${#private_key} -eq 43 ]] && private_key="${private_key}="
+        private_key=$(grep -i "PrivateKey" "$HOME/agsb/reality.key" | awk -F': ' '{print $NF}' | tr -d '\r\n ' | tr '_-' '/+')
+        while [ $((${#private_key} % 4)) -ne 0 ]; do private_key="${private_key}="; done
 
         [ -f "$HOME/agsb/short_id" ] && short_id=$(cat "$HOME/agsb/short_id") || { short_id=$(openssl rand -hex 4); echo "$short_id" > "$HOME/agsb/short_id"; }
         cat >> "$HOME/agsb/sb.json" <<EOF
@@ -156,24 +156,7 @@ EOF
             if pgrep -f 'agsb/sing-box' >/dev/null 2>&1; then
                 echo "Sing-box 已在运行，跳过重复 nohup 启动"
             else
-                skip_sb=""
-                if grep -q '"tag": "hy2-sb"' "$HOME/agsb/sb.json" 2>/dev/null; then
-                    p="$(cat "$HOME/agsb/port_hy2" 2>/dev/null)"
-                    if port_in_use "$p"; then
-                        echo "端口已被占用：$p (hy2)，跳过 sing-box nohup 启动"
-                        skip_sb="yes"
-                    fi
-                fi
-                if grep -q '"tag": "trojan-ws-sb"' "$HOME/agsb/sb.json" 2>/dev/null; then
-                    p="$(cat "$HOME/agsb/port_tr" 2>/dev/null)"
-                    if port_in_use "$p"; then
-                        echo "端口已被占用：$p (trojan-ws)，跳过 sing-box nohup 启动"
-                        skip_sb="yes"
-                    fi
-                fi
-                if [ -z "$skip_sb" ]; then
-                    nohup "$HOME/agsb/sing-box" run -c "$HOME/agsb/sb.json" >/dev/null 2>&1 &
-                fi
+                nohup "$HOME/agsb/sing-box" run -c "$HOME/agsb/sb.json" >/dev/null 2>&1 &
             fi
         fi
     fi
@@ -265,8 +248,8 @@ cip(){
     if grep -q "vless-reality-vision-sb" "$HOME/agsb/sb.json"; then
         port_vlr=$(cat "$HOME/agsb/port_vlr")
         
-        public_key=$(grep -i "PublicKey" "$HOME/agsb/reality.key" | awk '{print $NF}' | tr '_-' '/+')
-        [[ ${#public_key} -eq 43 ]] && public_key="${public_key}="
+        public_key=$(grep -i "PublicKey" "$HOME/agsb/reality.key" | awk -F': ' '{print $NF}' | tr -d '\r\n ' | tr '_-' '/+')
+        while [ $((${#public_key} % 4)) -ne 0 ]; do public_key="${public_key}="; done
 
         short_id=$(cat "$HOME/agsb/short_id")
         vless_link="vless://${uuid}@${server_ip}:${port_vlr}?encryption=none&security=reality&sni=www.ua.edu&fp=chrome&flow=xtls-rprx-vision&publicKey=${public_key}&shortId=${short_id}#${sxname}vless-reality-$hostname"

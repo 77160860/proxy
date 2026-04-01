@@ -26,7 +26,7 @@ showmode(){
     echo "卸载脚本命令：agsb del"
     echo "---------------------------------------------------------"
 }
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"; echo "agsb一键无交互脚本 (Singbox内核版)"; echo "当前版本：26.03.30"; echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"; echo "agsb一键无交互脚本 (Singbox内核版)"; echo "当前版本：26.03.30 (Reality内核兼容修复版)"; echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 hostname=$(uname -a | awk '{print $2}'); op=$(cat /etc/redhat-release 2>/dev/null || cat /etc/os-release 2>/dev/null | grep -i pretty_name | cut -d \" -f2); case $(uname -m) in aarch64) cpu=arm64;; x86_64) cpu=amd64;; *) echo "目前脚本不支持$(uname -m)架构" && exit; esac; mkdir -p "$HOME/agsb"
 v4v6(){
     v4=$( (curl -s4m5 -k "$v46url" 2>/dev/null) || (wget -4 -qO- --tries=2 "$v46url" 2>/dev/null) )
@@ -108,9 +108,9 @@ EOF
         port_vlr=$(cat "$HOME/agsb/port_vlr"); echo "VLESS-Reality-Vision端口：$port_vlr"
         if [ ! -f "$HOME/agsb/reality.key" ]; then "$HOME/agsb/sing-box" generate reality-keypair > "$HOME/agsb/reality.key"; fi
         
-        private_key=$(grep -i "PrivateKey" "$HOME/agsb/reality.key" | awk -F': ' '{print $NF}' | tr -d '\r\n ' | tr '_-' '/+')
-        while [ $((${#private_key} % 4)) -ne 0 ]; do private_key="${private_key}="; done
-
+        # --- Reality 提取修正：回归原生 URL-Safe 格式，仅剔除不可见字符 ---
+        private_key=$(grep -i "PrivateKey" "$HOME/agsb/reality.key" | awk '{print $NF}' | tr -d '\r\n ')
+        
         [ -f "$HOME/agsb/short_id" ] && short_id=$(cat "$HOME/agsb/short_id") || { short_id=$(openssl rand -hex 4); echo "$short_id" > "$HOME/agsb/short_id"; }
         cat >> "$HOME/agsb/sb.json" <<EOF
 {"type": "vless", "tag": "vless-reality-vision-sb", "listen": "::", "listen_port": ${port_vlr},"sniff": true,"users": [{"uuid": "${uuid}","flow": "xtls-rprx-vision"}],"tls": {"enabled": true,"server_name": "www.ua.edu","reality": {"enabled": true,"handshake": {"server": "www.ua.edu","server_port": 443},"private_key": "${private_key}","short_id": ["${short_id}"]}}},
@@ -248,9 +248,9 @@ cip(){
     if grep -q "vless-reality-vision-sb" "$HOME/agsb/sb.json"; then
         port_vlr=$(cat "$HOME/agsb/port_vlr")
         
-        public_key=$(grep -i "PublicKey" "$HOME/agsb/reality.key" | awk -F': ' '{print $NF}' | tr -d '\r\n ' | tr '_-' '/+')
-        while [ $((${#public_key} % 4)) -ne 0 ]; do public_key="${public_key}="; done
-
+        # --- Reality 分享链接提取修正：同样回归原生 URL-Safe 格式 ---
+        public_key=$(grep -i "PublicKey" "$HOME/agsb/reality.key" | awk '{print $NF}' | tr -d '\r\n ')
+        
         short_id=$(cat "$HOME/agsb/short_id")
         vless_link="vless://${uuid}@${server_ip}:${port_vlr}?encryption=none&security=reality&sni=www.ua.edu&fp=chrome&flow=xtls-rprx-vision&publicKey=${public_key}&shortId=${short_id}#${sxname}vless-reality-$hostname"
         echo "【 VLESS-Reality-Vision 】(直连协议)"; echo "$vless_link" | tee -a "$HOME/agsb/jh.txt"; echo;

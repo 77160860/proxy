@@ -55,7 +55,7 @@ proxy-groups:
     type: select
     include-all: true
     proxies: [Urltest]
-    icon: https://ghfast.top/github.com/Orz-3/mini/blob//master/Color/SSID.png
+    icon: https://fastly.jsdelivr.net/gh/Orz-3/mini@master/Color/SSID.png
 
   - name: Urltest
     type: url-test
@@ -63,18 +63,18 @@ proxy-groups:
     interval: 600
     tolerance: 60
     include-all: true
-    icon: https://ghfast.top/github.com/Orz-3/mini/blob/master/Color/Urltest.png
+    icon: https://fastly.jsdelivr.net/gh/Orz-3/mini@master/Color/Urltest.png
 
   - name: Final
     type: select
     proxies: [Proxy, DIRECT]
-    icon: https://ghfast.top/github.com/Orz-3/mini/blob/master/Color/Available.png
+    icon: https://fastly.jsdelivr.net/gh/Orz-3/mini@master/Color/Available.png
   
   - name: GLOBAL
     type: select
     include-all: true
     proxies: [Proxy, Urltest]
-    icon: https://ghfast.top/github.com/Orz-3/mini/blob/master/Color/Skicat.png
+    icon: https://fastly.jsdelivr.net/gh/Orz-3/mini@master/Color/Skicat.png
 
 rules:
   - RULE-SET,adblock,REJECT
@@ -96,28 +96,28 @@ rule-anchor:
 rule-providers:
   me:
     <<: *txt
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/proxy/main/me.list"
+    url: "https://fastly.jsdelivr.net/gh/77160860/proxy@main/me.list"
   filter:
     <<: *text
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/proxy/main/filter.list"
+    url: "https://fastly.jsdelivr.net/gh/77160860/proxy@main/filter.list"
   cn:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"
+    url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/cn.mrs"
   apple:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple@cn.mrs"
+    url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/apple@cn.mrs"
   microsoft:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft@cn.mrs"
+    url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/microsoft@cn.mrs"
   proxy:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs"
+    url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/geolocation-!cn.mrs"
   tgip:
     <<: *ip
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/telegram.mrs"
+    url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/telegram.mrs"
   cnip:
     <<: *ip
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs"
+    url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/cn.mrs"
   adblock:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Clash.mrs"
+    url: "https://fastly.jsdelivr.net/gh/TG-Twilight/AWAvenue-Ads-Rule@main/Filters/AWAvenue-Ads-Rule-Clash.mrs"

@@ -22,7 +22,7 @@
   "dns": {
     "servers": [
       {"tag": "local", "type": "local"},
-      {"tag": "public", "type": "https", "server": "dns.alidns.com", "domain_resolver": "local"},
+      {"tag": "public", "type": "quic", "server": "dns.alidns.com", "domain_resolver": "local"},
       {"tag": "foreign", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/16"}
     ],
@@ -32,7 +32,7 @@
       {"query_type": ["SVCB", "HTTPS"], "action": "predefined"},
       {"rule_set": "filter", "server": "local"},
       {"rule_set": "adblock", "action": "predefined"},
-      {"rule_set": ["me", "apple", "cn"], "server": "public"},
+      {"rule_set": ["me", "apple", "microsoft", "cn"], "server": "public"},
       {"query_type": "A", "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "foreign",
@@ -79,7 +79,8 @@
       {"tag": "me", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/proxy/main/me.json", "download_detour": "🐸 Direct"},
       {"tag": "filter", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/proxy/main/filter.json", "download_detour": "🐸 Direct"},
       {"tag": "cn", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/cn.srs", "download_detour": "🐸 Direct"},
-      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/apple-cn.srs", "download_detour": "🐸 Direct"},
+      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/apple@cn.srs", "download_detour": "🐸 Direct"},
+      {"tag": "microsoft", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/microsoft@cn.srs", "download_detour": "🐸 Direct"},
       {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/geolocation-!cn.srs", "download_detour": "🐸 Direct"},
       {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/cn.srs", "download_detour": "🐸 Direct"},
       {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/telegram.srs", "download_detour": "🐸 Direct"},

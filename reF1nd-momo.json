@@ -69,6 +69,7 @@
       {"clash_mode": "global", "outbound": "GLOBAL"},
       {"rule_set": "me", "outbound": "🐸 Direct"},
       {"rule_set": "apple", "outbound": "🐸 Direct"},
+      {"rule_set": "microsoft", "outbound": "🐸 Direct"},
       {"rule_set": "proxy", "outbound": "🐝 Proxy"},
       {"rule_set": "cn", "outbound": "🐸 Direct"},
       {"action": "resolve", "match_only": true},

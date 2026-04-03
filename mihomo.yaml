@@ -40,13 +40,14 @@ dns:
   fake-ip-filter:  
     - "rule-set:filter" 
   default-nameserver:
-    - tls://223.5.5.5
-    - tls://119.29.29.29
+    - system
+    - 223.5.5.5
+    - 119.29.29.29
   proxy-server-nameserver:
-    - https://dns.alidns.com/dns-query
+    - quic://dns.alidns.com
     - https://doh.pub/dns-query
   nameserver:
-    - https://dns.alidns.com/dns-query
+    - quic://dns.alidns.com
     - https://doh.pub/dns-query
 
 proxy-groups:
@@ -79,6 +80,7 @@ rules:
   - RULE-SET,adblock,REJECT
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT
+  - RULE-SET,microsoft,DIRECT
   - RULE-SET,proxy,Proxy
   - RULE-SET,cn,DIRECT
   - RULE-SET,tgip,Proxy
@@ -98,12 +100,15 @@ rule-providers:
   filter:
     <<: *text
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/proxy/main/filter.list"
-  apple:
-    <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple@cn.mrs"
   cn:
     <<: *domain
     url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"
+  apple:
+    <<: *domain
+    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple@cn.mrs"
+  microsoft:
+    <<: *domain
+    url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft@cn.mrs"
   proxy:
     <<: *domain
     url: "https://ghfast.top/raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs"

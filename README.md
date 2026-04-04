@@ -1,4 +1,4 @@
-agsb脚本基于 **Sing-box** 内核的多协议一键安装脚本，支持 Hysteria2、TUIC、VLESS-Reality、Vmess-WS 和 Trojan-WS 协议，并集成了 Cloudflare Argo 隧道功能，支持单协议及全协议。
+agsb脚本基于**Sing-box**内核的多协议一键安装脚本，支持 Hysteria2、TUIC、VLESS-Reality、Vmess-WS 和 Trojan-WS 协议，并集成了 Cloudflare Argo 隧道功能搭配Vmess及Trojan使用，支持单协议及全协议一键安装。
 
 ### 1. 基础安装命令
 该脚本通过环境变量来控制开启哪些协议。你需要在执行命令前设置对应的变量。

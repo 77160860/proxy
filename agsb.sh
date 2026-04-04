@@ -104,7 +104,7 @@ EOF
         port_tuic=$(cat "$HOME/agsb/port_tuic")
         echo "TUIC端口:$port_tuic"
         cat >> "$HOME/agsb/sb.json" <<EOF
-{"type": "tuic", "tag": "tuic-sb", "listen": "::", "listen_port": ${port_tuic}, "users": [{"uuid": "${uuid}", "password": "${uuid}"}], "congestion_control": "bbr", "zero_rtt_handshake": true, "heartbeat": "10s", "tls": {"enabled": true, "alpn": ["h3"], "certificate_path": "$HOME/agsb/cert.pem", "key_path": "$HOME/agsb/private.key"}},
+{"type": "tuic", "tag": "tuic-sb", "listen": "::", "listen_port": ${port_tuic}, "users": [{"uuid": "${uuid}", "password": "${uuid}"}], "congestion_control": "bbr", "zero_rtt_handshake": false, "heartbeat": "10s", "tls": {"enabled": true, "alpn": ["h3"], "certificate_path": "$HOME/agsb/cert.pem", "key_path": "$HOME/agsb/private.key"}},
 EOF
     fi
     if [ -n "$trp" ]; then

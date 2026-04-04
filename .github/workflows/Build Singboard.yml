@@ -21,7 +21,7 @@ jobs:
       - name: Clone upstream source
         shell: bash
         run: |
-          git clone --depth 1 --branch master https://github.com/Yuu518/singboard.git upstream
+          git clone --depth 1 --branch maintesting https://github.com/okunvei/singboard.git upstream
       - name: Read upstream commit
         id: commit
         shell: bash
@@ -80,7 +80,7 @@ jobs:
           tag_name: ${{ steps.meta.outputs.tag }}
           name: Singboard ${{ steps.meta.outputs.date_ver }}
           body: |
-            Source: Yuu518/singboard
+            Source: okunvei/singboard
             Commit: ${{ steps.commit.outputs.commit_short }}
           draft: false
           prerelease: false

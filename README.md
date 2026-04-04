@@ -10,7 +10,6 @@ agsb脚本基于 **Sing-box** 内核的多协议一键安装脚本，支持 Hyst
 *   `vmpt`: 设置 Vmess-WS 端口 (配合 Argo 使用)
 *   `trpt`: 设置 Trojan-WS 端口 (配合 Argo 使用)
 *   `uuid`: 自定义 UUID/密码 (不设置则随机生成)
----
 
 ### 2. 常见使用示例
 
@@ -32,7 +31,7 @@ trpt="自定义端口" hypt="自定义端口" uuid="自定义uuid" argo="trpt" a
 ---
 
 
-snellv5脚本(可指定端口及密码,不指定则随机生成):  
+**snellv5**脚本(可指定端口及密码,不指定则随机生成):  
 
 示例：port=自定义端口 psk=自定义密码 bash <(curl -fsSL https://raw.githubusercontent.com/77160860/proxy/main/snell.sh)
 

@@ -47,7 +47,7 @@ jobs:
           workspaces: upstream/src-tauri -> target
       - name: Install frontend deps
         working-directory: upstream
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
       - name: Build frontend
         working-directory: upstream
         run: pnpm build
@@ -85,4 +85,4 @@ jobs:
           draft: false
           prerelease: false
           files: release-assets/*.exe
-          make_latest: true 
+          make_latest: true

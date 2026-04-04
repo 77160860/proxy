@@ -30,8 +30,10 @@ trpt="自定义端口" hypt="自定义端口" uuid="自定义uuid" argo="trpt" a
 3.  **无交互安装**：所有参数通过环境变量传入，适合脚本自动化部署。
                                       
 
-snell脚本(可指定端口及密码,不指定则随机生成):  
-snellv5：port=自定义端口 psk=自定义密码 bash <(curl -fsSL https://raw.githubusercontent.com/77160860/proxy/main/snell.sh)
+
+snellv5脚本(可指定端口及密码,不指定则随机生成):  
+
+示例：port=自定义端口 psk=自定义密码 bash <(curl -fsSL https://raw.githubusercontent.com/77160860/proxy/main/snell.sh)
 
 查看：bash <(curl -fsSL https://raw.githubusercontent.com/77160860/proxy/main/snell.sh) config
 

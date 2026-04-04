@@ -29,6 +29,7 @@ trpt="自定义端口" hypt="自定义端口" uuid="自定义uuid" argo="trpt" a
 2.  **系统兼容**：支持 `systemd` (常见 Linux) 和 `OpenRC` (如 Alpine Linux) 初始化系统。
 3.  **无交互安装**：所有参数通过环境变量传入，适合脚本自动化部署。
                                       
+---
 
 
 snellv5脚本(可指定端口及密码,不指定则随机生成):  

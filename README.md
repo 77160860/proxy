@@ -25,15 +25,15 @@ trpt="自定义端口" hypt="自定义端口" uuid="自定义uuid" argo="trpt" a
 ### 3. 管理命令
 脚本安装完成后，可以直接使用 `agsb` 命令进行管理：
 
-*   **查看节点信息**：
+*   **查看节点**：
     ```bash
     agsb list
     ```
-*   **重置协议配置**（删除旧配置重新安装）：
+*   **重置协议**：
     ```bash
-    hypt=1 vlrt=1 agsb rep
+    agsb rep
     ```
-*   **更新 Sing-box 内核**：
+*   **更新内核**：
     ```bash
     agsb ups
     ```

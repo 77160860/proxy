@@ -77,7 +77,7 @@ installsb(){
     if [ ! -e "$HOME/agsb/sing-box" ]; then upsingbox; fi
     cat > "$HOME/agsb/sb.json" <<EOF
 {
-"log": { "disabled": false, "level": "info", "timestamp": true },
+"log": { "disabled": false, "level": "error", "timestamp": true },
 "inbounds": [
 EOF
     insuuid

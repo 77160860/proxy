@@ -22,8 +22,30 @@ hypt=1 tupt=1 vlrt=1 bash <(curl -Ls https://raw.githubusercontent.com/77160860/
 trpt="自定义端口" hypt="自定义端口" uuid="自定义uuid" argo="trpt" agn="cf域名" agk="隧道token" bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/agsb.sh)
 ```
 *注：变量赋值为 1 表示启用并随机分配端口。使用argo才需要加入argo、agn、agk配置字段，系统必装：apk add openssl/apt install openssl *
+### 3. 管理命令
+脚本安装完成后，可以直接使用 `agsb` 命令进行管理：
 
-### 3. 脚本特性说明
+*   **查看节点信息**：
+    ```bash
+    agsb list
+    ```
+*   **重置协议配置**（删除旧配置重新安装）：
+    ```bash
+    hypt=1 vlrt=1 agsb rep
+    ```
+*   **更新 Sing-box 内核**：
+    ```bash
+    agsb ups
+    ```
+*   **重启服务**：
+    ```bash
+    agsb res
+    ```
+*   **完全卸载**：
+    ```bash
+    agsb del
+    ```
+### 4. 脚本特性说明
 1.  **架构支持**：自动识别并支持 `x86_64` (amd64) 和 `aarch64` (arm64) 架构。
 2.  **系统兼容**：支持 `systemd` (常见 Linux) 和 `OpenRC` (如 Alpine Linux) 初始化系统。
 3.  **无交互安装**：所有参数通过环境变量传入，适合脚本自动化部署。

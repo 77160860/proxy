@@ -79,7 +79,7 @@
       {"tag": "filter", "type": "remote", "format": "source", "url": "https://fastly.jsdelivr.net/gh/77160860/proxy@main/filter.json", "download_detour": "🐸 Direct"},
       {"tag": "cn", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/cn.srs", "download_detour": "🐸 Direct"},
       {"tag": "apple", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/apple.srs", "download_detour": "🐸 Direct"},
-      {"tag": "microsoft", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/microsoft.srs", "download_detour": "🐸 Direct"},
+      {"tag": "microsoft", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/microsoft@cn.srs", "download_detour": "🐸 Direct"},
       {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/geolocation-!cn.srs", "download_detour": "🐸 Direct"},
       {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/cn.srs", "download_detour": "🐸 Direct"},
       {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/telegram.srs", "download_detour": "🐸 Direct"},

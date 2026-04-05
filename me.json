@@ -4,7 +4,8 @@
       "domain": [
         "cdn.jsdelivr.net",
         "fastly.jsdelivr.net",
-        "testingcf.jsdelivr.net"
+        "testingcf.jsdelivr.net",
+        "ocsp.digicert.com"
       ]
     },
     {

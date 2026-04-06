@@ -62,7 +62,7 @@
     "default_domain_resolver": "public",
     "default_domain_match_strategy": "prefer_fqdn",
     "rules": [
-      {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns"]},
+      {"action": "sniff", "sniffer": ["http", "tls", "quic"]},
       {"inbound": "dns-in", "action": "hijack-dns"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},

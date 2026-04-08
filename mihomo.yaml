@@ -24,6 +24,27 @@ profile:
   store-selected: true
   store-fake-ip: true
 
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - "Mijia Cloud"
+    - "dlg.io.mi.com"
+    - "+.push.apple.com"
+    - "+.apple.com"
+    - "+.wechat.com"
+    - "+.qq.com"
+    - "+.wechatapp.com"
+    - "+.oray.com"
+    - "+.sunlogin.net"
+
 tun:
   enable: true
   stack: mixed
@@ -37,7 +58,6 @@ tun:
 dns:
   enable: true
   ipv6: false
-  respect-rules: true
   cache-algorithm: arc
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.0/16
@@ -48,9 +68,6 @@ dns:
     - system
     - 223.5.5.5
     - 119.29.29.29
-  proxy-server-nameserver:
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
   nameserver:
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query

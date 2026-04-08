@@ -22,7 +22,7 @@
   "dns": {
     "servers": [
       {"tag": "local", "type": "local"},
-      {"tag": "public", "type": "quic", "server": "dns.alidns.com", "domain_resolver": "local"},
+      {"tag": "public", "type": "https", "server": "dns.alidns.com", "domain_resolver": "local"},
       {"tag": "foreign", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/16"}
     ],

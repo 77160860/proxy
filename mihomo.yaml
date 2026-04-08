@@ -1,3 +1,8 @@
+proxy-providers:
+  🌈:
+    url: "订阅链接"
+    type: http
+
 mode: rule
 ipv6: false
 allow-lan: true
@@ -80,7 +85,7 @@ rules:
   - RULE-SET,adblock,REJECT
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT
-  - RULE-SET,microsoft,DIRECT
+  - RULE-SET,micro,DIRECT
   - RULE-SET,proxy,Proxy
   - RULE-SET,cn,DIRECT
   - RULE-SET,tgip,Proxy
@@ -88,36 +93,34 @@ rules:
   - MATCH,Final
 
 rule-anchor:
-  classical: &txt {type: http, interval: 86400, behavior: classical, format: text}
-  domain_txt: &text {type: http, interval: 86400, behavior: domain, format: text}
-  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
   ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
+  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
 
 rule-providers:
   me:
-    <<: *txt
-    url: "https://fastly.jsdelivr.net/gh/77160860/proxy@main/me.list"
+    <<: *domain
+    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/me.mrs"
   filter:
-    <<: *text
-    url: "https://fastly.jsdelivr.net/gh/77160860/proxy@main/filter.list"
+    <<: *domain
+    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/filter.mrs"
   cn:
     <<: *domain
-    url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/cn.mrs"
+    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/cn.mrs"
   apple:
     <<: *domain
-    url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/apple.mrs"
-  microsoft:
+    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/apple.mrs"
+  micro:
     <<: *domain
-    url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/microsoft@cn.mrs"
+    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/micro.mrs"
   proxy:
     <<: *domain
-    url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/geolocation-!cn.mrs"
+    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/proxy.mrs"
   tgip:
     <<: *ip
-    url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/telegram.mrs"
+    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/tgip.mrs"
   cnip:
     <<: *ip
-    url: "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geoip/cn.mrs"
+    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/cnip.mrs"
   adblock:
     <<: *domain
     url: "https://fastly.jsdelivr.net/gh/TG-Twilight/AWAvenue-Ads-Rule@main/Filters/AWAvenue-Ads-Rule-Clash.mrs"

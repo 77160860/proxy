@@ -32,7 +32,7 @@
       {"query_type": ["SVCB", "HTTPS"], "action": "predefined"},
       {"rule_set": "filter", "server": "local"},
       {"rule_set": "adblock", "action": "predefined"},
-      {"rule_set": ["me", "apple", "microsoft", "cn"], "server": "public"},
+      {"rule_set": ["me", "cn", "apple", "micro"], "server": "public"},
       {"query_type": "A", "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "foreign",
@@ -67,7 +67,7 @@
       {"clash_mode": "global", "outbound": "GLOBAL"},
       {"rule_set": "me", "outbound": "🐸 Direct"},
       {"rule_set": "apple", "outbound": "🐸 Direct"},
-      {"rule_set": "microsoft", "outbound": "🐸 Direct"},
+      {"rule_set": "micro", "outbound": "🐸 Direct"},
       {"rule_set": "proxy", "outbound": "🐝 Proxy"},
       {"rule_set": "cn", "outbound": "🐸 Direct"},
       {"action": "resolve", "match_only": true},
@@ -75,14 +75,14 @@
       {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [
-      {"tag": "me", "type": "remote", "format": "source", "url": "https://fastly.jsdelivr.net/gh/77160860/proxy@main/me.json", "download_detour": "🐸 Direct"},
-      {"tag": "filter", "type": "remote", "format": "source", "url": "https://fastly.jsdelivr.net/gh/77160860/proxy@main/filter.json", "download_detour": "🐸 Direct"},
-      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/cn.srs", "download_detour": "🐸 Direct"},
-      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/apple.srs", "download_detour": "🐸 Direct"},
-      {"tag": "microsoft", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/microsoft@cn.srs", "download_detour": "🐸 Direct"},
-      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/geolocation-!cn.srs", "download_detour": "🐸 Direct"},
-      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/cn.srs", "download_detour": "🐸 Direct"},
-      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/telegram.srs", "download_detour": "🐸 Direct"},
+      {"tag": "me", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/77160860/rule@singbox/rule/me.srs", "download_detour": "🐸 Direct"},
+      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/77160860/rule@singbox/rule/cn.srs", "download_detour": "🐸 Direct"},
+      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/77160860/rule@singbox/rule/apple.srs", "download_detour": "🐸 Direct"},
+      {"tag": "micro", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/77160860/rule@singbox/rule/micro.srs", "download_detour": "🐸 Direct"},
+      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/77160860/rule@singbox/rule/proxy.srs", "download_detour": "🐸 Direct"},
+      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/77160860/rule@singbox/rule/tgip.srs", "download_detour": "🐸 Direct"},
+      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://fastly.jsdelivr.net/gh/77160860/rule@singbox/rule/cnip.srs", "download_detour": "🐸 Direct"},
+      {"tag": "filter", "type": "remote", "format": "source", "url": "https://fastly.jsdelivr.net/gh/77160860/rule@singbox/rule/filter.json", "download_detour": "🐸 Direct"},
       {"tag": "adblock", "type": "remote", "format": "source", "url": "https://fastly.jsdelivr.net/gh/TG-Twilight/AWAvenue-Ads-Rule@main/Filters/AWAvenue-Ads-Rule-Singbox.json", "download_detour": "🐸 Direct"}
     ]
   }

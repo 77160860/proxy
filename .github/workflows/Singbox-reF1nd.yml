@@ -20,7 +20,6 @@ jobs:
           REF="${{ github.event.inputs.source_ref }}"
           echo "REF=$REF" >> $GITHUB_ENV
           echo "UPSTREAM_REPO=$UPSTREAM_REPO" >> $GITHUB_ENV
-
       - name: Resolve SHA (tag/branch/commit)
         id: upstream
         run: |
@@ -42,20 +41,26 @@ jobs:
           SHORT="${SHA:0:7}"
           echo "UPSTREAM_SHA=$SHA" >> $GITHUB_ENV
           echo "SHORT_SHA=$SHORT" >> $GITHUB_ENV
-
       - name: Checkout upstream with full history
         uses: actions/checkout@v4
         with:
           repository: reF1nd/sing-box
           ref: ${{ env.UPSTREAM_SHA }}
           fetch-depth: 0
-
+      - name: Fix go.mod version compatibility
+        run: |
+          # 修复go.mod中可能不兼容的版本声明
+          if grep -q "go 1\.24\." go.mod; then
+            sed -i 's/go 1\.24\.[0-9]*/go 1.23/' go.mod
+            echo "已修复go.mod版本声明"
+          fi
+          echo "go.mod前5行："
+          head -5 go.mod
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.20'
-          check-latest: false
-
+          go-version: 'stable'
+          check-latest: true
       - name: Extract, Clean, and Prefix Version
         id: extract_version
         run: |
@@ -67,65 +72,62 @@ jobs:
           CLEANED_VERSION=$(echo "$RAW_VERSION" | cut -d'-' -f1)
           FINAL_VERSION="r${CLEANED_VERSION}"
           echo "VERSION=$FINAL_VERSION" >> $GITHUB_ENV
-
       - name: Define build metadata
         id: meta
         run: |
           TAGS_COMMON="with_gvisor with_quic with_utls with_clash_api badlinkname tfogo_checklinkname0"
-          
           echo "BUILD_TAGS=$TAGS_COMMON" >> $GITHUB_ENV
           echo "OUT_LINUX_ARM64=sing-box-arm64" >> $GITHUB_ENV
           echo "OUT_LINUX_AMD64=sing-box-amd64" >> $GITHUB_ENV
-          
           echo "BUILD_TAGS_WIN=$TAGS_COMMON with_purego" >> $GITHUB_ENV
           echo "OUT_WIN_ARM64=sing-box-windows-arm64.exe" >> $GITHUB_ENV
           echo "OUT_WIN_AMD64=sing-box-windows-amd64.exe" >> $GITHUB_ENV
-          
           echo "TAG=singbox" >> $GITHUB_ENV
-
       - name: Build sing-box (linux arm64)
         env:
           GOOS: linux
           GOARCH: arm64
           CGO_ENABLED: "0"
         run: |
-          go build -trimpath -o "${OUT_LINUX_ARM64}" -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" -tags="${BUILD_TAGS}" ./cmd/sing-box
-
+          go build -trimpath -o "${OUT_LINUX_ARM64}" \
+            -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
+            -tags="${BUILD_TAGS}" ./cmd/sing-box
       - name: Build sing-box (linux amd64)
         env:
           GOOS: linux
           GOARCH: amd64
           CGO_ENABLED: "0"
         run: |
-          go build -trimpath -o "${OUT_LINUX_AMD64}" -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" -tags="${BUILD_TAGS}" ./cmd/sing-box
-
+          go build -trimpath -o "${OUT_LINUX_AMD64}" \
+            -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
+            -tags="${BUILD_TAGS}" ./cmd/sing-box
       - name: Build sing-box (windows arm64)
         env:
           GOOS: windows
           GOARCH: arm64
           CGO_ENABLED: "0"
         run: |
-          go build -trimpath -o "${OUT_WIN_ARM64}" -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" -tags="${BUILD_TAGS_WIN}" ./cmd/sing-box
-
+          go build -trimpath -o "${OUT_WIN_ARM64}" \
+            -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
+            -tags="${BUILD_TAGS_WIN}" ./cmd/sing-box
       - name: Build sing-box (windows amd64)
         env:
           GOOS: windows
           GOARCH: amd64
           CGO_ENABLED: "0"
         run: |
-          go build -trimpath -o "${OUT_WIN_AMD64}" -ldflags="-s -w -X github.com/sagernet/sing-box/constant.Version=${VERSION}" -tags="${BUILD_TAGS_WIN}" ./cmd/sing-box
-
+          go build -trimpath -o "${OUT_WIN_AMD64}" \
+            -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
+            -tags="${BUILD_TAGS_WIN}" ./cmd/sing-box
       - name: Verify arch
         run: |
           ls -lh sing-box-*
-
       - name: Cleanup old release
         uses: dev-drprasad/delete-tag-and-release@v1.1
         with:
           tag_name: ${{ env.TAG }}
           delete_release: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Release
         uses: softprops/action-gh-release@v2
         with:

@@ -49,7 +49,6 @@ jobs:
           fetch-depth: 0
       - name: Fix go.mod version compatibility
         run: |
-          # 修复go.mod中可能不兼容的版本声明
           if grep -q "go 1\.24\." go.mod; then
             sed -i 's/go 1\.24\.[0-9]*/go 1.23/' go.mod
             echo "已修复go.mod版本声明"
@@ -64,6 +63,7 @@ jobs:
       - name: Extract, Clean, and Prefix Version
         id: extract_version
         run: |
+          go mod tidy
           RAW_VERSION=$(go run ./cmd/internal/read_tag)
           if [ -z "$RAW_VERSION" ]; then
             echo "ERROR: 'go run ./cmd/internal/read_tag' failed to produce a version string."

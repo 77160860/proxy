@@ -77,7 +77,7 @@ proxy-groups:
     type: select
     include-all: true
     proxies: [Urltest]
-    icon: https://fastly.jsdelivr.net/gh/Orz-3/mini@master/Color/SSID.png
+    icon: https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/SSID.png
 
   - name: Urltest
     type: url-test
@@ -85,18 +85,18 @@ proxy-groups:
     interval: 600
     tolerance: 60
     include-all: true
-    icon: https://fastly.jsdelivr.net/gh/Orz-3/mini@master/Color/Urltest.png
+    icon: https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/Urltest.png
 
   - name: Final
     type: select
     proxies: [Proxy, DIRECT]
-    icon: https://fastly.jsdelivr.net/gh/Orz-3/mini@master/Color/Available.png
+    icon: https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/Available.png
   
   - name: GLOBAL
     type: select
     include-all: true
     proxies: [Proxy, Urltest]
-    icon: https://fastly.jsdelivr.net/gh/Orz-3/mini@master/Color/Skicat.png
+    icon: https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/Skicat.png
 
 rules:
   - RULE-SET,adblock,REJECT
@@ -116,28 +116,28 @@ rule-anchor:
 rule-providers:
   me:
     <<: *domain
-    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/me.mrs"
+    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/me.mrs"
   filter:
     <<: *domain
-    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/filter.mrs"
+    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/filter.mrs"
   cn:
     <<: *domain
-    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/cn.mrs"
+    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/cn.mrs"
   apple:
     <<: *domain
-    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/apple.mrs"
+    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/apple.mrs"
   micro:
     <<: *domain
-    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/micro.mrs"
+    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/micro.mrs"
   proxy:
     <<: *domain
-    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/proxy.mrs"
+    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/proxy.mrs"
   tgip:
     <<: *ip
-    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/tgip.mrs"
+    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/tgip.mrs"
   cnip:
     <<: *ip
-    url: "https://fastly.jsdelivr.net/gh/77160860/rule@mihomo/rule/cnip.mrs"
+    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/cnip.mrs"
   adblock:
     <<: *domain
-    url: "https://fastly.jsdelivr.net/gh/TG-Twilight/AWAvenue-Ads-Rule@main/Filters/AWAvenue-Ads-Rule-Clash.mrs"
+    url: "https://cdn.jsdelivr.net/gh/TG-Twilight/AWAvenue-Ads-Rule@main/Filters/AWAvenue-Ads-Rule-Clash.mrs"

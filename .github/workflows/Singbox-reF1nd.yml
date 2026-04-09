@@ -47,14 +47,6 @@ jobs:
           repository: reF1nd/sing-box
           ref: ${{ env.UPSTREAM_SHA }}
           fetch-depth: 0
-      - name: Fix go.mod version compatibility
-        run: |
-          if grep -q "go 1\.24\." go.mod; then
-            sed -i 's/go 1\.24\.[0-9]*/go 1.23/' go.mod
-            echo "已修复go.mod版本声明"
-          fi
-          echo "go.mod前5行："
-          head -5 go.mod
       - name: Setup Go
         uses: actions/setup-go@v5
         with:

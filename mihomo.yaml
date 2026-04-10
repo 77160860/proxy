@@ -23,7 +23,7 @@ external-ui-url: "https://ghfast.top/github.com/Zephyruso/zashboard/releases/lat
 profile:
   store-selected: true
   store-fake-ip: true
-
+    
 tun:
   enable: true
   stack: mixed
@@ -56,7 +56,7 @@ proxy-groups:
     type: select
     include-all: true
     proxies: [Urltest]
-    icon: https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/SSID.png
+    icon: https://ghfast.top/raw.githubusercontent.com/Orz-3/mini/master/Color/SSID.png
 
   - name: Urltest
     type: url-test
@@ -64,18 +64,18 @@ proxy-groups:
     interval: 600
     tolerance: 60
     include-all: true
-    icon: https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/Urltest.png
+    icon: https://ghfast.top/raw.githubusercontent.com/Orz-3/mini/master/Color/Urltest.png
 
   - name: Final
     type: select
     proxies: [Proxy, DIRECT]
-    icon: https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/Available.png
+    icon: https://ghfast.top/raw.githubusercontent.com/Orz-3/mini/master/Color/Available.png
   
   - name: GLOBAL
     type: select
     include-all: true
     proxies: [Proxy, Urltest]
-    icon: https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/Skicat.png
+    icon: https://ghfast.top/raw.githubusercontent.com/Orz-3/mini/master/Color/Skicat.png
 
 rules:
   - RULE-SET,adblock,REJECT
@@ -95,28 +95,28 @@ rule-anchor:
 rule-providers:
   me:
     <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/me.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/me.mrs"
   filter:
     <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/filter.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/filter.mrs"
   cn:
     <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/cn.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/cn.mrs"
   apple:
     <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/apple.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/apple.mrs"
   micro:
     <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/micro.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/micro.mrs"
   proxy:
     <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/proxy.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/proxy.mrs"
   tgip:
     <<: *ip
-    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/tgip.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/tgip.mrs"
   cnip:
     <<: *ip
-    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/cnip.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/cnip.mrs"
   adblock:
     <<: *domain
-    url: "https://cdn.jsdelivr.net/gh/77160860/rule@mihomo/rule/adblock.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/adblock.mrs"

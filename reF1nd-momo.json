@@ -22,10 +22,7 @@
   "dns": {
     "servers": [
       {"tag": "local", "type": "local"},
-      {"tag": "hosts", "type": "hosts", "predefined": {"dns.alidns.com": ["223.5.5.5", "223.6.6.6"], "doh.pub": ["1.12.12.21", "120.53.53.53"]}},
-      {"tag": "aldns", "type": "https", "server": "dns.alidns.com", "domain_resolver": "hosts"},
-      {"tag": "txdns", "type": "https", "server": "doh.pub", "domain_resolver": "hosts"},
-      {"tag": "public", "type": "group", "servers": ["aldns", "txdns"]},
+      {"tag": "public", "type": "quic", "server": "dns.alidns.com", "domain_resolver": "local"},
       {"tag": "foreign", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/16"}
     ],

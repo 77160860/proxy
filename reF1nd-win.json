@@ -30,9 +30,8 @@
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
       {"query_type": ["SVCB", "HTTPS"], "action": "predefined"},
-      {"rule_set": "filter", "server": "local"},
       {"rule_set": "adblock", "action": "predefined"},
-      {"rule_set": ["me", "cn", "apple", "micro"], "server": "public"},
+      {"rule_set": ["filter", "me", "apple", "micro", "cn"], "server": "local"},
       {"query_type": "A", "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "foreign",

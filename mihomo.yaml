@@ -48,7 +48,7 @@ dns:
     - 223.5.5.5
     - 119.29.29.29
   nameserver:
-    - https://dns.alidns.com/dns-query
+    - quic://dns.alidns.com
     - https://doh.pub/dns-query
 
 proxy-groups:
@@ -90,33 +90,34 @@ rules:
 
 rule-anchor:
   ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
+  txt: &txt {type: http, interval: 86400, behavior: domain, format: text}
   domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
 
 rule-providers:
   me:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/me.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/me.mrs"
   filter:
-    <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/filter.mrs"
+    <<: *txt
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/filter.list"
   cn:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/cn.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/cn.mrs"
   apple:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/apple.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/apple.mrs"
   micro:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/micro.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/micro.mrs"
   proxy:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/proxy.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/proxy.mrs"
   tgip:
     <<: *ip
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/tgip.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/tgip.mrs"
   cnip:
     <<: *ip
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/cnip.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/cnip.mrs"
   adblock:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/mihomo/rule/adblock.mrs"
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/adblock.mrs"

@@ -48,6 +48,12 @@ jobs:
       - name: Install frontend deps
         working-directory: upstream
         run: pnpm install --no-frozen-lockfile
+      - name: Fix Tauri plugin versions
+        working-directory: upstream
+        shell: bash
+        run: |
+          # Update the mismatched NPM package to match the Rust crate version
+          pnpm update @tauri-apps/plugin-dialog@^2.7.0
       - name: Build frontend
         working-directory: upstream
         run: pnpm build

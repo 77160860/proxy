@@ -21,7 +21,7 @@ jobs:
       - name: Clone upstream source
         shell: bash
         run: |
-          git clone --depth 1 --branch maintesting https://github.com/okunvei/singboard.git upstream
+          git clone --depth 1 --branch ForWinFix https://github.com/okunvei/singboard_for_mac.git upstream
       - name: Read upstream commit
         id: commit
         shell: bash

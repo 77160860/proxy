@@ -74,15 +74,15 @@
       {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [
-      {"tag": "me", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/singbox/rule/me.srs", "download_detour": "🐸 Direct"},
-      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/singbox/rule/cn.srs", "download_detour": "🐸 Direct"},
-      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/singbox/rule/apple.srs", "download_detour": "🐸 Direct"},
-      {"tag": "micro", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/singbox/rule/micro.srs", "download_detour": "🐸 Direct"},
-      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/singbox/rule/proxy.srs", "download_detour": "🐸 Direct"},
-      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/singbox/rule/tgip.srs", "download_detour": "🐸 Direct"},
-      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/singbox/rule/cnip.srs", "download_detour": "🐸 Direct"},
-      {"tag": "filter", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/singbox/rule/filter.json", "download_detour": "🐸 Direct"},
-      {"tag": "adblock", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/singbox/rule/adblock.srs", "download_detour": "🐸 Direct"}
+      {"tag": "me", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/me.srs", "download_detour": "🐸 Direct"},
+      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/cn.srs", "download_detour": "🐸 Direct"},
+      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/apple.srs", "download_detour": "🐸 Direct"},
+      {"tag": "micro", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/micro.srs", "download_detour": "🐸 Direct"},
+      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/proxy.srs", "download_detour": "🐸 Direct"},
+      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/tgip.srs", "download_detour": "🐸 Direct"},
+      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/cnip.srs", "download_detour": "🐸 Direct"},
+      {"tag": "filter", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/filter.json", "download_detour": "🐸 Direct"},
+      {"tag": "adblock", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/adblock.srs", "download_detour": "🐸 Direct"}
     ]
   }
 }

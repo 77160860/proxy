@@ -2,7 +2,7 @@
   "log": {"disabled": false, "level": "info", "timestamp": true, "output": "./sing-box.log"},
   "experimental": {
     "urltest_unified_delay": true,
-    "cache_file": {"enabled": true, "store_fakeip": true, "store_rdrc": true},
+    "cache_file": {"enabled": true, "store_fakeip": true, "store_dns": true},
     "clash_api": {
       "external_controller": "127.0.0.1:9090",
       "external_ui": "ui",
@@ -27,20 +27,20 @@
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/16"}
     ],
     "rules": [
-      {"clash_mode": "direct", "server": "local"},
-      {"clash_mode": "global", "server": "fakeip"},
+      {"clash_mode": "direct", "action": "route", "server": "local"},
+      {"clash_mode": "global", "action": "route", "server": "fakeip"},
       {"query_type": ["SVCB", "HTTPS"], "action": "predefined"},
-      {"rule_set": "adblock", "action": "predefined"},
-      {"rule_set": ["filter", "me", "apple", "micro", "cn"], "server": "local"},
-      {"query_type": "A", "server": "fakeip", "rewrite_ttl": 1}
+      {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
+      {"rule_set": ["filter", "me", "apple", "micro", "cn"], "action": "route", "server": "local"},
+      {"action": "evaluate", "server": "public"},
+      {"type": "logical", "mode": "or", "rules": [{"match_response": true, "ip_is_private": true}, {"match_response": true, "rule_set": "cnip"}], "action": "respond"},
+      {"query_type": "A", "action": "route", "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "foreign",
     "strategy": "ipv4_only",
     "reverse_mapping": true,
-    "independent_cache": true,
-    "round_robin_cache": true,
-    "cache_capacity": 8000,
-    "lazy_cache_ttl": 180000
+    "cache_capacity": 8192,
+    "optimistic": {"enabled": true, "timeout": "7d"}
   },
   "inbounds": [
     {"tag": "mixed-in", "type": "mixed", "listen": "::", "listen_port": 7890, "set_system_proxy": false},
@@ -59,7 +59,7 @@
     "default_domain_resolver": "public",
     "default_domain_match_strategy": "prefer_fqdn",
     "rules": [
-      {"action": "sniff", "sniffer": ["http", "tls", "quic"]},
+      {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns"]},
       {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},

@@ -40,7 +40,7 @@ dns:
   listen: 0.0.0.0:1053
   cache-algorithm: arc
   enhanced-mode: fake-ip
-  fake-ip-range: 198.18.0.1/16
+  fake-ip-range: 198.18.0.1/15
   fake-ip-filter-mode: blacklist
   fake-ip-filter:
     - rule-set:filter
@@ -78,6 +78,7 @@ proxy-groups:
     icon: https://ghfast.top/raw.githubusercontent.com/Orz-3/mini/master/Color/Skicat.png
 
 rules:
+  - RULE-SET,pvip,DIRECT,no-resolve
   - RULE-SET,adblock,REJECT
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT
@@ -115,8 +116,11 @@ rule-providers:
   tgip:
     <<: *ip
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/tgip.mrs"
-  cnip:
+  pvip:
     <<: *ip
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/pvip.mrs"
+  cnip:    
+    <<: *ip    
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/cnip.mrs"
   adblock:
     <<: *domain

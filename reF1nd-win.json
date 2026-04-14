@@ -45,8 +45,8 @@
     "final": "foreign",
     "strategy": "ipv4_only",
     "reverse_mapping": true,
-    "cache_capacity": 8192,
-    "optimistic": true
+    "cache_capacity": 16000,
+    "optimistic": {"enabled": true, "timeout": "7d"}
   },
   "inbounds": [
     {"tag": "mixed-in", "type": "mixed", "listen": "::", "listen_port": 7890, "set_system_proxy": false},

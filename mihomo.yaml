@@ -23,7 +23,27 @@ external-ui-url: "https://ghfast.top/github.com/Zephyruso/zashboard/releases/lat
 profile:
   store-selected: true
   store-fake-ip: true
-    
+
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - "Mijia Cloud"
+    - "dlg.io.mi.com"
+    - "+.push.apple.com"
+    - "+.wechat.com"
+    - "+.qq.com"
+    - "+.wechatapp.com"
+    - "+.oray.com"
+    - "+.sunlogin.net"
+
 tun:
   enable: true
   stack: mixed
@@ -33,6 +53,7 @@ tun:
   auto-route: true
   auto-redirect: true
   auto-detect-interface: true
+  route-exclude-address-set: [cnip,pvip]
 
 dns:
   enable: true
@@ -42,7 +63,7 @@ dns:
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/15
   fake-ip-filter-mode: blacklist
-  fake-ip-filter: [rule-set:filter, rule-set:cn]
+  fake-ip-filter: [rule-set:filter,rule-set:cn]
   default-nameserver:
     - 223.5.5.5
     - 119.29.29.29
@@ -119,7 +140,7 @@ rule-providers:
     <<: *ip
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/pvip.mrs"
   cnip:    
-    <<: *ip    
+    <<: *ip
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/cnip.mrs"
   adblock:
     <<: *domain

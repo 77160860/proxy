@@ -98,6 +98,7 @@ proxy-groups:
     icon: https://ghfast.top/raw.githubusercontent.com/Orz-3/mini/master/Color/Skicat.png
 
 rules:
+  - AND,((NETWORK,UDP),(DST-PORT,443)),REJECT
   - RULE-SET,pvip,DIRECT,no-resolve
   - RULE-SET,adblock,REJECT
   - RULE-SET,me,DIRECT

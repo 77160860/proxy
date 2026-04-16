@@ -46,13 +46,6 @@ port_in_use(){
     fi
     return 1
 }
-set_sbyx(){
-    if [ -n "$name" ]; then sxname=$name-; echo "$sxname" > "$HOME/agsb/name"; echo; echo "所有节点名称前缀:$name"; fi
-    v4v6
-    if (curl -s4m5 -k "$v46url" >/dev/null 2>&1) || (wget -4 -qO- --tries=2 "$v46url" >/dev/null 2>&1); then v4_ok=true; fi
-    if (curl -s6m5 -k "$v46url" >/dev/null 2>&1) || (wget -6 -qO- --tries=2 "$v46url" >/dev/null 2>&1); then v6_ok=true; fi
-    if [ "$v4_ok" = true ] && [ "$v6_ok" = true ]; then sbyx='prefer_ipv4'; elif [ "$v4_ok" = true ] && [ "$v6_ok" != true ]; then sbyx='ipv4_only'; elif [ "$v4_ok" != true ] && [ "$v6_ok" = true ]; then sbyx='ipv6_only'; else sbyx='prefer_ipv4'; fi
-}
 upsingbox(){
     url="https://github.com/77160860/proxy/releases/download/singbox/sing-box-$cpu"
     out="$HOME/agsb/sing-box"
@@ -137,8 +130,8 @@ sbbout(){
         sed -i '${s/,\s*$//}' "$HOME/agsb/sb.json"
         cat >> "$HOME/agsb/sb.json" <<EOF
 ],
-"outbounds": [ { "type": "direct", "tag": "direct" }, { "type": "block", "tag": "block" } ],
-"route": { "rules": [ { "action": "sniff" }, { "action": "resolve", "strategy": "${sbyx}" } ], "final": "direct" }
+"outbounds": [ { "type": "direct", "tag": "direct" } ],
+"route": { "final": "direct" }
 }
 EOF
         if pidof systemd >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
@@ -215,7 +208,7 @@ EOF
     fi
 }
 ins(){
-    installsb; set_sbyx; sbbout
+    installsb; sbbout
     if [ -n "$argo" ] && [ -n "$vmag" ]; then
         echo; echo "=========启用Cloudflared-argo内核========="
         if [ ! -e "$HOME/agsb/cloudflared" ]; then argocore=$({ curl -Ls https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared || wget -qO- https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared; } | grep -Eo '"[0-9.]+"' | sed -n 1p | tr -d '",'); echo "下载Cloudflared-argo最新正式版内核:$argocore"; url="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$cpu"; out="$HOME/agsb/cloudflared"; (curl -Lo "$out" -# --retry 2 "$url") || (wget -O "$out" --tries=2 "$url"); chmod +x "$HOME/agsb/cloudflared"; fi

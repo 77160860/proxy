@@ -44,8 +44,8 @@
     "final": "foreign",
     "strategy": "ipv4_only",
     "reverse_mapping": true,
-    "cache_capacity": 16000,
-    "optimistic": {"enabled": true, "timeout": "7d"}
+    "cache_capacity": 8192,
+    "optimistic": true
   },
   "inbounds": [
     {"tag": "tun-in", "type": "tun", "interface_name": "momo", "address": "172.18.0.1/30", "auto_route": true, "auto_redirect": true, "route_exclude_address_set": ["cnip", "pvip"]}
@@ -60,12 +60,12 @@
   "route": {
     "final": "🍓 Final",
     "auto_detect_interface": true,
-    "default_domain_resolver": "public",
+    "default_domain_resolver": {"server": "public", "disable_optimistic_cache": true},
     "default_domain_match_strategy": "prefer_fqdn",
     "rules": [
-      {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns"]},
-      {"protocol": "dns", "action": "hijack-dns"},
-      {"protocol": "quic", "action": "reject"},
+      {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns", "stun"]},
+      {"type": "logical", "mode": "or", "rules": [{"protocol": "dns"}, {"port": 53}], "action": "hijack-dns"},
+      {"type": "logical", "mode": "or", "rules": [{"port": 853}, {"network": "udp", "port": 443}, {"protocol": "stun"}], "action": "reject"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},

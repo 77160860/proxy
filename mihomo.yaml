@@ -67,9 +67,11 @@ dns:
   default-nameserver:
     - 223.5.5.5
     - 119.29.29.29
+    - 123.125.81.6
   nameserver:
     - quic://dns.alidns.com
     - https://doh.pub/dns-query
+    - https://doh.360.cn/dns-query
 
 proxy-groups:
   - name: Proxy

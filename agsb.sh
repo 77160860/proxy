@@ -51,7 +51,7 @@ set_sbyx(){
     v4v6
     if (curl -s4m5 -k "$v46url" >/dev/null 2>&1) || (wget -4 -qO- --tries=2 "$v46url" >/dev/null 2>&1); then v4_ok=true; fi
     if (curl -s6m5 -k "$v46url" >/dev/null 2>&1) || (wget -6 -qO- --tries=2 "$v46url" >/dev/null 2>&1); then v6_ok=true; fi
-    if [ "$v4_ok" = true ] && [ "$v6_ok" = true ]; then sbyx='prefer_ipv6'; elif [ "$v4_ok" = true ] && [ "$v6_ok" != true ]; then sbyx='ipv4_only'; elif [ "$v4_ok" != true ] && [ "$v6_ok" = true ]; then sbyx='ipv6_only'; else sbyx='prefer_ipv6'; fi
+    if [ "$v4_ok" = true ] && [ "$v6_ok" = true ]; then sbyx='prefer_ipv4'; elif [ "$v4_ok" = true ] && [ "$v6_ok" != true ]; then sbyx='ipv4_only'; elif [ "$v4_ok" != true ] && [ "$v6_ok" = true ]; then sbyx='ipv6_only'; else sbyx='prefer_ipv4'; fi
 }
 upsingbox(){
     url="https://github.com/77160860/proxy/releases/download/singbox/sing-box-$cpu"

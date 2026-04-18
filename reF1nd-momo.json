@@ -1,5 +1,6 @@
 {
   "log": {"disabled": false, "level": "error", "timestamp": true},
+  "http_clients": [{"tag": "Direct"}],
   "experimental": {
     "urltest_unified_delay": true,
     "cache_file": {"enabled": true, "path": "/etc/momo/run/cache.db", "store_fakeip": true, "store_dns": true},
@@ -7,8 +8,7 @@
       "external_controller": "0.0.0.0:9090",
       "external_ui": "/etc/momo/run/ui",
       "external_ui_download_url": "https://ghfast.top/github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip",
-      "external_ui_download_detour": "🐸 Direct",
-      "default_mode": "rule"
+      "external_ui_http_client": "Direct"
     }
   },
   "providers": [
@@ -60,6 +60,7 @@
   "route": {
     "final": "🍓 Final",
     "auto_detect_interface": true,
+    "default_http_client": "Direct",
     "default_domain_resolver": {"server": "public", "disable_optimistic_cache": true},
     "default_domain_match_strategy": "prefer_fqdn",
     "rules": [
@@ -79,16 +80,16 @@
       {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [
-      {"tag": "me", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/me.srs", "download_detour": "🐸 Direct"},
-      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/cn.srs", "download_detour": "🐸 Direct"},
-      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/apple.srs", "download_detour": "🐸 Direct"},
-      {"tag": "micro", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/micro.srs", "download_detour": "🐸 Direct"},
-      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/proxy.srs", "download_detour": "🐸 Direct"},
-      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/tgip.srs", "download_detour": "🐸 Direct"},
-      {"tag": "pvip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/pvip.srs", "download_detour": "🐸 Direct"},
-      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/cnip.srs", "download_detour": "🐸 Direct"},
-      {"tag": "filter", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/filter.json", "download_detour": "🐸 Direct"},
-      {"tag": "adblock", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/adblock.srs", "download_detour": "🐸 Direct"}
+      {"tag": "me", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/me.srs"},
+      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/cn.srs"},
+      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/apple.srs"},
+      {"tag": "micro", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/micro.srs"},
+      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/proxy.srs"},
+      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/tgip.srs"},
+      {"tag": "pvip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/pvip.srs"},
+      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/cnip.srs"},
+      {"tag": "filter", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/filter.json"},
+      {"tag": "adblock", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/adblock.srs"}
     ]
   }
 }

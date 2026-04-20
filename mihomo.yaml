@@ -101,7 +101,6 @@ proxy-groups:
 
 rules:
   - OR,((AND,((NETWORK,UDP),(DST-PORT,443))),(AND,((NETWORK,TCP),(DST-PORT,853))),(DST-PORT,3478/5349)),REJECT
-  - RULE-SET,pvip,DIRECT,no-resolve
   - RULE-SET,adblock,REJECT
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT

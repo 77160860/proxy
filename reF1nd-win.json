@@ -32,7 +32,7 @@
     "rules": [
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
-      {"query_type": ["SVCB", "HTTPS"], "action": "predefined"},
+      {"query_type": ["PTR", "SVCB", "HTTPS"], "action": "reject"},
       {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
       {"rule_set": "filter", "server": "local"},
       {"action": "evaluate", "server": "public"},

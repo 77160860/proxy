@@ -60,7 +60,7 @@
     "final": "🍓 Final",
     "auto_detect_interface": true,
     "default_http_client": "Direct",
-    "default_domain_resolver": {"server": "public", "disable_optimistic_cache": true},
+    "default_domain_resolver": {"server": "public"},
     "default_domain_match_strategy": "prefer_fqdn",
     "rules": [
       {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns", "stun"]},

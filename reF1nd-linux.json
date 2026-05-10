@@ -3,10 +3,10 @@
   "http_clients": [{"tag": "Direct"}],
   "experimental": {
     "urltest_unified_delay": true,
-    "cache_file": {"enabled": true, "path": "/etc/momo/run/cache.db", "store_fakeip": true, "store_dns": true},
+    "cache_file": {"enabled": true, "store_fakeip": true, "store_dns": true},
     "clash_api": {
       "external_controller": "0.0.0.0:9090",
-      "external_ui": "/etc/momo/run/ui",
+      "external_ui": "ui",
       "external_ui_download_url": "https://ghfast.top/github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip",
       "external_ui_http_client": "Direct"
     }

@@ -102,7 +102,7 @@ proxy-groups:
     icon: https://ghfast.top/raw.githubusercontent.com/Orz-3/mini/master/Color/Skicat.png
 
 rules:
-  - OR,((AND,((NETWORK,UDP),(DST-PORT,443))),(AND,((NETWORK,TCP),(DST-PORT,853))),(DST-PORT,3478,5349)),REJECT
+  - OR,((AND,((NETWORK,UDP),(DST-PORT,443))),(AND,((NETWORK,TCP),(DST-PORT,853))),(DST-PORT,3478)),REJECT
   - RULE-SET,adblock,REJECT
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT

@@ -143,7 +143,7 @@ rule-providers:
   pvip:
     <<: *ip
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/pvip.mrs"
-  cnip:    
+  cnip:
     <<: *ip
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/cnip.mrs"
   adblock:

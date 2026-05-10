@@ -1,0 +1,94 @@
+{
+  "log": {"disabled": false, "level": "error", "timestamp": true},
+  "http_clients": [{"tag": "Direct"}],
+  "experimental": {
+    "urltest_unified_delay": true,
+    "cache_file": {"enabled": true, "path": "/etc/momo/run/cache.db", "store_fakeip": true, "store_dns": true},
+    "clash_api": {
+      "external_controller": "0.0.0.0:9090",
+      "external_ui": "/etc/momo/run/ui",
+      "external_ui_download_url": "https://ghfast.top/github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip",
+      "external_ui_http_client": "Direct"
+    }
+  },
+  "providers": [
+    {
+      "type": "remote",
+      "tag": "🌈",
+      "url": "订阅链接"
+    }
+  ],
+  "dns": {
+    "servers": [
+      {"tag": "local", "type": "local"},
+      {"tag": "hosts", "type": "hosts", "predefined": {"dns.alidns.com": ["223.5.5.5", "223.6.6.6"], "doh.pub": ["1.12.12.21", "120.53.53.53"], "doh.360.cn": ["123.6.48.18", "36.99.170.86"]}},
+      {"tag": "alidns", "type": "https", "server": "dns.alidns.com", "domain_resolver": "hosts"},
+      {"tag": "dnspod", "type": "https", "server": "doh.pub", "domain_resolver": "hosts"},
+      {"tag": "360dns", "type": "https", "server": "doh.360.cn", "domain_resolver": "hosts"},
+      {"tag": "public", "type": "group", "servers": ["alidns", "dnspod", "360dns"]},
+      {"tag": "foreign", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
+      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15"}
+    ],
+    "rules": [
+      {"clash_mode": "direct", "server": "local"},
+      {"clash_mode": "global", "server": "fakeip"},
+      {"query_type": ["PTR", "SVCB", "HTTPS"], "action": "reject"},
+      {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
+      {"rule_set": "filter", "server": "local"},
+      {"action": "evaluate", "server": "public"},
+      {"match_response": true, "ip_accept_any": true, "invert": true, "action": "respond"},
+      {"type": "logical", "mode": "or", "rules": [{"match_response": true, "ip_is_private": true}, {"match_response": true, "rule_set": "cnip"}], "action": "respond"},
+      {"query_type": "A", "server": "fakeip", "rewrite_ttl": 1}
+    ],
+    "final": "foreign",
+    "strategy": "ipv4_only",
+    "reverse_mapping": true,
+    "cache_capacity": 8192,
+    "optimistic": true
+  },
+  "inbounds": [
+    {"tag": "dns-in", "type": "direct", "listen": "::", "listen_port": 1053},
+    {"tag": "tproxy-in", "type": "tproxy", "listen": "::", "listen_port": 7890}
+  ],
+  "outbounds": [
+    {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"]},
+    {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true},
+    {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"]},
+    {"tag": "GLOBAL", "type": "selector", "use_all_providers": true, "outbounds": ["🐝 Proxy", "🚀 Urltest"]},
+    {"tag": "🐸 Direct", "type": "direct"}
+  ],
+  "route": {
+    "final": "🍓 Final",
+    "auto_detect_interface": true,
+    "default_http_client": "Direct",
+    "default_domain_resolver": {"server": "public"},
+    "default_domain_match_strategy": "prefer_fqdn",
+    "rules": [
+      {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns", "stun"]},
+      {"inbound": "dns-in", "action": "hijack-dns"},
+      {"type": "logical", "mode": "or", "rules": [{"port": 853}, {"network": "udp", "port": [443, 784, 8853]}, {"protocol": "stun"}], "action": "reject"},
+      {"ip_is_private": true, "outbound": "🐸 Direct"},
+      {"clash_mode": "direct", "outbound": "🐸 Direct"},
+      {"clash_mode": "global", "outbound": "GLOBAL"},
+      {"rule_set": "me", "outbound": "🐸 Direct"},
+      {"rule_set": "apple", "outbound": "🐸 Direct"},
+      {"rule_set": "micro", "outbound": "🐸 Direct"},
+      {"rule_set": "proxy", "outbound": "🐝 Proxy"},
+      {"rule_set": "cn", "outbound": "🐸 Direct"},
+      {"action": "resolve", "match_only": true},
+      {"rule_set": "tgip", "outbound": "🐝 Proxy"},
+      {"rule_set": "cnip", "outbound": "🐸 Direct"}
+    ],
+    "rule_set": [
+      {"tag": "me", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/me.srs"},
+      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/cn.srs"},
+      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/apple.srs"},
+      {"tag": "micro", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/micro.srs"},
+      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/proxy.srs"},
+      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/tgip.srs"},
+      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/cnip.srs"},
+      {"tag": "filter", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/filter.json"},
+      {"tag": "adblock", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/adblock.srs"}
+    ]
+  }
+}

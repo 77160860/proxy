@@ -64,7 +64,7 @@ dns:
   fake-ip-range: 198.18.0.1/15
   fake-ip-filter-mode: blacklist
   fake-ip-filter: [rule-set:filter,rule-set:cn]
-  nameserver-policy:  
+  nameserver-policy:
     'rule-set:filter': system
   default-nameserver:
     - 223.5.5.5

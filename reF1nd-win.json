@@ -66,7 +66,7 @@
     "rules": [
       {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns", "stun"]},
       {"type": "logical", "mode": "or", "rules": [{"protocol": "dns"}, {"port": 53}], "action": "hijack-dns"},
-      {"type": "logical", "mode": "or", "rules": [{"port": 853}, {"network": "udp", "port": 443}, {"protocol": "stun"}], "action": "reject"},
+      {"type": "logical", "mode": "or", "rules": [{"port": 853}, {"network": "udp", "port": [443, 784, 8853]}, {"protocol": "stun"}], "action": "reject"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},

@@ -115,7 +115,6 @@ rules:
 
 rule-anchor:
   ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
-  txt: &txt {type: http, interval: 86400, behavior: domain, format: text}
   domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
 
 rule-providers:
@@ -123,8 +122,8 @@ rule-providers:
     <<: *domain
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/me.mrs"
   filter:
-    <<: *txt
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/filter.list"
+    <<: *domain
+    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/filter.mrs"
   cn:
     <<: *domain
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/cn.mrs"

@@ -87,7 +87,7 @@
       {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/proxy.srs"},
       {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/tgip.srs"},
       {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/cnip.srs"},
-      {"tag": "filter", "type": "remote", "format": "source", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/filter.json"},
+      {"tag": "filter", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/filter.srs"},
       {"tag": "adblock", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/adblock.srs"}
     ]
   }

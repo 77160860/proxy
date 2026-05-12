@@ -53,7 +53,7 @@ tun:
   auto-route: true
   auto-redirect: true
   auto-detect-interface: true
-  route-exclude-address-set: [cnip,pvip]
+  route-exclude-address-set: [cnip]
 
 dns:
   enable: true
@@ -139,9 +139,6 @@ rule-providers:
   tgip:
     <<: *ip
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/tgip.mrs"
-  pvip:
-    <<: *ip
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/pvip.mrs"
   cnip:
     <<: *ip
     url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/cnip.mrs"

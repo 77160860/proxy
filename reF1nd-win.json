@@ -30,9 +30,9 @@
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15"}
     ],
     "rules": [
+      {"query_type": ["PTR", "SVCB", "HTTPS"], "action": "reject"},
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
-      {"query_type": ["PTR", "SVCB", "HTTPS"], "action": "reject"},
       {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
       {"rule_set": "filter", "server": "local"},
       {"action": "evaluate", "server": "public"},

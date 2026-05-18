@@ -6,7 +6,7 @@ on:
         description: 'Source ref to build (branch)'
         type: string
         required: true
-        default: 'reF1nd-stable'
+        default: 'reF1nd-testing'
 jobs:
   build:
     runs-on: ubuntu-latest

@@ -4,14 +4,14 @@ export LANG=en_US.UTF-8
 [ -z "${hy+x}" ] || hyp=yes
 [ -z "${vr+x}" ] || vlr=yes
 [ -z "${tu+x}" ] || tup=yes
-if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -q 'sing/sing-box' || pgrep -f 'sing/sing-box' >/dev/null 2>&1; then
+if [ "$1" = "list" ] || [ "$1" = "del" ] || [ "$1" = "res" ] || [ "$1" = "ups" ]; then
+    : # 维护指令直接放行，防止进程停止时管理命令失效
+elif find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -q 'sing/sing-box' || pgrep -x sing-box >/dev/null 2>&1; then
     if [ "$1" = "rep" ]; then
         [ "$vlr" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || { echo "提示:rep重置协议时,请在脚本前至少设置一个协议变量哦,再见!"; exit; }
     fi
 else
-    if [ "$1" != "del" ]; then
-        [ "$vlr" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || { echo "提示:未安装sing脚本,请在脚本前至少设置一个协议变量哦,再见!"; exit; }
-    fi
+    [ "$vlr" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || { echo "提示:未安装sing脚本,请在脚本前至少设置一个协议变量哦,再见!"; exit; }
 fi
 export uuid=${uuid:-''}; export port_tr=${tr:-''}; export port_hy2=${hy:-''}; export port_vlr=${vr:-''}; export port_tuic=${tu:-''}; export cdnym=${cdnym:-''}; export argo=${argo:-''}; export ARGO_DOMAIN=${agn:-''}; export ARGO_AUTH=${agk:-''}; export ippz=${ippz:-''}; export name=${name:-''}; export oap=${oap:-''}
 v46url="https://icanhazip.com"
@@ -86,6 +86,7 @@ EOF
     openssl ecparam -genkey -name prime256v1 -out "$HOME/sing/private.key" >/dev/null 2>&1
     openssl req -new -x509 -days 36500 -key "$HOME/sing/private.key" -out "$HOME/sing/cert.pem" -subj "/CN=www.bing.com" >/dev/null 2>&1
     if [ -n "$hyp" ]; then
+        if [ "$port_hy2" = "yes" ] || [[ ! "$port_hy2" =~ ^[0-9]+$ ]]; then port_hy2=""; fi
         if [ -n "$port_hy2" ]; then
             if port_in_use "$port_hy2"; then
                 old_port="$port_hy2"
@@ -95,10 +96,10 @@ EOF
             echo "$port_hy2" > "$HOME/sing/port_hy2"
         elif [ -e "$HOME/sing/port_hy2" ]; then
             port_hy2=$(cat "$HOME/sing/port_hy2")
-            if port_in_use "$port_hy2"; then
+            if port_in_use "$port_hy2" || [[ ! "$port_hy2" =~ ^[0-9]+$ ]]; then
                 old_port="$port_hy2"
                 port_hy2=$(get_free_port)
-                echo "警告: Hysteria2 缓存端口 $old_port 已被占用, 自动更换为新端口: $port_hy2"
+                echo "警告: Hysteria2 缓存端口 $old_port 异常或已被占用, 自动更换为新端口: $port_hy2"
                 echo "$port_hy2" > "$HOME/sing/port_hy2"
             fi
         else
@@ -111,6 +112,7 @@ EOF
 EOF
     fi
     if [ -n "$tup" ]; then
+        if [ "$port_tuic" = "yes" ] || [[ ! "$port_tuic" =~ ^[0-9]+$ ]]; then port_tuic=""; fi
         if [ -n "$port_tuic" ]; then
             if port_in_use "$port_tuic"; then
                 old_port="$port_tuic"
@@ -120,10 +122,10 @@ EOF
             echo "$port_tuic" > "$HOME/sing/port_tuic"
         elif [ -e "$HOME/sing/port_tuic" ]; then
             port_tuic=$(cat "$HOME/sing/port_tuic")
-            if port_in_use "$port_tuic"; then
+            if port_in_use "$port_tuic" || [[ ! "$port_tuic" =~ ^[0-9]+$ ]]; then
                 old_port="$port_tuic"
                 port_tuic=$(get_free_port)
-                echo "警告: TUIC 缓存端口 $old_port 已被占用, 自动更换为新端口: $port_tuic"
+                echo "警告: TUIC 缓存端口 $old_port 异常或已被占用, 自动更换为新端口: $port_tuic"
                 echo "$port_tuic" > "$HOME/sing/port_tuic"
             fi
         else
@@ -136,6 +138,7 @@ EOF
 EOF
     fi
     if [ -n "$trp" ]; then
+        if [ "$port_tr" = "yes" ] || [[ ! "$port_tr" =~ ^[0-9]+$ ]]; then port_tr=""; fi
         if [ -n "$port_tr" ]; then
             if port_in_use "$port_tr"; then
                 old_port="$port_tr"
@@ -145,10 +148,10 @@ EOF
             echo "$port_tr" > "$HOME/sing/port_tr"
         elif [ -e "$HOME/sing/port_tr" ]; then
             port_tr=$(cat "$HOME/sing/port_tr")
-            if port_in_use "$port_tr"; then
+            if port_in_use "$port_tr" || [[ ! "$port_tr" =~ ^[0-9]+$ ]]; then
                 old_port="$port_tr"
                 port_tr=$(get_free_port)
-                echo "警告: Trojan 缓存端口 $old_port 已被占用, 自动更换为新端口: $port_tr"
+                echo "警告: Trojan 缓存端口 $old_port 异常或已被占用, 自动更换为新端口: $port_tr"
                 echo "$port_tr" > "$HOME/sing/port_tr"
             fi
         else
@@ -161,6 +164,7 @@ EOF
 EOF
     fi
     if [ -n "$vlr" ]; then
+        if [ "$port_vlr" = "yes" ] || [[ ! "$port_vlr" =~ ^[0-9]+$ ]]; then port_vlr=""; fi
         if [ -n "$port_vlr" ]; then
             if port_in_use "$port_vlr"; then
                 old_port="$port_vlr"
@@ -170,10 +174,10 @@ EOF
             echo "$port_vlr" > "$HOME/sing/port_vlr"
         elif [ -e "$HOME/sing/port_vlr" ]; then
             port_vlr=$(cat "$HOME/sing/port_vlr")
-            if port_in_use "$port_vlr"; then
+            if port_in_use "$port_vlr" || [[ ! "$port_vlr" =~ ^[0-9]+$ ]]; then
                 old_port="$port_vlr"
                 port_vlr=$(get_free_port)
-                echo "警告: VLESS-Reality 缓存端口 $old_port 已被占用, 自动更换为新端口: $port_vlr"
+                echo "警告: VLESS-Reality 缓存端口 $old_port 异常或已被占用, 自动更换为新端口: $port_vlr"
                 echo "$port_vlr" > "$HOME/sing/port_vlr"
             fi
         else
@@ -225,7 +229,7 @@ depend() { need net; }
 EOF
             chmod +x /etc/init.d/sing-box; rc-update add sing-box default; rc-service sing-box start
         else
-            if pgrep -f 'sing/sing-box' >/dev/null 2>&1; then
+            if pgrep -x sing-box >/dev/null 2>&1; then
                 echo "Sing-box 已在运行,跳过重复 nohup 启动"
             else
                 nohup "$HOME/sing/sing-box" run -c "$HOME/sing/sb.json" >/dev/null 2>&1 &
@@ -268,7 +272,7 @@ depend() { need net; }
 EOF
                 chmod +x /etc/init.d/argo; rc-update add argo default; rc-service argo start
             else
-                if pgrep -f 'sing/cloudflared' >/dev/null 2>&1; then
+                if pgrep -x cloudflared >/dev/null 2>&1; then
                     echo "Cloudflared 已在运行,跳过重复 nohup 启动"
                 else
                     nohup "$HOME/sing/cloudflared" tunnel --no-autoupdate --edge-ip-version auto run --token "${ARGO_AUTH}" >/dev/null 2>&1 &
@@ -277,18 +281,22 @@ EOF
             echo "${ARGO_DOMAIN}" > "$HOME/sing/sbargoym.log"; echo "${ARGO_AUTH}" > "$HOME/sing/sbargotoken.log"
         else
             argoname='临时'
-            if pgrep -f 'sing/cloudflared' >/dev/null 2>&1; then
+            if pgrep -x cloudflared >/dev/null 2>&1; then
                 echo "Cloudflared 已在运行,跳过重复 nohup 启动"
             else
                 nohup "$HOME/sing/cloudflared" tunnel --url http://localhost:$(cat $HOME/sing/argoport.log) --edge-ip-version auto --no-autoupdate > $HOME/sing/argo.log 2>&1 &
             fi
         fi
         echo "申请Argo$argoname隧道中……请稍等"; sleep 8
-        if [ -n "${ARGO_DOMAIN}" ] && [ -n "${ARGO_AUTH}" ]; then argodomain=$(cat "$HOME/sing/sbargoym.log" 2>/dev/null); else argodomain=$(grep -a trycloudflare.com "$HOME/sing/argo.log" 2>/dev/null | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}'); fi
+        if [ -n "${ARGO_DOMAIN}" ] && [ -n "${ARGO_AUTH}" ]; then
+            argodomain=$(cat "$HOME/sing/sbargoym.log" 2>/dev/null)
+        else
+            argodomain=$(grep -oE 'https://[a-zA-Z0-9.-]+\.trycloudflare\.com' "$HOME/sing/argo.log" 2>/dev/null | head -n 1 | sed 's|https://||')
+        fi
         if [ -n "${argodomain}" ]; then echo "Argo$argoname隧道申请成功"; else echo "Argo$argoname隧道申请失败"; fi
     fi
     sleep 5; echo
-    if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'sing/(sing-box|c)' || pgrep -f 'sing/(sing-box|c)' >/dev/null 2>&1 ; then
+    if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'sing/(sing-box|cloudflared)' || pgrep -x sing-box >/dev/null 2>&1 ; then
         mkdir -p /usr/local/bin
         SCRIPT_PATH="/usr/local/bin/sing"
         (curl -sL "$singurl" -o "$SCRIPT_PATH") || (wget -qO "$SCRIPT_PATH" "$singurl")
@@ -301,8 +309,8 @@ EOF
 singstatus(){
     echo "=========当前内核运行状态========="
     procs=$(find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null)
-    if echo "$procs" | grep -Eq 'sing/sing-box' || pgrep -f 'sing/sing-box' >/dev/null 2>&1; then echo "Singbox (版本$("$HOME/sing/sing-box" version 2>/dev/null | awk '/version/{print $NF}')):运行中"; else echo "Sing-box:未启用"; fi
-    if echo "$procs" | grep -Eq 'sing/c' || pgrep -f 'sing/c' >/dev/null 2>&1; then echo "Argo (版本$("$HOME/sing/cloudflared" version 2>/dev/null | awk '{print $3}')):运行中"; else echo "Argo:未启用"; fi
+    if echo "$procs" | grep -Eq 'sing/sing-box' || pgrep -x sing-box >/dev/null 2>&1; then echo "Singbox (版本$("$HOME/sing/sing-box" version 2>/dev/null | awk '/version/{print $NF}')):运行中"; else echo "Sing-box:未启用"; fi
+    if echo "$procs" | grep -Eq 'sing/cloudflared' || pgrep -x cloudflared >/dev/null 2>&1; then echo "Argo (版本$("$HOME/sing/cloudflared" version 2>/dev/null | awk '{print $3}')):运行中"; else echo "Argo:未启用"; fi
 }
 cip(){
     ipbest(){ serip=$((curl -s4m5 -k "$v46url" 2>/dev/null)|| (wget -4 -qO- --tries=2 "$v46url" 2>/dev/null)|| (curl -s6m5 -k "$v46url" 2>/dev/null)|| (wget -6 -qO- --tries=2 "$v46url" 2>/dev/null)); serip=$(echo "$serip"|tr -d '\r\n'|head -n1); if echo "$serip"|grep -q ':'; then server_ip="[$serip]"; else server_ip="$serip"; fi; echo "$server_ip" > "$HOME/sing/server_ip.log"; }
@@ -325,7 +333,7 @@ cip(){
         vless_link="vless://${uuid}@${server_ip}:${port_vlr}?encryption=none&security=reality&sni=www.ua.edu&fp=chrome&flow=xtls-rprx-vision&publicKey=${public_key}&shortId=${short_id}#${sxname}vless-reality-$hostname"
         echo "【 VLESS-Reality-Vision 】(直连协议)"; echo "$vless_link" | tee -a "$HOME/sing/jh.txt"; echo;
     fi
-    argodomain=$(cat "$HOME/sing/sbargoym.log" 2>/dev/null); [ -z "$argodomain" ] && argodomain=$(grep -a trycloudflare.com "$HOME/sing/argo.log" 2>/dev/null | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')
+    argodomain=$(cat "$HOME/sing/sbargoym.log" 2>/dev/null); [ -z "$argodomain" ] && argodomain=$(grep -oE 'https://[a-zA-Z0-9.-]+\.trycloudflare\.com' "$HOME/sing/argo.log" 2>/dev/null | head -n 1 | sed 's|https://||')
     if [ -n "$argodomain" ]; then
         vlvm=$(cat $HOME/sing/vlvm 2>/dev/null); uuid=$(cat "$HOME/sing/uuid")
         if [ "$vlvm" = "Trojan" ]; then
@@ -338,19 +346,20 @@ cip(){
     echo; echo "聚合节点: cat $HOME/sing/jh.txt"; echo "========================================================="; echo "相关快捷方式如下:"; showmode
 }
 cleandel(){
-    for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/exe" 2>/dev/null); if echo "$TARGET" | grep -qE '/sing/c|/sing/sing-box'; then kill "$(basename "$P")" 2>/dev/null; fi; fi; done
-    kill -15 $(pgrep -f 'sing/c' 2>/dev/null) $(pgrep -f 'sing/sing-box' 2>/dev/null) >/dev/null 2>&1
-    rm -f /usr/local/bin/sing "$HOME/bin/sing"
-    if pidof systemd >/dev/null 2>&1; then
+    if pidof systemd >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
         for svc in sb argo; do systemctl stop "$svc" >/dev/null 2>&1; systemctl disable "$svc" >/dev/null 2>&1; done
         rm -f /etc/systemd/system/{sb.service,argo.service}
-    elif command -v rc-service >/dev/null 2>&1; then
+        systemctl daemon-reload >/dev/null 2>&1
+    elif command -v rc-service >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
         for svc in sing-box argo; do rc-service "$svc" stop >/dev/null 2>&1; rc-update del "$svc" default >/dev/null 2>&1; done
         rm -f /etc/init.d/{sing-box,argo}
     fi
+    for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/exe" 2>/dev/null); if echo "$TARGET" | grep -qE '/sing/cloudflared|/sing/sing-box'; then kill -9 "$(basename "$P")" 2>/dev/null; fi; fi; done
+    kill -9 $(pgrep -x cloudflared 2>/dev/null) $(pgrep -x sing-box 2>/dev/null) >/dev/null 2>&1
+    rm -f /usr/local/bin/sing "$HOME/bin/sing"
 }
 sbrestart(){
-    kill -15 $(pgrep -f 'sing/sing-box' 2>/dev/null) >/dev/null 2>&1
+    kill -15 $(pgrep -x sing-box 2>/dev/null) >/dev/null 2>&1
     if pidof systemd >/dev/null 2>&1; then
         systemctl restart sb
     elif command -v rc-service >/dev/null 2>&1; then
@@ -360,7 +369,7 @@ sbrestart(){
     fi
 }
 argorestart(){
-    kill -15 $(pgrep -f 'sing/c' 2>/dev/null) >/dev/null 2>&1
+    kill -15 $(pgrep -x cloudflared 2>/dev/null) >/dev/null 2>&1
     if pidof systemd >/dev/null 2>&1; then
         systemctl restart argo
     elif command -v rc-service >/dev/null 2>&1; then
@@ -376,12 +385,12 @@ argorestart(){
 if [ "$1" = "del" ]; then cleandel; rm -rf "$HOME/sing"; echo "卸载完成"; showmode; exit; fi
 if [ "$1" = "rep" ]; then cleandel; rm -rf "$HOME/sing"/{sb.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name,port_tuic,port_hy2,port_tr,port_vlr,reality.key,short_id,uuid,vlvm,server_ip.log}; echo "重置完成..."; sleep 2; fi
 if [ "$1" = "list" ]; then cip; exit; fi
-if [ "$1" = "ups" ]; then kill -15 $(pgrep -f 'sing/sing-box' 2>/dev/null); upsingbox && sbrestart && echo "Sing-box内核更新完成" && sleep 2 && cip; exit; fi
+if [ "$1" = "ups" ]; then kill -15 $(pgrep -x sing-box 2>/dev/null); upsingbox && sbrestart && echo "Sing-box内核更新完成" && sleep 2 && cip; exit; fi
 if [ "$1" = "res" ]; then sbrestart; argorestart; sleep 5 && echo "重启完成" && sleep 3 && cip; exit; fi
-if ! pgrep -f 'sing/sing-box' >/dev/null 2>&1 && [ "$1" != "rep" ]; then
+if ! pgrep -x sing-box >/dev/null 2>&1 && [ "$1" != "rep" ]; then
     cleandel
 fi
-if ! pgrep -f 'sing/sing-box' >/dev/null 2>&1 || [ "$1" = "rep" ]; then
+if ! pgrep -x sing-box >/dev/null 2>&1 || [ "$1" = "rep" ]; then
     if [ -z "$( (curl -s4m5 -k "$v46url") || (wget -4 -qO- --tries=2 "$v46url") )" ]; then echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a00:1098:2c::1" > /etc/resolv.conf; fi
     echo "VPS系统:$op"; echo "CPU架构:$cpu"; echo "sing脚本开始安装/更新…………" && sleep 1
     if [ -n "$oap" ]; then setenforce 0 >/dev/null 2>&1; iptables -F; iptables -P INPUT ACCEPT; netfilter-persistent save >/dev/null 2>&1; echo "iptables执行开放所有端口"; fi

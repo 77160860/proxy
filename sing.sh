@@ -1,37 +1,50 @@
 #!/usr/bin/env bash
 export LANG=en_US.UTF-8
+
 [ -z "${tr+x}" ] || trp=yes
 [ -z "${hy+x}" ] || hyp=yes
 [ -z "${vr+x}" ] || vlr=yes
 [ -z "${tu+x}" ] || tup=yes
+[ -z "${sn+x}" ] || snp=yes
+
 if [ "$1" = "list" ] || [ "$1" = "del" ] || [ "$1" = "res" ] || [ "$1" = "ups" ]; then
-    : # 维护指令直接放行，防止进程停止时管理命令失效
+    : 
 elif find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -q 'sing/sing-box' || pgrep -x sing-box >/dev/null 2>&1; then
     if [ "$1" = "rep" ]; then
-        [ "$vlr" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || { echo "提示:rep重置协议时,请在脚本前至少设置一个协议变量哦,再见!"; exit; }
+        [ "$vlr" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$snp" = yes ] || { echo "提示:rep重置协议时,请在脚本前至少设置一个协议变量哦,再见!"; exit; }
     fi
 else
-    [ "$vlr" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || { echo "提示:未安装sing脚本,请在脚本前至少设置一个协议变量哦,再见!"; exit; }
+    [ "$vlr" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$snp" = yes ] || { echo "提示:未安装sing脚本,请在脚本前至少设置一个协议变量哦,再见!"; exit; }
 fi
-export uuid=${uuid:-''}; export port_tr=${tr:-''}; export port_hy2=${hy:-''}; export port_vlr=${vr:-''}; export port_tuic=${tu:-''}; export cdnym=${cdnym:-''}; export argo=${argo:-''}; export ARGO_DOMAIN=${agn:-''}; export ARGO_AUTH=${agk:-''}; export ippz=${ippz:-''}; export name=${name:-''}; export oap=${oap:-''}
+
+export uuid=${uuid:-''}; export port_tr=${tr:-''}; export port_hy2=${hy:-''}; export port_vlr=${vr:-''}; export port_tuic=${tu:-''}; export port_snell=${sn:-''}; export cdnym=${cdnym:-''}; export argo=${argo:-''}; export ARGO_DOMAIN=${agn:-''}; export ARGO_AUTH=${agk:-''}; export ippz=${ippz:-''}; export name=${name:-''}; export oap=${oap:-''}
+
 v46url="https://icanhazip.com"
 singurl="https://raw.githubusercontent.com/77160860/proxy/main/sing.sh"
+
 showmode(){
     echo "sing脚本 (Singbox内核版)"
     echo "主脚本:bash <(curl -Ls ${singurl}) 或 bash <(wget -qO- ${singurl})"
-    echo "显示节点信息命令:sing list"
-    echo "重置变量组命令: sing rep"
-    echo "更新Singbox内核命令:sing ups"
+    echo "显示节点命令:sing list"
+    echo "重置变量命令:sing rep"
+    echo "更新内核命令:sing ups"
     echo "重启脚本命令:sing res"
     echo "卸载脚本命令:sing del"
     echo "---------------------------------------------------------"
 }
-echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"; echo "sing一键无交互脚本 (Singbox内核版)"; echo "当前版本:26.03.30"; echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "sing一键无交互脚本 (Singbox内核版)"
+echo "当前版本:26.05.23"
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
 hostname=$(uname -a | awk '{print $2}'); op=$(cat /etc/redhat-release 2>/dev/null || cat /etc/os-release 2>/dev/null | grep -i pretty_name | cut -d \" -f2); case $(uname -m) in aarch64) cpu=arm64;; x86_64) cpu=amd64;; *) echo "目前脚本不支持$(uname -m)架构" && exit; esac; mkdir -p "$HOME/sing"
+
 v4v6(){
     v4=$( (curl -s4m5 -k "$v46url" 2>/dev/null) || (wget -4 -qO- --tries=2 "$v46url" 2>/dev/null) )
     v6=$( (curl -s6m5 -k "$v46url" 2>/dev/null) || (wget -6 -qO- --tries=2 "$v46url" 2>/dev/null) )
 }
+
 port_in_use(){
     local p="$1"
     [ -z "$p" ] && return 1
@@ -45,6 +58,7 @@ port_in_use(){
     fi
     return 1
 }
+
 get_free_port(){
     local p
     while true; do
@@ -55,6 +69,7 @@ get_free_port(){
         fi
     done
 }
+
 upsingbox(){
     url="https://github.com/77160860/proxy/releases/download/singbox/sing-box-$cpu"
     out="$HOME/sing/sing-box"
@@ -63,6 +78,7 @@ upsingbox(){
     sbcore=$("$HOME/sing/sing-box" version 2>/dev/null | awk '/version/{print $NF}')
     echo "已安装Singbox正式版内核:$sbcore"
 }
+
 insuuid(){
     if [ ! -e "$HOME/sing/sing-box" ]; then upsingbox; fi
     if [ -z "$uuid" ] && [ ! -e "$HOME/sing/uuid" ]; then
@@ -74,6 +90,7 @@ insuuid(){
     uuid=$(cat "$HOME/sing/uuid")
     echo "UUID密码:$uuid"
 }
+
 installsb(){
     echo; echo "=========启用Singbox内核========="
     if [ ! -e "$HOME/sing/sing-box" ]; then upsingbox; fi
@@ -85,104 +102,92 @@ EOF
     insuuid
     openssl ecparam -genkey -name prime256v1 -out "$HOME/sing/private.key" >/dev/null 2>&1
     openssl req -new -x509 -days 36500 -key "$HOME/sing/private.key" -out "$HOME/sing/cert.pem" -subj "/CN=www.bing.com" >/dev/null 2>&1
+
+    # Hysteria2
     if [ -n "$hyp" ]; then
         if [ "$port_hy2" = "yes" ] || [[ ! "$port_hy2" =~ ^[0-9]+$ ]]; then port_hy2=""; fi
         if [ -n "$port_hy2" ]; then
-            if port_in_use "$port_hy2"; then
-                old_port="$port_hy2"
-                port_hy2=$(get_free_port)
-                echo "警告: Hysteria2 指定端口 $old_port 已被占用, 自动更换为新端口: $port_hy2"
-            fi
+            if port_in_use "$port_hy2"; then old_port="$port_hy2"; port_hy2=$(get_free_port); echo "警告: Hysteria2 指定端口 $old_port 已被占用, 自动更换为新端口: $port_hy2"; fi
             echo "$port_hy2" > "$HOME/sing/port_hy2"
         elif [ -e "$HOME/sing/port_hy2" ]; then
             port_hy2=$(cat "$HOME/sing/port_hy2")
-            if port_in_use "$port_hy2" || [[ ! "$port_hy2" =~ ^[0-9]+$ ]]; then
-                old_port="$port_hy2"
-                port_hy2=$(get_free_port)
-                echo "警告: Hysteria2 缓存端口 $old_port 异常或已被占用, 自动更换为新端口: $port_hy2"
-                echo "$port_hy2" > "$HOME/sing/port_hy2"
-            fi
+            if port_in_use "$port_hy2" || [[ ! "$port_hy2" =~ ^[0-9]+$ ]]; then old_port="$port_hy2"; port_hy2=$(get_free_port); echo "警告: Hysteria2 缓存端口 $old_port 异常或已被占用, 自动更换为新端口: $port_hy2"; echo "$port_hy2" > "$HOME/sing/port_hy2"; fi
         else
-            port_hy2=$(get_free_port)
-            echo "$port_hy2" > "$HOME/sing/port_hy2"
+            port_hy2=$(get_free_port); echo "$port_hy2" > "$HOME/sing/port_hy2"
         fi
         port_hy2=$(cat "$HOME/sing/port_hy2"); echo "Hysteria2端口:$port_hy2"
         cat >> "$HOME/sing/sb.json" <<EOF
 {"type": "hysteria2", "tag": "hy2", "listen": "::", "listen_port": ${port_hy2},"users": [ { "password": "${uuid}" } ],"tls": { "enabled": true, "alpn": ["h3"], "certificate_path": "$HOME/sing/cert.pem", "key_path": "$HOME/sing/private.key" }},
 EOF
     fi
+
+    # TUIC
     if [ -n "$tup" ]; then
         if [ "$port_tuic" = "yes" ] || [[ ! "$port_tuic" =~ ^[0-9]+$ ]]; then port_tuic=""; fi
         if [ -n "$port_tuic" ]; then
-            if port_in_use "$port_tuic"; then
-                old_port="$port_tuic"
-                port_tuic=$(get_free_port)
-                echo "警告: TUIC 指定端口 $old_port 已被占用, 自动更换为新端口: $port_tuic"
-            fi
+            if port_in_use "$port_tuic"; then old_port="$port_tuic"; port_tuic=$(get_free_port); echo "警告: TUIC 指定端口 $old_port 已被占用, 自动更换为新端口: $port_tuic"; fi
             echo "$port_tuic" > "$HOME/sing/port_tuic"
         elif [ -e "$HOME/sing/port_tuic" ]; then
             port_tuic=$(cat "$HOME/sing/port_tuic")
-            if port_in_use "$port_tuic" || [[ ! "$port_tuic" =~ ^[0-9]+$ ]]; then
-                old_port="$port_tuic"
-                port_tuic=$(get_free_port)
-                echo "警告: TUIC 缓存端口 $old_port 异常或已被占用, 自动更换为新端口: $port_tuic"
-                echo "$port_tuic" > "$HOME/sing/port_tuic"
-            fi
+            if port_in_use "$port_tuic" || [[ ! "$port_tuic" =~ ^[0-9]+$ ]]; then old_port="$port_tuic"; port_tuic=$(get_free_port); echo "警告: TUIC 缓存端口 $old_port 异常或已被占用, 自动更换为新端口: $port_tuic"; echo "$port_tuic" > "$HOME/sing/port_tuic"; fi
         else
-            port_tuic=$(get_free_port)
-            echo "$port_tuic" > "$HOME/sing/port_tuic"
+            port_tuic=$(get_free_port); echo "$port_tuic" > "$HOME/sing/port_tuic"
         fi
         port_tuic=$(cat "$HOME/sing/port_tuic"); echo "TUIC端口:$port_tuic"
         cat >> "$HOME/sing/sb.json" <<EOF
 {"type": "tuic", "tag": "tuic", "listen": "::", "listen_port": ${port_tuic}, "users": [{"uuid": "${uuid}", "password": "${uuid}"}], "congestion_control": "bbr", "zero_rtt_handshake": false, "heartbeat": "10s", "tls": {"enabled": true, "alpn": ["h3"], "certificate_path": "$HOME/sing/cert.pem", "key_path": "$HOME/sing/private.key"}},
 EOF
     fi
+
+    # Snell
+    if [ -n "$snp" ]; then
+        if [ "$port_snell" = "yes" ] || [[ ! "$port_snell" =~ ^[0-9]+$ ]]; then port_snell=""; fi
+        if [ -n "$port_snell" ]; then
+            if port_in_use "$port_snell"; then old_port="$port_snell"; port_snell=$(get_free_port); echo "警告: Snell 指定端口 $old_port 已被占用, 自动更换为新端口: $port_snell"; fi
+            echo "$port_snell" > "$HOME/sing/port_snell"
+        elif [ -e "$HOME/sing/port_snell" ]; then
+            port_snell=$(cat "$HOME/sing/port_snell")
+            if port_in_use "$port_snell" || [[ ! "$port_snell" =~ ^[0-9]+$ ]]; then old_port="$port_snell"; port_snell=$(get_free_port); echo "警告: Snell 缓存端口 $old_port 异常或已被占用, 自动更换为新端口: $port_snell"; echo "$port_snell" > "$HOME/sing/port_snell"; fi
+        else
+            port_snell=$(get_free_port); echo "$port_snell" > "$HOME/sing/port_snell"
+        fi
+        port_snell=$(cat "$HOME/sing/port_snell"); echo "Snell端口:$port_snell"
+        snell_psk="${uuid}"
+        echo "$snell_psk" > "$HOME/sing/snell_psk"
+        cat >> "$HOME/sing/sb.json" <<EOF
+{"type": "snell", "tag": "snell", "listen": "::", "listen_port": ${port_snell}, "users": [ { "psk": "${snell_psk}" } ], "version": 5},
+EOF
+    fi
+
+    # Trojan
     if [ -n "$trp" ]; then
         if [ "$port_tr" = "yes" ] || [[ ! "$port_tr" =~ ^[0-9]+$ ]]; then port_tr=""; fi
         if [ -n "$port_tr" ]; then
-            if port_in_use "$port_tr"; then
-                old_port="$port_tr"
-                port_tr=$(get_free_port)
-                echo "警告: Trojan 指定端口 $old_port 已被占用, 自动更换为新端口: $port_tr"
-            fi
+            if port_in_use "$port_tr"; then old_port="$port_tr"; port_tr=$(get_free_port); echo "警告: Trojan 指定端口 $old_port 已被占用, 自动更换为新端口: $port_tr"; fi
             echo "$port_tr" > "$HOME/sing/port_tr"
         elif [ -e "$HOME/sing/port_tr" ]; then
             port_tr=$(cat "$HOME/sing/port_tr")
-            if port_in_use "$port_tr" || [[ ! "$port_tr" =~ ^[0-9]+$ ]]; then
-                old_port="$port_tr"
-                port_tr=$(get_free_port)
-                echo "警告: Trojan 缓存端口 $old_port 异常或已被占用, 自动更换为新端口: $port_tr"
-                echo "$port_tr" > "$HOME/sing/port_tr"
-            fi
+            if port_in_use "$port_tr" || [[ ! "$port_tr" =~ ^[0-9]+$ ]]; then old_port="$port_tr"; port_tr=$(get_free_port); echo "警告: Trojan 缓存端口 $old_port 异常或已被占用, 自动更换为新端口: $port_tr"; echo "$port_tr" > "$HOME/sing/port_tr"; fi
         else
-            port_tr=$(get_free_port)
-            echo "$port_tr" > "$HOME/sing/port_tr"
+            port_tr=$(get_free_port); echo "$port_tr" > "$HOME/sing/port_tr"
         fi
         port_tr=$(cat "$HOME/sing/port_tr"); echo "Trojan端口(Argo本地使用):$port_tr"
         cat >> "$HOME/sing/sb.json" <<EOF
 {"type": "trojan", "tag": "trojan-ws", "listen": "::", "listen_port": ${port_tr},"users": [ { "password": "${uuid}" } ],"transport": { "type": "ws", "path": "/${uuid}-tr" }},
 EOF
     fi
+
+    # VLESS-Reality
     if [ -n "$vlr" ]; then
         if [ "$port_vlr" = "yes" ] || [[ ! "$port_vlr" =~ ^[0-9]+$ ]]; then port_vlr=""; fi
         if [ -n "$port_vlr" ]; then
-            if port_in_use "$port_vlr"; then
-                old_port="$port_vlr"
-                port_vlr=$(get_free_port)
-                echo "警告: VLESS-Reality 指定端口 $old_port 已被占用, 自动更换为新端口: $port_vlr"
-            fi
+            if port_in_use "$port_vlr"; then old_port="$port_vlr"; port_vlr=$(get_free_port); echo "警告: VLESS-Reality 指定端口 $old_port 已被占用, 自动更换为新端口: $port_vlr"; fi
             echo "$port_vlr" > "$HOME/sing/port_vlr"
         elif [ -e "$HOME/sing/port_vlr" ]; then
             port_vlr=$(cat "$HOME/sing/port_vlr")
-            if port_in_use "$port_vlr" || [[ ! "$port_vlr" =~ ^[0-9]+$ ]]; then
-                old_port="$port_vlr"
-                port_vlr=$(get_free_port)
-                echo "警告: VLESS-Reality 缓存端口 $old_port 异常或已被占用, 自动更换为新端口: $port_vlr"
-                echo "$port_vlr" > "$HOME/sing/port_vlr"
-            fi
+            if port_in_use "$port_vlr" || [[ ! "$port_vlr" =~ ^[0-9]+$ ]]; then old_port="$port_vlr"; port_vlr=$(get_free_port); echo "警告: VLESS-Reality 缓存端口 $old_port 异常或已被占用, 自动更换为新端口: $port_vlr"; echo "$port_vlr" > "$HOME/sing/port_vlr"; fi
         else
-            port_vlr=$(get_free_port)
-            echo "$port_vlr" > "$HOME/sing/port_vlr"
+            port_vlr=$(get_free_port); echo "$port_vlr" > "$HOME/sing/port_vlr"
         fi
         port_vlr=$(cat "$HOME/sing/port_vlr"); echo "VLESS-Reality-Vision端口:$port_vlr"
         if [ ! -f "$HOME/sing/reality.key" ]; then "$HOME/sing/sing-box" generate reality-keypair > "$HOME/sing/reality.key"; fi
@@ -193,6 +198,7 @@ EOF
 EOF
     fi
 }
+
 sbbout(){
     if [ -e "$HOME/sing/sb.json" ]; then
         sed -i '${s/,\s*$//}' "$HOME/sing/sb.json"
@@ -237,11 +243,19 @@ EOF
         fi
     fi
 }
+
 ins(){
     installsb; sbbout
     if [ "$argo" = "tr" ] && [ "$trp" = "yes" ]; then
         echo; echo "=========启用Cloudflared-argo内核========="
-        if [ ! -e "$HOME/sing/cloudflared" ]; then argocore=$({ curl -Ls https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared || wget -qO- https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared; } | grep -Eo '"[0-9.]+"' | sed -n 1p | tr -d '",'); echo "下载Cloudflared-argo最新正式版内核:$argocore"; url="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$cpu"; out="$HOME/sing/cloudflared"; (curl -Lo "$out" -# --retry 2 "$url") || (wget -O "$out" --tries=2 "$url"); chmod +x "$HOME/sing/cloudflared"; fi
+        if [ ! -e "$HOME/sing/cloudflared" ]; then 
+            argocore=$({ curl -Ls https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared || wget -qO- https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared; } | grep -Eo '"[0-9.]+"' | sed -n 1p | tr -d '",')
+            echo "下载Cloudflared-argo最新正式版内核:$argocore"
+            url="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$cpu"
+            out="$HOME/sing/cloudflared"
+            (curl -Lo "$out" -# --retry 2 "$url") || (wget -O "$out" --tries=2 "$url")
+            chmod +x "$HOME/sing/cloudflared"
+        fi
         argoport=$(cat "$HOME/sing/port_tr" 2>/dev/null); echo "Trojan" > "$HOME/sing/vlvm"; echo "$argoport" > "$HOME/sing/argoport.log"
         if [ -n "${ARGO_DOMAIN}" ] && [ -n "${ARGO_AUTH}" ]; then
             argoname='固定'
@@ -260,32 +274,13 @@ RestartSec=5s
 WantedBy=multi-user.target
 EOF
                 systemctl daemon-reload; systemctl enable argo; systemctl start argo
-            elif command -v rc-service >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
-                cat > /etc/init.d/argo <<EOF
-#!/sbin/openrc-run
-description="argo service"
-command="$HOME/sing/cloudflared"
-command_args="tunnel --no-autoupdate --edge-ip-version auto run --token ${ARGO_AUTH}"
-command_background=yes
-pidfile="/run/argo.pid"
-depend() { need net; }
-EOF
-                chmod +x /etc/init.d/argo; rc-update add argo default; rc-service argo start
             else
-                if pgrep -x cloudflared >/dev/null 2>&1; then
-                    echo "Cloudflared 已在运行,跳过重复 nohup 启动"
-                else
-                    nohup "$HOME/sing/cloudflared" tunnel --no-autoupdate --edge-ip-version auto run --token "${ARGO_AUTH}" >/dev/null 2>&1 &
-                fi
+                nohup "$HOME/sing/cloudflared" tunnel --no-autoupdate --edge-ip-version auto run --token "${ARGO_AUTH}" >/dev/null 2>&1 &
             fi
             echo "${ARGO_DOMAIN}" > "$HOME/sing/sbargoym.log"; echo "${ARGO_AUTH}" > "$HOME/sing/sbargotoken.log"
         else
             argoname='临时'
-            if pgrep -x cloudflared >/dev/null 2>&1; then
-                echo "Cloudflared 已在运行,跳过重复 nohup 启动"
-            else
-                nohup "$HOME/sing/cloudflared" tunnel --url http://localhost:$(cat $HOME/sing/argoport.log) --edge-ip-version auto --no-autoupdate > $HOME/sing/argo.log 2>&1 &
-            fi
+            nohup "$HOME/sing/cloudflared" tunnel --url http://localhost:$(cat $HOME/sing/argoport.log) --edge-ip-version auto --no-autoupdate > $HOME/sing/argo.log 2>&1 &
         fi
         echo "申请Argo$argoname隧道中……请稍等"; sleep 8
         if [ -n "${ARGO_DOMAIN}" ] && [ -n "${ARGO_AUTH}" ]; then
@@ -306,12 +301,14 @@ EOF
         echo "sing脚本进程未启动,安装失败" && exit
     fi
 }
+
 singstatus(){
     echo "=========当前内核运行状态========="
     procs=$(find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null)
     if echo "$procs" | grep -Eq 'sing/sing-box' || pgrep -x sing-box >/dev/null 2>&1; then echo "Singbox (版本$("$HOME/sing/sing-box" version 2>/dev/null | awk '/version/{print $NF}')):运行中"; else echo "Sing-box:未启用"; fi
     if echo "$procs" | grep -Eq 'sing/cloudflared' || pgrep -x cloudflared >/dev/null 2>&1; then echo "Argo (版本$("$HOME/sing/cloudflared" version 2>/dev/null | awk '{print $3}')):运行中"; else echo "Argo:未启用"; fi
 }
+
 cip(){
     ipbest(){ serip=$((curl -s4m5 -k "$v46url" 2>/dev/null)|| (wget -4 -qO- --tries=2 "$v46url" 2>/dev/null)|| (curl -s6m5 -k "$v46url" 2>/dev/null)|| (wget -6 -qO- --tries=2 "$v46url" 2>/dev/null)); serip=$(echo "$serip"|tr -d '\r\n'|head -n1); if echo "$serip"|grep -q ':'; then server_ip="[$serip]"; else server_ip="$serip"; fi; echo "$server_ip" > "$HOME/sing/server_ip.log"; }
     ipchange(){
@@ -324,6 +321,7 @@ cip(){
     }
     ipchange; rm -rf "$HOME/sing/jh.txt"; uuid=$(cat "$HOME/sing/uuid"); server_ip=$(cat "$HOME/sing/server_ip.log"); sxname=$(cat "$HOME/sing/name" 2>/dev/null);
     echo "*********************************************************"; echo "sing脚本输出节点配置如下:"; echo;
+
     if grep -q '"tag": "hy2"' "$HOME/sing/sb.json"; then port_hy2=$(cat "$HOME/sing/port_hy2"); hy2_link="hysteria2://$uuid@$server_ip:$port_hy2?security=tls&alpn=h3&insecure=1&sni=www.bing.com#${sxname}hy2-$hostname"; echo "【 Hysteria2 】(直连协议)"; echo "$hy2_link" | tee -a "$HOME/sing/jh.txt"; echo; fi
     if grep -q '"tag": "tuic"' "$HOME/sing/sb.json"; then port_tuic=$(cat "$HOME/sing/port_tuic"); tuic_link="tuic://${uuid}:${uuid}@${server_ip}:${port_tuic}?congestion_control=bbr&udp_relay_mode=native&alpn=h3&sni=www.bing.com&allow_insecure=1#${sxname}tuic-$hostname"; echo "【 TUIC 】(直连协议)"; echo "$tuic_link" | tee -a "$HOME/sing/jh.txt"; echo; fi
     if grep -q '"tag": "vless-reality"' "$HOME/sing/sb.json"; then
@@ -333,6 +331,15 @@ cip(){
         vless_link="vless://${uuid}@${server_ip}:${port_vlr}?encryption=none&security=reality&sni=www.ua.edu&fp=chrome&flow=xtls-rprx-vision&publicKey=${public_key}&shortId=${short_id}#${sxname}vless-reality-$hostname"
         echo "【 VLESS-Reality-Vision 】(直连协议)"; echo "$vless_link" | tee -a "$HOME/sing/jh.txt"; echo;
     fi
+    if grep -q '"tag": "snell"' "$HOME/sing/sb.json"; then
+        port_snell=$(cat "$HOME/sing/port_snell")
+        snell_psk=$(cat "$HOME/sing/snell_psk")
+        snell_link="snell://${snell_psk}@${server_ip}:${port_snell}?version=5#${sxname}snell-$hostname"
+        echo "【 Snell v5 】(直连协议)"
+        echo "$snell_link" | tee -a "$HOME/sing/jh.txt"
+        echo
+    fi
+
     argodomain=$(cat "$HOME/sing/sbargoym.log" 2>/dev/null); [ -z "$argodomain" ] && argodomain=$(grep -oE 'https://[a-zA-Z0-9.-]+\.trycloudflare\.com' "$HOME/sing/argo.log" 2>/dev/null | head -n 1 | sed 's|https://||')
     if [ -n "$argodomain" ]; then
         vlvm=$(cat $HOME/sing/vlvm 2>/dev/null); uuid=$(cat "$HOME/sing/uuid")
@@ -345,6 +352,7 @@ cip(){
     fi
     echo; echo "聚合节点: cat $HOME/sing/jh.txt"; echo "========================================================="; echo "相关快捷方式如下:"; showmode
 }
+
 cleandel(){
     if pidof systemd >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
         for svc in sb argo; do systemctl stop "$svc" >/dev/null 2>&1; systemctl disable "$svc" >/dev/null 2>&1; done
@@ -358,6 +366,7 @@ cleandel(){
     kill -9 $(pgrep -x cloudflared 2>/dev/null) $(pgrep -x sing-box 2>/dev/null) >/dev/null 2>&1
     rm -f /usr/local/bin/sing "$HOME/bin/sing"
 }
+
 sbrestart(){
     kill -15 $(pgrep -x sing-box 2>/dev/null) >/dev/null 2>&1
     if pidof systemd >/dev/null 2>&1; then
@@ -368,6 +377,7 @@ sbrestart(){
         nohup "$HOME/sing/sing-box" run -c "$HOME/sing/sb.json" >/dev/null 2>&1 &
     fi
 }
+
 argorestart(){
     kill -15 $(pgrep -x cloudflared 2>/dev/null) >/dev/null 2>&1
     if pidof systemd >/dev/null 2>&1; then
@@ -382,14 +392,13 @@ argorestart(){
         fi
     fi
 }
+
 if [ "$1" = "del" ]; then cleandel; rm -rf "$HOME/sing"; echo "卸载完成"; showmode; exit; fi
-if [ "$1" = "rep" ]; then cleandel; rm -rf "$HOME/sing"/{sb.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name,port_tuic,port_hy2,port_tr,port_vlr,reality.key,short_id,uuid,vlvm,server_ip.log}; echo "重置完成..."; sleep 2; fi
+if [ "$1" = "rep" ]; then cleandel; rm -rf "$HOME/sing"/{sb.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name,port_tuic,port_hy2,port_tr,port_vlr,port_snell,reality.key,short_id,uuid,vlvm,server_ip.log,snell_psk}; echo "重置完成..."; sleep 2; fi
 if [ "$1" = "list" ]; then cip; exit; fi
 if [ "$1" = "ups" ]; then kill -15 $(pgrep -x sing-box 2>/dev/null); upsingbox && sbrestart && echo "Sing-box内核更新完成" && sleep 2 && cip; exit; fi
 if [ "$1" = "res" ]; then sbrestart; argorestart; sleep 5 && echo "重启完成" && sleep 3 && cip; exit; fi
-if ! pgrep -x sing-box >/dev/null 2>&1 && [ "$1" != "rep" ]; then
-    cleandel
-fi
+if ! pgrep -x sing-box >/dev/null 2>&1 && [ "$1" != "rep" ]; then cleandel; fi
 if ! pgrep -x sing-box >/dev/null 2>&1 || [ "$1" = "rep" ]; then
     if [ -z "$( (curl -s4m5 -k "$v46url") || (wget -4 -qO- --tries=2 "$v46url") )" ]; then echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a00:1098:2c::1" > /etc/resolv.conf; fi
     echo "VPS系统:$op"; echo "CPU架构:$cpu"; echo "sing脚本开始安装/更新…………" && sleep 1

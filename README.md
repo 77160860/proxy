@@ -1,4 +1,4 @@
-脚本基于**Sing-box**内核的多协议一键安装脚本，支持 Hysteria2、TUIC、VLESS-Reality、Trojan-WS 协议，并集成了 Cloudflare Argo 隧道功能搭配Trojan使用，支持单协议及全协议一键安装。
+sing脚本基于**Sing-box**内核的多协议一键安装脚本，支持 Hysteria2、TUIC v5、Snell v5、VLESS-Reality、Trojan-WS 协议，并集成了 Cloudflare Argo 隧道功能搭配Trojan使用，支持单协议及全协议一键安装。
 
 ### 1. 基础安装命令
 该脚本通过环境变量来控制开启哪些协议。你需要在执行命令前设置对应的变量。
@@ -19,7 +19,7 @@ hy="yes" tu="yes" sn="yes" vr="yes" bash <(curl -Ls https://raw.githubuserconten
 ```
 #### 示例 B：隧道协议组合安装 (手动分配端口及uuid)
 ```bash
-tr="自定义端口" hy="自定义端口" uuid="自定义uuid" argo="trpt" agn="cf域名" agk="隧道token" bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/sing.sh)
+tr="自定义端口" hy="自定义端口" uuid="自定义uuid" argo="tr" agn="cf域名" agk="隧道token" bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/sing.sh)
 ```
 *注：变量赋值为 yes 表示启用并随机分配端口。使用argo才需要加入argo、agn、agk配置字段，系统必装：apk add openssl/apt install openssl *
 ### 3. 管理命令
@@ -37,12 +37,3 @@ sing del：一键彻底卸载。停止所有后台服务，删除系统启动项
 3.  **无交互安装**：所有参数通过环境变量传入，适合脚本自动化部署。
                                       
 ---
-
-
-**snellv5**脚本(可指定端口及密码,不指定则随机生成):  
-
-示例：port=自定义端口 psk=自定义密码 bash <(curl -fsSL https://raw.githubusercontent.com/77160860/proxy/main/snell.sh)
-
-查看：bash <(curl -fsSL https://raw.githubusercontent.com/77160860/proxy/main/snell.sh) config
-
-卸载：bash <(curl -fsSL https://raw.githubusercontent.com/77160860/proxy/main/snell.sh) uninstall

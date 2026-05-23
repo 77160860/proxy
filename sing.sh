@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 export LANG=en_US.UTF-8
-
 [ -z "${tr+x}" ] || trp=yes
 [ -z "${hy+x}" ] || hyp=yes
 [ -z "${vr+x}" ] || vlr=yes
@@ -8,7 +7,7 @@ export LANG=en_US.UTF-8
 [ -z "${sn+x}" ] || snp=yes
 
 if [ "$1" = "list" ] || [ "$1" = "del" ] || [ "$1" = "res" ] || [ "$1" = "ups" ]; then
-    : 
+    :
 elif find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -q 'sing/sing-box' || pgrep -x sing-box >/dev/null 2>&1; then
     if [ "$1" = "rep" ]; then
         [ "$vlr" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$snp" = yes ] || { echo "提示:rep重置协议时,请在脚本前至少设置一个协议变量哦,再见!"; exit; }
@@ -248,7 +247,7 @@ ins(){
     installsb; sbbout
     if [ "$argo" = "tr" ] && [ "$trp" = "yes" ]; then
         echo; echo "=========启用Cloudflared-argo内核========="
-        if [ ! -e "$HOME/sing/cloudflared" ]; then 
+        if [ ! -e "$HOME/sing/cloudflared" ]; then
             argocore=$({ curl -Ls https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared || wget -qO- https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared; } | grep -Eo '"[0-9.]+"' | sed -n 1p | tr -d '",')
             echo "下载Cloudflared-argo最新正式版内核:$argocore"
             url="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-$cpu"
@@ -334,8 +333,8 @@ cip(){
     if grep -q '"tag": "snell"' "$HOME/sing/sb.json"; then
         port_snell=$(cat "$HOME/sing/port_snell")
         snell_psk=$(cat "$HOME/sing/snell_psk")
-        snell_link="snell://${snell_psk}@${server_ip}:${port_snell}?version=5#${sxname}snell-$hostname"
-        echo "【 Snell v5 】(直连协议)"
+        snell_link="snell://${snell_psk}@${server_ip}:${port_snell}?version=5&reuse=true&tfo=true#${sxname}snell-$hostname"
+        echo "【 Snell 】(直连协议)"
         echo "$snell_link" | tee -a "$HOME/sing/jh.txt"
         echo
     fi

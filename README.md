@@ -21,7 +21,8 @@ hy="yes" tu="yes" sn="yes" vr="yes" bash <(curl -Ls https://raw.githubuserconten
 ```bash
 tr="自定义端口" hy="自定义端口" uuid="自定义uuid" argo="tr" agn="cf域名" agk="隧道token" bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/sing.sh)
 ```
-*注：变量赋值为 yes 表示启用并随机分配端口。使用argo才需要加入argo、agn、agk配置字段，系统必装：apk add openssl/apt install openssl *
+*注：变量赋值为 yes 表示启用并随机分配端口。使用argo才需要加入argo、agn、agk配置字段
+   系统必装：apk add openssl/apt install openssl *
 ### 3. 管理命令
 脚本安装完成后，可以直接使用 `sing` 命令进行管理：
 

@@ -193,7 +193,7 @@ EOF
         private_key=$(sed -n '1p' "$HOME/sing/reality.key" | awk '{print $2}')
         [ -f "$HOME/sing/short_id" ] && short_id=$(cat "$HOME/sing/short_id") || { short_id=$(openssl rand -hex 4); echo "$short_id" > "$HOME/sing/short_id"; }
         cat >> "$HOME/sing/sb.json" <<EOF
-{"type": "vless", "tag": "vless-reality", "listen": "::", "listen_port": ${port_vlr},"sniff": true,"users": [{"uuid": "${uuid}","flow": "xtls-rprx-vision"}],"tls": {"enabled": true,"server_name": "www.ua.edu","reality": {"enabled": true,"handshake": {"server": "www.ua.edu","server_port": 443},"private_key": "${private_key}","short_id": ["${short_id}"]}}},
+{"type": "vless", "tag": "vless-reality", "listen": "::", "listen_port": ${port_vlr},"users": [{"uuid": "${uuid}","flow": "xtls-rprx-vision"}],"tls": {"enabled": true,"server_name": "www.ua.edu","reality": {"enabled": true,"handshake": {"server": "www.ua.edu","server_port": 443},"private_key": "${private_key}","short_id": ["${short_id}"]}}},
 EOF
     fi
 }

@@ -1,11 +1,11 @@
-sing脚本基于**Sing-box**内核的多协议一键安装脚本，支持 Hysteria2、TUIC v5、Snell v5、VLESS-Reality、Trojan-WS 协议，并集成了 Cloudflare Argo 隧道功能搭配Trojan使用，支持单协议及全协议一键安装。
+sing脚本基于**Sing-box**内核的多协议一键安装脚本，支持Hysteria2、Tuic v5、Snell v5、VLESS-Reality、Trojan-WS协议，并集成了Cloudflare Argo隧道功能搭配Trojan使用，支持单协议及全协议一键安装。
 
 ### 1. 基础安装命令
 该脚本通过环境变量来控制开启哪些协议。你需要在执行命令前设置对应的变量。
 
 #### 常用协议变量说明：
 *   `hy`: 设置 Hysteria2 端口 (如 `hy=20001`不设置则随机生成)
-*   `tu`: 设置 TUIC v5 端口 (如 `tu=20002`不设置则随机生成)
+*   `tu`: 设置 Tuic v5 端口 (如 `tu=20002`不设置则随机生成)
 *   `sn`: 设置 Snell v5 端口 (如 `vr=20003`不设置则随机生成)
 *   `vr`: 设置 VLESS-Reality 端口 (如 `vr=20004`不设置则随机生成)
 *   `tr`: 设置 Trojan-WS 端口 (配合 Argo 使用)

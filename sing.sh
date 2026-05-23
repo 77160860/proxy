@@ -154,7 +154,7 @@ EOF
         snell_psk="${uuid}"
         echo "$snell_psk" > "$HOME/sing/snell_psk"
         cat >> "$HOME/sing/sb.json" <<EOF
-{"type": "snell", "tag": "snell", "listen": "::", "listen_port": ${port_snell}, "users": [ { "psk": "${snell_psk}" } ], "version": 5},
+{"type": "snell", "tag": "snell", "listen": "::", "listen_port": ${port_snell}, "psk": "${snell_psk}", "tcp_fast_open": true, "version": 5},
 EOF
     fi
 

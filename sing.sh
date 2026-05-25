@@ -172,7 +172,7 @@ EOF
         fi
         port_tr=$(cat "$HOME/sing/port_tr"); echo "Trojan端口(Argo本地使用):$port_tr"
         cat >> "$HOME/sing/sb.json" <<EOF
-{"type": "trojan", "tag": "trojan-ws", "listen": "::", "listen_port": ${port_tr},"users": [ { "password": "${uuid}" } ],"transport": { "type": "ws", "path": "/${uuid}-tr" }},
+{"type": "trojan", "tag": "trojan-ws", "listen": "::", "listen_port": ${port_tr},"users": [ { "password": "${uuid}" } ],"transport": { "type": "ws", "path": "/tr" }},
 EOF
     fi
 
@@ -343,7 +343,7 @@ cip(){
     if [ -n "$argodomain" ]; then
         vlvm=$(cat $HOME/sing/vlvm 2>/dev/null); uuid=$(cat "$HOME/sing/uuid")
         if [ "$vlvm" = "Trojan" ]; then
-            tratls_link1="trojan://${uuid}@saas.sin.fan:443?security=tls&type=ws&host=${argodomain}&path=%2F${uuid}-tr&sni=${argodomain}&fp=chrome#${sxname}trojan-ws-tls-argo-$hostname-443"
+            tratls_link1="trojan://${uuid}@saas.sin.fan:443?security=tls&type=ws&host=${argodomain}&path=%2Ftr&sni=${argodomain}&fp=chrome#${sxname}trojan-ws-tls-argo-$hostname-443"
             sbtk=$(cat "$HOME/sing/sbargotoken.log" 2>/dev/null); [ -n "$sbtk" ] && nametn="Argo固定隧道token:\n$sbtk"
             argoshow="Argo隧道信息 (使用 Trojan-ws 端口: $(cat $HOME/sing/argoport.log 2>/dev/null))\n---------------------------------------------------------\nArgo域名: ${argodomain}\n\n${nametn}\n\n 443端口Argo-TLS节点 (优选IP可替换):\n${tratls_link1}"
             echo "---------------------------------------------------------"; echo -e "$argoshow"; echo "---------------------------------------------------------"

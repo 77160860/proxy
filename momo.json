@@ -48,7 +48,8 @@
   },
   "inbounds": [
     {"tag": "dns-in", "type": "direct", "listen": "::", "listen_port": 1053},
-    {"tag": "tproxy-in", "type": "tproxy", "listen": "::", "listen_port": 7890}
+    {"tag": "tproxy-in", "type": "tproxy", "listen": "::", "listen_port": 7878},
+    {"tag": "redirect-in", "type": "redirect", "listen": "::", "listen_port": 7890}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"]},
@@ -64,7 +65,7 @@
     "default_domain_resolver": {"server": "public"},
     "default_domain_match_strategy": "prefer_fqdn",
     "rules": [
-      {"action": "sniff", "sniffer": ["http", "tls", "quic", "dns", "stun"]},
+      {"action": "sniff"},
       {"inbound": "dns-in", "action": "hijack-dns"},
       {"type": "logical", "mode": "or", "rules": [{"port": 853}, {"network": "udp", "port": [443, 784, 8853]}, {"protocol": "stun"}], "action": "reject"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},

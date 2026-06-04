@@ -67,7 +67,7 @@ jobs:
       - name: Define build metadata
         id: meta
         run: |
-          TAGS_COMMON="with_gvisor with_quic with_utls with_clash_api badlinkname tfogo_checklinkname0"
+          TAGS_COMMON="with_quic with_utls with_clash_api"
           echo "BUILD_TAGS=$TAGS_COMMON" >> $GITHUB_ENV
           echo "OUT_LINUX_ARM64=sing-box-arm64" >> $GITHUB_ENV
           echo "OUT_LINUX_AMD64=sing-box-amd64" >> $GITHUB_ENV

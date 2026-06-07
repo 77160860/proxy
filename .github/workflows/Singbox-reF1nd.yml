@@ -62,7 +62,7 @@ jobs:
             exit 1
           fi
           CLEANED_VERSION=$(echo "$RAW_VERSION" | cut -d'-' -f1)
-          FINAL_VERSION="r${CLEANED_VERSION}"
+          FINAL_VERSION="${CLEANED_VERSION}-reF1nd"
           echo "VERSION=$FINAL_VERSION" >> $GITHUB_ENV
       - name: Define build metadata
         id: meta

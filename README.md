@@ -8,6 +8,7 @@ sing脚本基于**Sing-box**内核的多协议一键安装脚本，支持Hysteri
 *   `tu`: 设置 Tuic v5 端口 (如 `tu=20002`不设置则随机生成)
 *   `sn`: 设置 Snell v5 端口 (如 `vr=20003`不设置则随机生成)
 *   `vr`: 设置 VLESS-Reality 端口 (如 `vr=20004`不设置则随机生成)
+*   `st`: 设置 ss2022-shadowtls 端口 (如 `vr=20005`不设置则随机生成)
 *   `tr`: 设置 Trojan-WS 端口 (配合 Argo 使用)
 *   `uuid`: 自定义 UUID/密码 (不设置则随机生成)
 
@@ -15,7 +16,7 @@ sing脚本基于**Sing-box**内核的多协议一键安装脚本，支持Hysteri
 
 #### 示例 A：非隧道全协议安装 (自动分配端口及uuid)
 ```bash
-hy="yes" tu="yes" sn="yes" vr="yes" bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/sing.sh)
+hy="yes" tu="yes" sn="yes" vr="yes" st="yes" bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/sing.sh)
 ```
 #### 示例 B：隧道协议组合安装 (手动分配端口及uuid)
 ```bash

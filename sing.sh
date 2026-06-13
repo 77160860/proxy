@@ -322,7 +322,7 @@ cip(){
     ipchange; rm -rf "$HOME/sing/jh.txt"; uuid=$(cat "$HOME/sing/uuid"); server_ip=$(cat "$HOME/sing/server_ip.log"); sxname=$(cat "$HOME/sing/name" 2>/dev/null);
     echo "*********************************************************"; echo "sing脚本输出节点配置如下:"; echo;
     if grep -q '"tag": "hy2"' "$HOME/sing/sb.json"; then port_hy2=$(cat "$HOME/sing/port_hy2"); hy2_link="hysteria2://$uuid@$server_ip:$port_hy2?security=tls&insecure=1&sni=www.icloud.com#${sxname}hy2-$hostname"; echo "【 Hysteria2 】"; echo "$hy2_link" | tee -a "$HOME/sing/jh.txt"; echo; fi
-    if grep -q '"tag": "tuic"' "$HOME/sing/sb.json"; then port_tuic=$(cat "$HOME/sing/port_tuic"); tuic_link="tuic://${uuid}:${uuid}@${server_ip}:${port_tuic}?congestion_control=bbr&udp_relay_mode=native&allow_insecure=1&sni=www.icloud.com#${sxname}tuic-$hostname"; echo "【 TUIC 】"; echo "$tuic_link" | tee -a "$HOME/sing/jh.txt"; echo; fi
+    if grep -q '"tag": "tuic"' "$HOME/sing/sb.json"; then port_tuic=$(cat "$HOME/sing/port_tuic"); tuic_link="tuic://${uuid}:${uuid}@${server_ip}:${port_tuic}?congestion_control=bbr&udp_relay_mode=native&sni=www.icloud.com&allow_insecure=1#${sxname}tuic-$hostname"; echo "【 TUIC 】"; echo "$tuic_link" | tee -a "$HOME/sing/jh.txt"; echo; fi
     if grep -q '"tag": "vless-reality"' "$HOME/sing/sb.json"; then
         port_vlr=$(cat "$HOME/sing/port_vlr")
         public_key=$(sed -n '2p' "$HOME/sing/reality.key" | awk '{print $2}')

@@ -38,12 +38,11 @@
       {"action": "evaluate", "server": "public"},
       {"match_response": true, "ip_accept_any": true, "invert": true, "action": "respond"},
       {"type": "logical", "mode": "or", "rules": [{"match_response": true, "ip_is_private": true}, {"match_response": true, "rule_set": "cnip"}], "action": "respond"},
-      {"query_type": "A", "server": "fakeip", "rewrite_ttl": 1}
+      {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "foreign",
     "strategy": "ipv4_only",
     "reverse_mapping": true,
-    "cache_capacity": 8192,
     "optimistic": true
   },
   "inbounds": [

@@ -344,7 +344,7 @@ cip(){
         ss_password=$(cat "$HOME/sing/ss_password" 2>/dev/null || echo "$uuid")
         echo "【 SS2022 】"
         cat <<EOF | tee -a "$HOME/sing/jh.txt"
-- {"name":"SS2022-shadowtls","type":"ss","server":"${server_ip}","port":${port_st},"tfo":true,"cipher":"2022-blake3-aes-128-gcm","password":"${ss_password}","plugin":"shadow-tls","client-fingerprint":"chrome","plugin-opts":{"host":"www.icloud.com","password":"${st_password}","version":3},"h2mux":{"enabled":true}}
+- {"name":"SS2022-shadowtls","type":"ss","server":"${server_ip}","port":${port_st},"tfo":true,"cipher":"2022-blake3-aes-128-gcm","password":"${ss_password}","plugin":"shadow-tls","client-fingerprint":"chrome","plugin-opts":{"host":"www.icloud.com","password":"${st_password}","version":3},"smux":{"enabled":true}}
 EOF
         echo
     fi

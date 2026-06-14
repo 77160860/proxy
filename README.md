@@ -1,21 +1,22 @@
-sing脚本基于**Sing-box**内核的多协议一键安装脚本，支持Hysteria2、Snell v5、VLESS-Reality、SS2022-shadowtls、Trojan-WS协议，并集成了Cloudflare Argo隧道功能搭配Trojan使用，支持单协议及全协议一键安装。
+sing脚本基于**Sing-box**内核的多协议一键安装脚本，支持Hysteria2、Snell v5、Tuic v5、VLESS-Reality、SS2022-shadowtls、Trojan-WS协议，并集成了Cloudflare Argo隧道功能搭配Trojan使用，支持单协议及全协议一键安装。
 
 ### 1. 基础安装命令
 该脚本通过环境变量来控制开启哪些协议。你需要在执行命令前设置对应的变量。
 
 #### 常用协议变量说明：
-*   `sn`: 设置 Snell v5 端口 (如 `sn=20002`不设置则随机生成)
-*   `hy`: 设置 Hysteria2 端口 (如 `hy=20001`不设置则随机生成)
+*   `tu`: 设置 Tuic v5 端口 (如 `tu=20000`不设置则随机生成)
+*   `sn`: 设置 Snell v5 端口 (如 `sn=20001`不设置则随机生成)
+*   `hy`: 设置 Hysteria2 端口 (如 `hy=20002`不设置则随机生成)
 *   `vr`: 设置 VLESS-Reality 端口 (如 `vr=8443`不设置则随机生成)
 *   `ss`: 设置 SS2022-shadowtls 端口 (如 `ss=443`不设置则随机生成)
-*   `tr`: 设置 Trojan-WS 端口 (如 `tr=20000`不设置则随机生成并配合Argo本地使用)
+*   `tr`: 设置 Trojan-WS 端口 (如 `tr=20003`不设置则随机生成并配合Argo在vps本地使用)
 *   `uuid`: 自定义 UUID/密码 (不设置则随机生成)
 
 ### 2. 常见使用示例
 
 #### 示例 A：非隧道全协议安装 (自动分配端口及uuid)
 ```bash
-hy="yes" sn="yes" vr="yes" ss="yes" bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/sing.sh)
+hy=yes tu=yes sn=yes vr=yes ss=yes bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/sing.sh)
 ```
 #### 示例 B：隧道协议组合安装 (手动分配端口及uuid)
 ```bash

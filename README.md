@@ -22,10 +22,10 @@ hy=yes tu=yes sn=yes vr=yes ss=yes bash <(curl -Ls https://raw.githubusercontent
 ```bash
 tr="自定义端口" hy="自定义端口" uuid="自定义uuid" argo="tr" agn="cf域名" agk="隧道token" bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/sing.sh)
 ```
-*注：变量赋值为 yes 表示启用并随机分配端口。使用argo才需要加入argo、agn、agk配置字段,系统必装:apk add openssl / apt install openssl *
+*注：变量赋值为 yes 表示启用并随机分配端口。使用argo才需要加入argo、agn、agk配置字段,  系统必装:apk add openssl / apt install openssl *
 ### 3. 管理命令
 脚本安装完成后，可以直接使用 `sing` 命令进行管理：
-
+重置协议需要在脚本末尾加上 rep
 sing：查看当前内核的运行状态。
 sing list：输出当前所有已安装节点的配置链接，并显示已生成的聚合文件（cat $HOME/sing/jh.txt）。
 sing res：重启 Sing-box 内核与 Argo 隧道。

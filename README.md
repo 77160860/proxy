@@ -24,14 +24,17 @@ tr="自定义端口" hy="自定义端口" uuid="自定义uuid" argo="tr" agn="cf
 ```
 *注：变量赋值为 yes 表示启用并随机分配端口。使用argo才需要加入argo、agn、agk配置字段,  系统必装:apk add openssl / apt install openssl *
 ### 3. 管理命令
-脚本安装完成后，可以直接使用 `sing` 命令进行管理：
-  重置协议需要在脚本末尾加上 rep
-  sing：查看当前内核的运行状态。
-  sing list：输出当前所有已安装节点的配置链接，并显示已生成的聚合文件（cat $HOME/sing/jh.txt）。
-  sing res：重启 Sing-box 内核与 Argo 隧道。
-  sing ups：一键更新 Sing-box 内核至最新正式版。
-  sing rep：重置配置。会清理旧配置文件及所有缓存的端口和密钥，方便您传入新参数重新安装。
-  sing del：一键彻底卸载。停止所有后台服务，删除系统启动项，彻底清空 $HOME/sing 目录。
+
+脚本安装完成后，可以直接使用 `sing` 命令进行管理。
+
+> **注意**：重置协议需要在脚本末尾加上 `rep`。
+
+- `sing`：查看当前内核的运行状态。
+- `sing list`：输出当前所有已安装节点的配置链接，并显示已生成的聚合文件（`cat $HOME/sing/jh.txt`）。
+- `sing res`：重启 Sing-box 内核与 Argo 隧道。
+- `sing ups`：一键更新 Sing-box 内核至最新正式版。
+- `sing rep`：重置配置。会清理旧配置文件及所有缓存的端口和密钥，方便您传入新参数重新安装。
+- `sing del`：一键彻底卸载。停止所有后台服务，删除系统启动项，彻底清空 `$HOME/sing` 目录。
 ### 4. 脚本特性说明
 1.  **架构支持**：自动识别并支持 `x86_64` (amd64) 和 `aarch64` (arm64) 架构。
 2.  **系统兼容**：支持 `systemd` (常见 Linux) 和 `OpenRC` (如 Alpine Linux) 初始化系统。

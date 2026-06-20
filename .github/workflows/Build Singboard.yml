@@ -65,13 +65,13 @@ jobs:
         working-directory: upstream
         shell: bash
         run: |
-          pnpm update @tauri-apps/plugin-dialog@^2.7.0
+          pnpm up @tauri-apps/plugin-dialog@^2.7.0
 
       - name: Build frontend
         working-directory: upstream
         run: |
           pnpm build
-          if ( !(pnpm vue-tsc --noEmit) ) {
+          if (!(pnpm vue-tsc --noEmit)) {
             Write-Error "TS check failed. Please push the latest changes from ForWinFix to GitHub."
             exit 1
           }

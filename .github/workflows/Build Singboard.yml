@@ -65,17 +65,16 @@ jobs:
         working-directory: upstream
         shell: bash
         run: |
-          pnpm up @tauri-apps/plugin-dialog@^2.7.0
+          pnpm update @tauri-apps/plugin-dialog@^2.7.0
 
-      - name: Build frontend (safe mode)
+      - name: Build frontend
         working-directory: upstream
         run: |
           pnpm build
-          # 强制检查 TS 类型（解决 startupDelaySeconds 问题）
-          if ! pnpm vue-tsc --noEmit; then
-            echo "TS check failed. Please push the latest changes from ForWinFix to GitHub."
+          if ( !(pnpm vue-tsc --noEmit) ) {
+            Write-Error "TS check failed. Please push the latest changes from ForWinFix to GitHub."
             exit 1
-          fi
+          }
 
       - name: Build tauri app
         working-directory: upstream

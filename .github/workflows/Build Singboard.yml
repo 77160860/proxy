@@ -70,7 +70,7 @@ jobs:
       - name: Build frontend (safe mode)
         working-directory: upstream
         run: |
-          # 只编译，不强制 TS 检查（解决别人仓库类型问题）
+          # 只编译，不强制 TS 检查
           pnpm build
           # if (!(pnpm vue-tsc --noEmit)) {
           #   Write-Error "TS check failed..."

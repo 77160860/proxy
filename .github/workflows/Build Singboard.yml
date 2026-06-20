@@ -1,16 +1,21 @@
 name: Build Singboard
+
 on:
   workflow_dispatch:
+
 permissions:
   contents: write
+
 env:
   CARGO_TERM_COLOR: always
+
 jobs:
   build-windows:
     runs-on: windows-latest
     steps:
       - name: Checkout workflow repo
         uses: actions/checkout@v4
+
       - name: Generate Metadata
         id: meta
         shell: bash
@@ -18,10 +23,12 @@ jobs:
           DATE_VER="v$(date +'%y.%-m.%-d')"
           echo "date_ver=$DATE_VER" >> $GITHUB_OUTPUT
           echo "tag=Singboard" >> $GITHUB_OUTPUT
+
       - name: Clone upstream source
         shell: bash
         run: |
           git clone --depth 1 --branch ForWinFix https://github.com/okunvei/singboard_for_mac.git upstream
+
       - name: Read upstream commit
         id: commit
         shell: bash
@@ -29,57 +36,70 @@ jobs:
           cd upstream
           COMMIT_SHORT=$(git rev-parse --short=7 HEAD)
           echo "commit_short=$COMMIT_SHORT" >> $GITHUB_OUTPUT
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
           cache-dependency-path: upstream/pnpm-lock.yaml
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
         with:
-          workspaces: upstream/src-tauri -> target
+          workspaces: upstream/src-tauri
+
       - name: Install frontend deps
         working-directory: upstream
         run: pnpm install --no-frozen-lockfile
+
       - name: Fix Tauri plugin versions
         working-directory: upstream
         shell: bash
         run: |
-          # Update the mismatched NPM package to match the Rust crate version
-          pnpm update @tauri-apps/plugin-dialog@^2.7.0
-      - name: Build frontend
+          pnpm up @tauri-apps/plugin-dialog@^2.7.0
+
+      - name: Build frontend (safe mode)
         working-directory: upstream
-        run: pnpm build
+        run: |
+          pnpm build
+          # 强制检查 TS 类型（解决 startupDelaySeconds 问题）
+          if ! pnpm vue-tsc --noEmit; then
+            echo "TS check failed. Please push the latest changes from ForWinFix to GitHub."
+            exit 1
+          fi
+
       - name: Build tauri app
         working-directory: upstream
         run: pnpm tauri build
+
       - name: Collect exe
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path release-assets | Out-Null
-          if (Test-Path "upstream/src-tauri/target/release/bundle") {
-            Get-ChildItem -Path "upstream/src-tauri/target/release/bundle" -Recurse -File -Filter *.exe | ForEach-Object {
-              Copy-Item $_.FullName -Destination "release-assets" -Force
-            }
+
+          Get-ChildItem -Path "upstream/src-tauri/target/release/bundle" -Recurse -File -Filter *.exe -ErrorAction SilentlyContinue | ForEach-Object {
+            Copy-Item $_.FullName -Destination "release-assets" -Force
           }
-          if (Test-Path "upstream/src-tauri/target/release") {
-            Get-ChildItem -Path "upstream/src-tauri/target/release" -File -Filter *.exe | ForEach-Object {
-              Copy-Item $_.FullName -Destination "release-assets" -Force
-            }
+          Get-ChildItem -Path "upstream/src-tauri/target/release" -File -Filter *.exe -ErrorAction SilentlyContinue | ForEach-Object {
+            Copy-Item $_.FullName -Destination "release-assets" -Force
           }
+
           $files = Get-ChildItem release-assets -File -Filter *.exe -ErrorAction SilentlyContinue
           if (-not $files) {
             Write-Error "No .exe files found."
             exit 1
           }
           Get-ChildItem release-assets -File -Filter *.exe | Select-Object Name,Length
+
       - name: Releases
         uses: softprops/action-gh-release@v2
         with:

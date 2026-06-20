@@ -21,11 +21,10 @@
   "dns": {
     "servers": [
       {"tag": "local", "type": "local"},
-      {"tag": "hosts", "type": "hosts", "predefined": {"dns.alidns.com": ["223.5.5.5", "223.6.6.6"], "doh.pub": ["1.12.12.21", "120.53.53.53"], "doh.360.cn": ["123.6.48.18", "36.99.170.86"]}},
+      {"tag": "hosts", "type": "hosts", "predefined": {"dns.alidns.com": ["223.5.5.5", "223.6.6.6", "2400:3200::1", "2400:3200:baba::1"], "doh.pub": ["1.12.12.21", "120.53.53.53"]}},
       {"tag": "alidns", "type": "https", "server": "dns.alidns.com", "domain_resolver": "hosts"},
       {"tag": "dnspod", "type": "https", "server": "doh.pub", "domain_resolver": "hosts"},
-      {"tag": "360dns", "type": "https", "server": "doh.360.cn", "domain_resolver": "hosts"},
-      {"tag": "public", "type": "group", "servers": ["alidns", "dnspod", "360dns"]},
+      {"tag": "public", "type": "group", "servers": ["alidns", "dnspod"]},
       {"tag": "foreign", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15"}
     ],

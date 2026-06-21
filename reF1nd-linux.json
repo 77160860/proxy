@@ -25,7 +25,7 @@
       {"tag": "dnspod", "type": "https", "server": "doh.pub", "domain_resolver": "local"},
       {"tag": "public", "type": "group", "servers": ["alidns", "dnspod"]},
       {"tag": "foreign", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
-      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15"}
+      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
     ],
     "rules": [
       {"clash_mode": "direct", "server": "local"},

@@ -21,22 +21,19 @@
   "dns": {
     "servers": [
       {"tag": "local", "type": "local"},
-      {"tag": "hosts", "type": "hosts", "predefined": {"dns.alidns.com": ["223.5.5.5", "223.6.6.6", "2400:3200::1", "2400:3200:baba::1"], "doh.pub": ["1.12.12.21", "120.53.53.53"]}},
-      {"tag": "alidns", "type": "https", "server": "dns.alidns.com", "domain_resolver": "hosts"},
-      {"tag": "dnspod", "type": "https", "server": "doh.pub", "domain_resolver": "hosts"},
+      {"tag": "alidns", "type": "https", "server": "dns.alidns.com", "domain_resolver": "local"},
+      {"tag": "dnspod", "type": "https", "server": "doh.pub", "domain_resolver": "local"},
       {"tag": "public", "type": "group", "servers": ["alidns", "dnspod"]},
       {"tag": "foreign", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15"}
     ],
     "rules": [
-      {"query_type": ["PTR", "SVCB", "HTTPS"], "action": "reject"},
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
-      {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
+      {"query_type": "HTTPS", "action": "reject"},
       {"rule_set": "filter", "server": "local"},
-      {"action": "evaluate", "server": "public"},
-      {"match_response": true, "ip_accept_any": true, "invert": true, "action": "respond"},
-      {"type": "logical", "mode": "or", "rules": [{"match_response": true, "ip_is_private": true}, {"match_response": true, "rule_set": "cnip"}], "action": "respond"},
+      {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
+      {"rule_set": ["me", "apple", "micro", "cn"], "server": "public"},
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "foreign",
@@ -64,8 +61,8 @@
     "rules": [
       {"action": "sniff"},
       {"type": "logical", "mode": "or", "rules": [{"protocol": "dns"}, {"port": 53}], "action": "hijack-dns"},
-      {"type": "logical", "mode": "or", "rules": [{"port": 853}, {"network": "udp", "port": [443, 784, 8853]}, {"protocol": "stun"}], "action": "reject"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
+      {"type": "logical", "mode": "or", "rules": [{"port": 853}, {"network": "udp", "port": [8853]}, {"type": "logical", "mode": "and", "rules": [{"rule_set": "cnip", "invert": true}, {"type": "logical", "mode": "or", "rules": [{"network": "udp", "port": [443, 784]}, {"protocol": "stun"}]}]}], "action": "reject"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
       {"rule_set": "me", "outbound": "🐸 Direct"},

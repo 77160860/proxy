@@ -43,8 +43,7 @@
   },
   "inbounds": [
     {"tag": "dns-in", "type": "direct", "listen": "::", "listen_port": 1053},
-    {"tag": "tproxy-in", "type": "tproxy", "listen": "::", "listen_port": 7878},
-    {"tag": "redirect-in", "type": "redirect", "listen": "::", "listen_port": 7890}
+    {"tag": "tproxy-in", "type": "tproxy", "listen": "::", "listen_port": 7890}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"]},

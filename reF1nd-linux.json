@@ -37,7 +37,7 @@
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "foreign",
-    "strategy": "prefer_ipv4",
+    "strategy": "ipv4_only",
     "reverse_mapping": true,
     "optimistic": true
   },

@@ -21,10 +21,7 @@
   "dns": {
     "servers": [
       {"tag": "local", "type": "local"},
-      {"tag": "hosts", "type": "hosts",
-      "predefined": {
-        "dns.alidns.com": ["223.5.5.5", "223.6.6.6", "2400:3200::1", "2400:3200:baba::1"],
-        "doh.pub": ["1.12.12.21", "120.53.53.53", "2402:4e00::", "2402:4e00:1::"]}},
+      {"tag": "hosts", "type": "hosts", "predefined": {"dns.alidns.com": ["223.5.5.5", "223.6.6.6"], "doh.pub": ["1.12.12.21", "120.53.53.53"]}},
       {"tag": "alidns", "type": "https", "server": "dns.alidns.com", "domain_resolver": "hosts"},
       {"tag": "dnspod", "type": "https", "server": "doh.pub", "domain_resolver": "hosts"},
       {"tag": "public", "type": "group", "servers": ["alidns", "dnspod"]},

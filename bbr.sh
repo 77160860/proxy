@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
-# Supports both Netplan (*.yaml) and ifupdown (/etc/network/interfaces).
 
 MTU="${MTU:-1500}"
 FQ_QUANTUM="${FQ_QUANTUM:-18028}"
@@ -204,8 +203,6 @@ else:
 path.write_text("\n".join(lines) + "\n")
 PY
   chmod 600 "${file}" || true
-  netplan generate
-  netplan apply
 }
 
 set_interfaces_mtu() {
@@ -217,41 +214,32 @@ set_interfaces_mtu() {
     return
   fi
   backup_file "${file}"
-
   python3 - "$file" "$iface" "$MTU" <<'PY'
 import sys
 import re
 import pathlib
-
 path = pathlib.Path(sys.argv[1])
 iface = sys.argv[2]
 mtu = sys.argv[3]
-
 text = path.read_text()
 lines = text.splitlines()
-
 target_idx = -1
 for i, line in enumerate(lines):
-    # Match "iface <iface_name>"
     if re.match(r"^\s*iface\s+" + re.escape(iface) + r"\b", line):
         target_idx = i
         break
-
 if target_idx == -1:
-    # If interface stanza not found, append a new basic DHCP config at the end
     lines.append("")
     lines.append(f"auto {iface}")
     lines.append(f"iface {iface} inet dhcp")
     lines.append(f"    mtu {mtu}")
 else:
-    # Find if mtu already exists in this stanza
     mtu_idx = -1
     insert_idx = target_idx + 1
     for i in range(target_idx + 1, len(lines)):
         line_str = lines[i].strip()
         if not line_str:
             continue
-        # If we hit a new stanza start, stop searching
         if re.match(r"^\s*(iface|auto|allow-|source|source-directory)\b", lines[i]):
             insert_idx = i
             break
@@ -260,19 +248,15 @@ else:
             break
     else:
         insert_idx = len(lines)
-
     if mtu_idx != -1:
-        # Update existing mtu line, keeping its indentation
         indent = len(lines[mtu_idx]) - len(lines[mtu_idx].lstrip())
         if indent == 0: indent = 4
         lines[mtu_idx] = " " * indent + f"mtu {mtu}"
     else:
-        # Insert new mtu line
         indent = 4
         if target_idx + 1 < len(lines) and lines[target_idx + 1].strip() and not re.match(r"^\s*(iface|auto|allow-|source)\b", lines[target_idx + 1]):
             indent = len(lines[target_idx + 1]) - len(lines[target_idx + 1].lstrip())
         lines.insert(insert_idx, " " * indent + f"mtu {mtu}")
-
 path.write_text("\n".join(lines) + "\n")
 PY
   ip link set dev "${iface}" mtu "${MTU}"
@@ -296,19 +280,28 @@ write_qdisc_service() {
 Description=Set fq qdisc quantum for single-flow throughput
 After=network-online.target
 Wants=network-online.target
-
 [Service]
 Type=oneshot
 ExecStartPre=-/usr/sbin/tc qdisc del dev ${iface} root
 ExecStart=/usr/sbin/tc qdisc add dev ${iface} root fq quantum ${FQ_QUANTUM} initial_quantum ${FQ_INITIAL_QUANTUM}
 RemainAfterExit=yes
-
 [Install]
 WantedBy=multi-user.target
 EOF
   systemctl daemon-reload
   systemctl enable --now "$(basename "${SERVICE_FILE}")" >/dev/null
   systemctl restart "$(basename "${SERVICE_FILE}")"
+}
+
+restart_network() {
+  echo "Restarting network service..."
+  if [[ -d "/etc/netplan" ]]; then
+    netplan generate
+    netplan apply
+  else
+    systemctl restart networking
+  fi
+  echo "Network service restarted."
 }
 
 show_status() {
@@ -340,7 +333,7 @@ show_status() {
     echo "Config file: ${config_file}"
     echo "Backup files: ${config_file}.bak.singleflow.*"
   else
-    echo "Config Method: Runtime Only (No persistent config file modified)"
+    echo "Config Method: Runtime Only"
   fi
   echo "Sysctl file: ${SYSCTL_FILE}"
   echo "Service file: ${SERVICE_FILE}"
@@ -353,22 +346,18 @@ main() {
   need_cmd sysctl
   need_cmd systemctl
   need_cmd python3
-
   local iface
   local netplan_file
   local interfaces_file
   local config_type="none"
   local config_file=""
-
   iface="$(detect_iface)"
   netplan_file="$(detect_netplan_file)"
   interfaces_file="$(detect_interfaces_file)"
-
   if [[ ! -d "/sys/class/net/${iface}" ]]; then
     echo "Interface does not exist: ${iface}" >&2
     exit 1
   fi
-
   if [[ -n "${netplan_file}" ]]; then
     config_type="netplan"
     config_file="${netplan_file}"
@@ -376,7 +365,6 @@ main() {
     config_type="interfaces"
     config_file="${interfaces_file}"
   fi
-
   echo "Interface: ${iface}"
   echo "MTU: ${MTU}"
   echo "fq quantum: ${FQ_QUANTUM}"
@@ -385,18 +373,17 @@ main() {
   echo "tcp_rmem max: ${TCP_RMEM_MAX}"
   echo "tcp_limit_output_bytes: ${TCP_LIMIT_OUTPUT_BYTES}"
   echo "Detected Config Type: ${config_type}"
-
   if [[ "${config_type}" == "netplan" ]]; then
     set_netplan_mtu "${iface}" "${netplan_file}"
   elif [[ "${config_type}" == "interfaces" ]]; then
     set_interfaces_mtu "${iface}" "${interfaces_file}"
   else
-    echo "Applying runtime MTU only (no persistent file found)..."
+    echo "Applying runtime MTU only..."
     ip link set dev "${iface}" mtu "${MTU}"
   fi
-
   write_sysctl
   write_qdisc_service "${iface}"
+  restart_network
   show_status "${iface}" "${config_type}" "${config_file}"
 }
 

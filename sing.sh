@@ -1,5 +1,58 @@
 #!/usr/bin/env bash
 export LANG=en_US.UTF-8
+check_deps() {
+    local missing=0
+    for cmd in curl wget openssl grep sed awk tr shuf pgrep pidof; do
+        if ! command -v "$cmd" >/dev/null 2>&1; then
+            missing=1
+            break
+        fi
+    done
+    if ! command -v ss >/dev/null 2>&1 && ! command -v netstat >/dev/null 2>&1; then
+        missing=1
+    fi
+    if [ "$missing" -eq 1 ]; then
+        local OS=""
+        if [ -f /etc/os-release ]; then
+            . /etc/os-release
+            OS=$ID
+        else
+            OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+        fi
+        install_pkg() {
+            case "$OS" in
+                debian|ubuntu)
+                    apt-get update >/dev/null 2>&1
+                    apt-get install -y curl wget openssl grep sed gawk coreutils procps util-linux iproute2 net-tools >/dev/null 2>&1
+                    ;;
+                centos|rhel|fedora|rocky|alma)
+                    if command -v dnf >/dev/null 2>&1; then
+                        dnf install -y curl wget openssl grep sed gawk coreutils procps util-linux iproute net-tools >/dev/null 2>&1
+                    else
+                        yum install -y curl wget openssl grep sed gawk coreutils procps util-linux iproute net-tools >/dev/null 2>&1
+                    fi
+                    ;;
+                alpine)
+                    apk add --no-cache curl wget openssl grep sed gawk coreutils procps util-linux iproute2 net-tools >/dev/null 2>&1
+                    ;;
+                arch|manjaro)
+                    pacman -Sy --noconfirm curl wget openssl grep sed gawk coreutils procps util-linux iproute2 net-tools >/dev/null 2>&1
+                    ;;
+                opensuse*)
+                    zypper install -y curl wget openssl grep sed gawk coreutils procps util-linux iproute2 net-tools >/dev/null 2>&1
+                    ;;
+            esac
+        }
+        if [ "$EUID" -ne 0 ]; then
+            if command -v sudo >/dev/null 2>&1; then
+                sudo bash -c "$(declare -f install_pkg); install_pkg" >/dev/null 2>&1
+            fi
+        else
+            install_pkg >/dev/null 2>&1
+        fi
+    fi
+}
+check_deps
 [ -z "${tr+x}" ] || trp=yes
 [ -z "${hy+x}" ] || hyp=yes
 [ -z "${vr+x}" ] || vrp=yes
@@ -90,7 +143,6 @@ EOF
     insuuid
     openssl ecparam -genkey -name prime256v1 -out "$HOME/sing/private.key" >/dev/null 2>&1
     openssl req -new -x509 -days 36500 -key "$HOME/sing/private.key" -out "$HOME/sing/cert.pem" -subj "/CN=www.icloud.com" >/dev/null 2>&1
-    # Hysteria2
     if [ -n "$hyp" ]; then
         if [ "$port_hy2" = "yes" ] || [[ ! "$port_hy2" =~ ^[0-9]+$ ]]; then port_hy2=""; fi
         if [ -n "$port_hy2" ]; then
@@ -107,7 +159,6 @@ EOF
 {"type": "hysteria2", "tag": "hy2", "listen": "::", "listen_port": ${port_hy2},"users": [ { "password": "${uuid}" } ],"tls": { "enabled": true, "certificate_path": "$HOME/sing/cert.pem", "key_path": "$HOME/sing/private.key" }},
 EOF
     fi
-    # Snell
     if [ -n "$snp" ]; then
         if [ "$port_snell" = "yes" ] || [[ ! "$port_snell" =~ ^[0-9]+$ ]]; then port_snell=""; fi
         if [ -n "$port_snell" ]; then
@@ -126,7 +177,6 @@ EOF
 {"type": "snell", "tag": "snell", "listen": "::", "listen_port": ${port_snell}, "psk": "${snell_psk}", "tcp_fast_open": true, "version": 5},
 EOF
     fi
-    # Trojan
     if [ -n "$trp" ]; then
         if [ "$port_tr" = "yes" ] || [[ ! "$port_tr" =~ ^[0-9]+$ ]]; then port_tr=""; fi
         if [ -n "$port_tr" ]; then
@@ -143,7 +193,6 @@ EOF
 {"type": "trojan", "tag": "trojan-ws", "listen": "::", "listen_port": ${port_tr}, "tcp_fast_open": true, "users": [ { "password": "${uuid}" } ],"transport": { "type": "ws", "path": "/tr" }},
 EOF
     fi
-    # VLESS-Reality
     if [ -n "$vrp" ]; then
         if [ "$port_vrp" = "yes" ] || [[ ! "$port_vrp" =~ ^[0-9]+$ ]]; then port_vrp=""; fi
         if [ -n "$port_vrp" ]; then
@@ -184,7 +233,6 @@ EOF
 {"type": "shadowsocks", "tag": "ss-in", "listen": "127.0.0.1", "listen_port": 0, "network": "tcp", "method": "2022-blake3-aes-128-gcm", "password": "${ss_password}", "multiplex": { "enabled": true } },
 EOF
     fi
-    # TUIC
     if [ -n "$tup" ]; then
         if [ "$port_tuic" = "yes" ] || [[ ! "$port_tuic" =~ ^[0-9]+$ ]]; then port_tuic=""; fi
         if [ -n "$port_tuic" ]; then
@@ -217,7 +265,7 @@ EOF
 Description=sb service
 After=network.target
 [Service]
-Type:simple
+Type=simple
 NoNewPrivileges=yes
 ExecStart=$HOME/sing/sing-box run -c $HOME/sing/sb.json
 Restart=on-failure

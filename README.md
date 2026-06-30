@@ -41,3 +41,7 @@ tr="自定义端口" hy="自定义端口" uuid="自定义uuid" argo="tr" agn="cf
 3.  **无交互安装**：所有参数通过环境变量传入，适合脚本自动化部署。
                                       
 ---
+BBR优化:
+```bash
+bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/bbr.sh)
+```

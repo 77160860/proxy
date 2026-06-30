@@ -13,6 +13,8 @@ NETPLAN_FILE="${NETPLAN_FILE:-}"
 INTERFACES_FILE="${INTERFACES_FILE:-}"
 IFACE="${IFACE:-}"
 
+APT_UPDATED=false
+
 need_root() {
   if [[ "${EUID}" -ne 0 ]]; then
     echo "错误：请使用 root 权限运行此脚本。" >&2
@@ -20,10 +22,107 @@ need_root() {
   fi
 }
 
+# 自动解析并安装缺失的命令依赖
+resolve_and_install() {
+  local cmd="$1"
+  local pm=""
+  
+  # 检测包管理器
+  if command -v apt-get >/dev/null 2>&1; then
+    pm="apt"
+  elif command -v dnf >/dev/null 2>&1; then
+    pm="dnf"
+  elif command -v yum >/dev/null 2>&1; then
+    pm="yum"
+  elif command -v pacman >/dev/null 2>&1; then
+    pm="pacman"
+  fi
+
+  if [[ -z "$pm" ]]; then
+    echo "错误：未检测到支持的包管理器 (apt/dnf/yum/pacman)，无法自动安装 ${cmd}。请手动安装。" >&2
+    exit 1
+  fi
+
+  # 映射命令到对应的软件包名称
+  local pkg=""
+  case "$cmd" in
+    ip)
+      if [[ "$pm" == "apt" || "$pm" == "pacman" ]]; then
+        pkg="iproute2"
+      else
+        pkg="iproute"
+      fi
+      ;;
+    tc)
+      if [[ "$pm" == "apt" || "$pm" == "pacman" ]]; then
+        pkg="iproute2"
+      else
+        pkg="iproute-tc"
+      fi
+      ;;
+    sysctl)
+      if [[ "$pm" == "apt" ]]; then
+        pkg="procps"
+      else
+        pkg="procps-ng"
+      fi
+      ;;
+    systemctl)
+      pkg="systemd"
+      ;;
+    python3)
+      pkg="python3"
+      ;;
+    *)
+      pkg="$cmd"
+      ;;
+  esac
+
+  echo "检测到缺少必需命令: ${cmd}，正在尝试通过 ${pm} 自动安装依赖包: ${pkg}..."
+
+  # 执行安装
+  case "$pm" in
+    apt)
+      if [[ "$APT_UPDATED" = false ]]; then
+        echo "正在更新软件包列表..."
+        apt-get update -qy || true
+        APT_UPDATED=true
+      fi
+      apt-get install -y "${pkg}"
+      ;;
+    dnf)
+      dnf install -y "${pkg}"
+      ;;
+    yum)
+      if [[ "$cmd" == "tc" ]]; then
+        # CentOS 8+ 使用 iproute-tc，CentOS 7 使用 iproute
+        yum install -y iproute-tc || yum install -y iproute
+      else
+        yum install -y "${pkg}"
+      fi
+      ;;
+    pacman)
+      pacman -Sy --noconfirm "${pkg}"
+      ;;
+  esac
+
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    # 针对 RedHat 系 tc 命令的二次兼容处理
+    if [[ "$cmd" == "tc" && ( "$pm" == "dnf" || "$pm" == "yum" ) ]]; then
+      "${pm}" install -y iproute
+    fi
+    
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+      echo "错误：自动安装 ${cmd} 失败。请手动安装该依赖后重试。" >&2
+      exit 1
+    fi
+  fi
+  echo "依赖 ${cmd} 安装成功。"
+}
+
 need_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
-    echo "错误：缺少必需命令: $1" >&2
-    exit 1
+    resolve_and_install "$1"
   fi
 }
 
@@ -282,11 +381,13 @@ write_qdisc_service() {
 Description=Set fq qdisc quantum for single-flow throughput
 After=network-online.target
 Wants=network-online.target
+
 [Service]
 Type=oneshot
 ExecStartPre=-/usr/sbin/tc qdisc del dev ${iface} root
 ExecStart=/usr/sbin/tc qdisc add dev ${iface} root fq quantum ${FQ_QUANTUM} initial_quantum ${FQ_INITIAL_QUANTUM}
 RemainAfterExit=yes
+
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -367,27 +468,28 @@ check_current_status() {
 
 install_optimization() {
   need_root
+  # 检查并自动安装缺失的依赖
   need_cmd ip
   need_cmd tc
   need_cmd sysctl
   need_cmd systemctl
   need_cmd python3
-
+  
   local iface
   local netplan_file
   local interfaces_file
   local config_type="none"
   local config_file=""
-
+  
   iface="$(detect_iface)"
   netplan_file="$(detect_netplan_file)"
   interfaces_file="$(detect_interfaces_file)"
-
+  
   if [[ ! -d "/sys/class/net/${iface}" ]]; then
     echo "错误：接口不存在: ${iface}" >&2
     exit 1
   fi
-
+  
   if [[ -n "${netplan_file}" ]]; then
     config_type="netplan"
     config_file="${netplan_file}"
@@ -395,7 +497,7 @@ install_optimization() {
     config_type="interfaces"
     config_file="${interfaces_file}"
   fi
-
+  
   echo
   echo "========== 优化配置参数 =========="
   echo "接口: ${iface}"
@@ -408,7 +510,7 @@ install_optimization() {
   echo "检测到配置方式: ${config_type}"
   echo "=================================="
   echo
-
+  
   if [[ "${config_type}" == "netplan" ]]; then
     set_netplan_mtu "${iface}" "${netplan_file}"
   elif [[ "${config_type}" == "interfaces" ]]; then
@@ -417,7 +519,7 @@ install_optimization() {
     echo "未检测到配置文件。仅应用运行时配置..."
     ip link set dev "${iface}" mtu "${MTU}"
   fi
-
+  
   write_sysctl
   write_qdisc_service "${iface}"
   restart_network
@@ -430,25 +532,25 @@ uninstall_optimization() {
   local netplan_file
   local interfaces_file
   local config_file=""
-
+  
   iface="$(detect_iface)"
   netplan_file="$(detect_netplan_file)"
   interfaces_file="$(detect_interfaces_file)"
-
+  
   echo
   echo "========== 开始卸载优化 =========="
   echo
-
+  
   if [[ -f "${SERVICE_FILE}" ]]; then
     echo "停止服务: $(basename "${SERVICE_FILE}")"
     systemctl disable --now "$(basename "${SERVICE_FILE}")" || true
     rm -f "${SERVICE_FILE}"
     systemctl daemon-reload
   fi
-
+  
   echo "移除 TC 队列规则..."
   tc qdisc del dev "${iface}" root 2>/dev/null || true
-
+  
   if [[ -f "${SYSCTL_FILE}" ]]; then
     echo "移除 sysctl 配置文件..."
     rm -f "${SYSCTL_FILE}"
@@ -460,13 +562,13 @@ uninstall_optimization() {
     sysctl -w net.ipv4.tcp_limit_output_bytes=262144 || true
     sysctl --system >/dev/null 2>&1 || true
   fi
-
+  
   if [[ -n "${netplan_file}" ]]; then
     config_file="${netplan_file}"
   elif [[ -n "${interfaces_file}" ]]; then
     config_file="${interfaces_file}"
   fi
-
+  
   if [[ -n "${config_file}" ]]; then
     local backup
     backup="$(find "$(dirname "${config_file}")" -maxdepth 1 -type f -name "$(basename "${config_file}").bak.singleflow.*" 2>/dev/null | sort | tail -n 1)"
@@ -482,10 +584,11 @@ uninstall_optimization() {
       echo "警告：未找到备份文件，无法自动还原网络配置。"
     fi
   fi
-
+  
   echo "还原网络接口 MTU..."
   ip link set dev "${iface}" mtu 1500 || true
   restart_network
+  
   echo
   echo "========== 卸载完成 =========="
   echo "网络和 TCP 设置已还原为默认值。"

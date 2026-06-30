@@ -35,12 +35,12 @@
       {"clash_mode": "global", "server": "fakeip"},
       {"rule_set": "filter", "server": "local"},
       {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
-      {"type": "logical", "mode": "and", "rules": [{"query_type": "AAAA"}, {"default_interface_address": "2000::/3", "invert": true}], "action": "reject"},
       {"rule_set": ["me", "apple", "micro", "cn"], "server": "public"},
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "foreign",
     "reverse_mapping": true,
+    "strategy": "prefer_ipv4",
     "optimistic": true
   },
   "inbounds": [

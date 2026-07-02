@@ -18,7 +18,7 @@ keep-alive-interval: 15
 external-ui: ui
 external-ui-name: zashboard
 external-controller: 0.0.0.0:9090
-external-ui-url: "https://ghfast.top/github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip"
+external-ui-url: "https://gh-proxy.org/github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip"
 
 profile:
   store-selected: true
@@ -78,7 +78,7 @@ proxy-groups:
     type: select
     include-all: true
     proxies: [Urltest]
-    icon: https://ghfast.top/raw.githubusercontent.com/Orz-3/mini/master/Color/SSID.png
+    icon: https://gh-proxy.org/raw.githubusercontent.com/Orz-3/mini/master/Color/SSID.png
 
   - name: Urltest
     type: url-test
@@ -86,18 +86,18 @@ proxy-groups:
     interval: 600
     tolerance: 60
     include-all: true
-    icon: https://ghfast.top/raw.githubusercontent.com/Orz-3/mini/master/Color/Urltest.png
+    icon: https://gh-proxy.org/raw.githubusercontent.com/Orz-3/mini/master/Color/Urltest.png
 
   - name: Final
     type: select
     proxies: [Proxy, DIRECT]
-    icon: https://ghfast.top/raw.githubusercontent.com/Orz-3/mini/master/Color/Available.png
+    icon: https://gh-proxy.org/raw.githubusercontent.com/Orz-3/mini/master/Color/Available.png
   
   - name: GLOBAL
     type: select
     include-all: true
     proxies: [Proxy, Urltest]
-    icon: https://ghfast.top/raw.githubusercontent.com/Orz-3/mini/master/Color/Skicat.png
+    icon: https://gh-proxy.org/raw.githubusercontent.com/Orz-3/mini/master/Color/Skicat.png
 
 rules:
   - OR,((DST-PORT,853),(AND,((NETWORK,udp),(DST-PORT,8853))),(AND,((NOT,((RULE-SET,cnip))),(OR,((AND,((NETWORK,udp),(DST-PORT,443/784))),(DST-PORT,3478/5349)))))),REJECT
@@ -118,28 +118,28 @@ rule-anchor:
 rule-providers:
   me:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/me.mrs"
+    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/me.mrs"
   filter:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/filter.mrs"
+    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/filter.mrs"
   cn:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/cn.mrs"
+    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/cn.mrs"
   apple:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/apple.mrs"
+    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/apple.mrs"
   micro:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/micro.mrs"
+    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/micro.mrs"
   proxy:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/proxy.mrs"
+    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/proxy.mrs"
   tgip:
     <<: *ip
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/tgip.mrs"
+    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/tgip.mrs"
   cnip:
     <<: *ip
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/cnip.mrs"
+    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/cnip.mrs"
   adblock:
     <<: *domain
-    url: "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/mihomo/adblock.mrs"
+    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/adblock.mrs"

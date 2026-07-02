@@ -7,7 +7,7 @@
     "clash_api": {
       "external_controller": "0.0.0.0:9090",
       "external_ui": "/etc/momo/run/ui",
-      "external_ui_download_url": "https://ghfast.top/github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip",
+      "external_ui_download_url": "https://gh-proxy.org/github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip",
       "external_ui_http_client": "Direct"
     }
   },
@@ -77,15 +77,15 @@
       {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [
-      {"tag": "me", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/me.srs"},
-      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/cn.srs"},
-      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/apple.srs"},
-      {"tag": "micro", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/micro.srs"},
-      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/proxy.srs"},
-      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/tgip.srs"},
-      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/cnip.srs"},
-      {"tag": "filter", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/filter.srs"},
-      {"tag": "adblock", "type": "remote", "format": "binary", "url": "https://ghfast.top/raw.githubusercontent.com/77160860/rule/main/singbox/adblock.srs"}
+      {"tag": "me", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/me.srs"},
+      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/cn.srs"},
+      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/apple.srs"},
+      {"tag": "micro", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/micro.srs"},
+      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/proxy.srs"},
+      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/tgip.srs"},
+      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/cnip.srs"},
+      {"tag": "filter", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/filter.srs"},
+      {"tag": "adblock", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/adblock.srs"}
     ]
   }
 }

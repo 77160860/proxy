@@ -100,7 +100,6 @@ proxy-groups:
     icon: https://gh-proxy.org/raw.githubusercontent.com/Orz-3/mini/master/Color/Skicat.png
 
 rules:
-  - OR,((DST-PORT,853),(AND,((NETWORK,udp),(DST-PORT,8853))),(AND,((NOT,((RULE-SET,cnip))),(OR,((AND,((NETWORK,udp),(DST-PORT,443/784))),(DST-PORT,3478/5349)))))),REJECT
   - RULE-SET,adblock,REJECT
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT
@@ -118,28 +117,28 @@ rule-anchor:
 rule-providers:
   me:
     <<: *domain
-    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/me.mrs"
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/refs/heads/main/mihomo/me.mrs"
   filter:
     <<: *domain
-    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/filter.mrs"
-  cn:
-    <<: *domain
-    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/cn.mrs"
-  apple:
-    <<: *domain
-    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/apple.mrs"
-  micro:
-    <<: *domain
-    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/micro.mrs"
-  proxy:
-    <<: *domain
-    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/proxy.mrs"
-  tgip:
-    <<: *ip
-    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/tgip.mrs"
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/refs/heads/main/mihomo/filter.mrs"
   cnip:
     <<: *ip
-    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/cnip.mrs"
+    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/cn.mrs"
+  cn:
+    <<: *domain
+    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs"
+  apple:
+    <<: *domain
+    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/apple.mrs"
+  tgip:
+    <<: *ip
+    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/telegram.mrs"
   adblock:
     <<: *domain
-    url: "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/mihomo/adblock.mrs"
+    url: "https://gh-proxy.org/github.com/217heidai/adblockfilters/raw/refs/heads/main/rules/adblockmihomolite.mrs"
+  micro:
+    <<: *domain
+    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/microsoft@cn.mrs"
+  proxy:
+    <<: *domain
+    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/geolocation-!cn.mrs"

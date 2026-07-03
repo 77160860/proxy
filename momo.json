@@ -64,7 +64,6 @@
       {"action": "sniff"},
       {"inbound": "dns-in", "action": "hijack-dns"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
-      {"type": "logical", "mode": "or", "rules": [{"port": 853}, {"network": "udp", "port": [8853]}, {"type": "logical", "mode": "and", "rules": [{"rule_set": "cnip", "invert": true}, {"type": "logical", "mode": "or", "rules": [{"network": "udp", "port": [443, 784]}, {"protocol": "stun"}]}]}], "action": "reject"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
       {"rule_set": "me", "outbound": "🐸 Direct"},
@@ -77,15 +76,15 @@
       {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [
-      {"tag": "me", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/me.srs"},
-      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/cn.srs"},
-      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/apple.srs"},
-      {"tag": "micro", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/micro.srs"},
-      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/proxy.srs"},
-      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/tgip.srs"},
-      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/cnip.srs"},
-      {"tag": "filter", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/filter.srs"},
-      {"tag": "adblock", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/raw.githubusercontent.com/77160860/rule/main/singbox/adblock.srs"}
+      {"tag": "me", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/refs/heads/main/singbox/me.srs"},
+      {"tag": "filter", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/refs/heads/main/singbox/filter.srs"},
+      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geoip/cn.srs"},
+      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/cn.srs"},
+      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geoip/telegram.srs"},
+      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/apple.srs"},
+      {"tag": "micro", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/microsoft@cn.srs"},
+      {"tag": "adblock", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/217heidai/adblockfilters/raw/refs/heads/main/rules/adblocksingboxlite.srs"},
+      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/geolocation-!cn.srs"}
     ]
   }
 }

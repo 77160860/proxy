@@ -20,25 +20,21 @@
   ],
   "dns": {
     "servers": [
-      {"tag": "local", "type": "local"},
-      {"tag": "hosts", "type": "hosts", "predefined": {"dns.alidns.com": ["223.5.5.5", "223.6.6.6", "2400:3200::1", "2400:3200:baba::1"], "doh.pub": ["1.12.12.12", "120.53.53.53"]}},
-      {"tag": "alidns", "type": "https", "server": "dns.alidns.com", "domain_resolver": "hosts"},
-      {"tag": "dnspod", "type": "https", "server": "doh.pub", "domain_resolver": "hosts"},
-      {"tag": "public", "type": "group", "servers": ["alidns", "dnspod"]},
-      {"tag": "foreign", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
+      {"tag": "local", "type": "local", "prefer_go": true},
+      {"tag": "alidns", "type": "https", "server": "223.5.5.5"},
+      {"tag": "google", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
     ],
     "rules": [
-      {"preferred_by": ["hosts"], "server": "hosts"},
       {"clash_mode": "direct", "server": "local"},
       {"query_type": "HTTPS", "action": "reject"},
       {"clash_mode": "global", "server": "fakeip"},
       {"rule_set": "filter", "server": "local"},
       {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
-      {"rule_set": ["me", "apple", "micro", "cn"], "server": "public"},
+      {"rule_set": ["me", "apple", "micro", "cn"], "server": "alidns"},
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
-    "final": "foreign",
+    "final": "google",
     "reverse_mapping": true,
     "strategy": "prefer_ipv4",
     "optimistic": true
@@ -58,7 +54,7 @@
     "final": "🍓 Final",
     "auto_detect_interface": true,
     "default_http_client": "Direct",
-    "default_domain_resolver": {"server": "public"},
+    "default_domain_resolver": {"server": "alidns"},
     "default_domain_match_strategy": "prefer_fqdn",
     "rules": [
       {"action": "sniff"},

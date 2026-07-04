@@ -26,8 +26,8 @@
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
     ],
     "rules": [
+      {"query_type": ["HTTPS", "SVCB", "PTR"], "action": "reject"},
       {"clash_mode": "direct", "server": "local"},
-      {"query_type": "HTTPS", "action": "reject"},
       {"clash_mode": "global", "server": "fakeip"},
       {"rule_set": "filter", "server": "local"},
       {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},

@@ -31,7 +31,7 @@
       {"rule_set": "filter", "server": "local"},
       {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
       {"rule_set": ["cn", "me", "apple", "micro"], "server": "alidns"},
-      {"action": "evaluate", "server": "alidns"},
+      {"action": "evaluate", "query_type": ["A", "AAAA"], "server": "alidns"},
       {"match_response": true, "rule_set": "cnip", "action": "respond"},
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],

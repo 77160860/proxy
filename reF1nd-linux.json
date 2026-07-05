@@ -31,7 +31,9 @@
       {"clash_mode": "global", "server": "fakeip"},
       {"rule_set": "filter", "server": "local"},
       {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
-      {"rule_set": ["me", "apple", "micro", "cn"], "server": "alidns"},
+      {"rule_set": ["cn", "me", "apple", "micro"], "server": "alidns"},
+      {"action": "evaluate", "server": "alidns"},
+      {"match_response": true, "rule_set": "cnip", "action": "respond"},
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "google",
@@ -66,8 +68,8 @@
       {"rule_set": "micro", "outbound": "🐸 Direct"},
       {"rule_set": "proxy", "outbound": "🐝 Proxy"},
       {"rule_set": "cn", "outbound": "🐸 Direct"},
-      {"action": "resolve", "match_only": true},
       {"rule_set": "tgip", "outbound": "🐝 Proxy"},
+      {"action": "resolve", "match_only": true},
       {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [

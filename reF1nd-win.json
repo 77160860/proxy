@@ -30,7 +30,7 @@
       {"clash_mode": "global", "server": "fakeip"},
       {"rule_set": "filter", "server": "local"},
       {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
-      {"rule_set": ["cn", "me", "apple", "micro"], "server": "alidns"},
+      {"rule_set": ["me", "apple", "micro", "cn"], "server": "alidns"},
       {"action": "evaluate", "query_type": ["A", "AAAA"], "server": "alidns"},
       {"match_response": true, "rule_set": "cnip", "action": "respond"},
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}

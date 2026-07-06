@@ -31,7 +31,7 @@
       {"rule_set": "filter", "server": "local"},
       {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
       {"rule_set": ["me", "apple", "micro", "cn"], "server": "alidns"},
-      {"action": "evaluate", "query_type": ["A", "AAAA"], "server": "alidns"},
+      {"query_type": ["A", "AAAA"], "action": "evaluate", "server": "alidns"},
       {"match_response": true, "rule_set": "cnip", "action": "respond"},
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
@@ -73,16 +73,16 @@
       {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [
-      {"tag": "me", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/refs/heads/main/singbox/me.srs"},
-      {"tag": "pvip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/refs/heads/main/singbox/pvip.srs"},
-      {"tag": "filter", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/refs/heads/main/singbox/filter.srs"},
-      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geoip/cn.srs"},
-      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/cn.srs"},
-      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geoip/telegram.srs"},
-      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/apple.srs"},
-      {"tag": "micro", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/microsoft@cn.srs"},
-      {"tag": "adblock", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/217heidai/adblockfilters/raw/refs/heads/main/rules/adblocksingboxlite.srs"},
-      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/geolocation-!cn.srs"}
+      {"tag": "me", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/me.srs"},
+      {"tag": "pvip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/pvip.srs"},
+      {"tag": "filter", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/filter.srs"},
+      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geoip/cn.srs"},
+      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geosite/cn.srs"},
+      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geoip/telegram.srs"},
+      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geosite/apple.srs"},
+      {"tag": "micro", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geosite/microsoft@cn.srs"},
+      {"tag": "adblock", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/217heidai/adblockfilters/raw/main/rules/adblocksingboxlite.srs"},
+      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geosite/geolocation-!cn.srs"}
     ]
   }
 }

@@ -44,7 +44,7 @@
     {"tag": "dns-in", "type": "direct", "listen": "::", "listen_port": 1053},
     {"tag": "tproxy-in", "type": "tproxy", "listen": "::", "listen_port": 7890},
     {"tag": "tun-in", "type": "tun", "interface_name": "momo", "address": ["172.19.0.1/30", "fdfe:dcba:9876::1/126"],
-     "auto_route": true, "auto_redirect": true, "route_exclude_address_set": ["cnip", "pvip"]}
+     "auto_route": true, "strict_route": true, "auto_redirect": true, "route_exclude_address_set": ["cnip", "pvip"]}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"]},

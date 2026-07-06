@@ -67,8 +67,8 @@
       {"rule_set": "micro", "outbound": "🐸 Direct"},
       {"rule_set": "proxy", "outbound": "🐝 Proxy"},
       {"rule_set": "cn", "outbound": "🐸 Direct"},
-      {"rule_set": "tgip", "outbound": "🐝 Proxy"},
       {"action": "resolve", "match_only": true},
+      {"rule_set": "tgip", "outbound": "🐝 Proxy"},
       {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [

@@ -41,7 +41,8 @@
   },
   "inbounds": [
     {"tag": "dns-in", "type": "direct", "listen": "::", "listen_port": 1053},
-    {"tag": "tproxy-in", "type": "tproxy", "listen": "::", "listen_port": 7890}
+    {"tag": "tproxy-in", "type": "tproxy", "listen": "::", "listen_port": 7890},
+    {"tag": "tun-in", "type": "tun", "interface_name": "momo", "address": ["172.18.0.1/30", "fdfe:dcba:9876::1/126"], "auto_route": true, "strict_route": true, "auto_redirect": true}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"]},
@@ -67,8 +68,8 @@
       {"rule_set": "micro", "outbound": "🐸 Direct"},
       {"rule_set": "proxy", "outbound": "🐝 Proxy"},
       {"rule_set": "cn", "outbound": "🐸 Direct"},
-      {"rule_set": "tgip", "outbound": "🐝 Proxy"},
       {"action": "resolve", "match_only": true},
+      {"rule_set": "tgip", "outbound": "🐝 Proxy"},
       {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [

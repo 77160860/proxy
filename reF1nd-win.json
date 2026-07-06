@@ -54,8 +54,8 @@
     "final": "🍓 Final",
     "auto_detect_interface": true,
     "default_http_client": "Direct",
-    "default_domain_resolver": {"server": "alidns"},
     "default_domain_match_strategy": "prefer_fqdn",
+    "default_domain_resolver": {"server": "alidns"}
     "rules": [
       {"action": "sniff"},
       {"type": "logical", "mode": "or", "rules": [{"protocol": "dns"}, {"port": 53}], "action": "hijack-dns"},

@@ -35,7 +35,7 @@
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "google",
-    "reverse_mapping": true,
+    "optimistic": true,
     "reverse_mapping": true,
     "strategy": "prefer_ipv4"
   },

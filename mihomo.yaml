@@ -36,7 +36,7 @@ tun:
   strict-route: true
   auto-redirect: true
   auto-detect-interface: true
-  route-exclude-address-set: [cnip]
+  route-exclude-address-set: [cnip,pvip]
 
 dns:
   enable: true
@@ -99,25 +99,28 @@ rule-anchor:
 rule-providers:
   me:
     <<: *domain
-    url: "https://gh-proxy.org/github.com/77160860/rule/raw/refs/heads/main/mihomo/me.mrs"
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/me.mrs"
+  pvip:
+    <<: *ip
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/pvip.mrs"
   cnip:
     <<: *ip
-    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/cn.mrs"
+    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geoip/cn.mrs"
   cn:
     <<: *domain
-    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs"
+    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/cn.mrs"
   apple:
     <<: *domain
-    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/apple.mrs"
+    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/apple.mrs"
   tgip:
     <<: *ip
-    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/telegram.mrs"
+    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geoip/telegram.mrs"
   adblock:
     <<: *domain
-    url: "https://gh-proxy.org/github.com/217heidai/adblockfilters/raw/refs/heads/main/rules/adblockmihomolite.mrs"
+    url: "https://gh-proxy.org/github.com/217heidai/adblockfilters/raw/main/rules/adblockmihomolite.mrs"
   micro:
     <<: *domain
-    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/microsoft@cn.mrs"
+    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/microsoft@cn.mrs"
   proxy:
     <<: *domain
-    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/geolocation-!cn.mrs"
+    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/geolocation-!cn.mrs"

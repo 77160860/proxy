@@ -2,9 +2,11 @@ proxy-providers:
   🌈:
     url: "订阅链接"
     type: http
+    override:
+      ip-version: ipv4-prefer
 
 mode: rule
-ipv6: false
+ipv6: true
 allow-lan: true
 mixed-port: 7890
 log-level: error
@@ -24,26 +26,6 @@ profile:
   store-selected: true
   store-fake-ip: true
 
-sniffer:
-  enable: true
-  sniff:
-    HTTP:
-      ports: [80, 8080-8880]
-      override-destination: true
-    TLS:
-      ports: [443, 8443]
-    QUIC:
-      ports: [443, 8443]
-  skip-domain:
-    - "Mijia Cloud"
-    - "dlg.io.mi.com"
-    - "+.push.apple.com"
-    - "+.wechat.com"
-    - "+.qq.com"
-    - "+.wechatapp.com"
-    - "+.oray.com"
-    - "+.sunlogin.net"
-
 tun:
   enable: true
   stack: mixed
@@ -51,21 +33,20 @@ tun:
     - "any:53"
     - "tcp://any:53"
   auto-route: true
+  strict-route: true
   auto-redirect: true
   auto-detect-interface: true
   route-exclude-address-set: [cnip]
 
 dns:
   enable: true
-  ipv6: false
+  ipv6: true
   listen: 0.0.0.0:1053
   cache-algorithm: arc
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/15
   fake-ip-filter-mode: blacklist
-  fake-ip-filter: [rule-set:filter,rule-set:cn]
-  nameserver-policy:
-    'rule-set:filter': system
+  fake-ip-filter: [rule-set:me,rule-set:cn]
   default-nameserver:
     - 223.5.5.5
     - 119.29.29.29
@@ -78,7 +59,7 @@ proxy-groups:
     type: select
     include-all: true
     proxies: [Urltest]
-    icon: https://gh-proxy.org/raw.githubusercontent.com/Orz-3/mini/master/Color/SSID.png
+    icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/SSID.png
 
   - name: Urltest
     type: url-test
@@ -86,18 +67,18 @@ proxy-groups:
     interval: 600
     tolerance: 60
     include-all: true
-    icon: https://gh-proxy.org/raw.githubusercontent.com/Orz-3/mini/master/Color/Urltest.png
+    icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/Urltest.png
 
   - name: Final
     type: select
     proxies: [Proxy, DIRECT]
-    icon: https://gh-proxy.org/raw.githubusercontent.com/Orz-3/mini/master/Color/Available.png
+    icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/Available.png
   
   - name: GLOBAL
     type: select
     include-all: true
     proxies: [Proxy, Urltest]
-    icon: https://gh-proxy.org/raw.githubusercontent.com/Orz-3/mini/master/Color/Skicat.png
+    icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/Skicat.png
 
 rules:
   - RULE-SET,adblock,REJECT
@@ -118,9 +99,6 @@ rule-providers:
   me:
     <<: *domain
     url: "https://gh-proxy.org/github.com/77160860/rule/raw/refs/heads/main/mihomo/me.mrs"
-  filter:
-    <<: *domain
-    url: "https://gh-proxy.org/github.com/77160860/rule/raw/refs/heads/main/mihomo/filter.mrs"
   cnip:
     <<: *ip
     url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/cn.mrs"

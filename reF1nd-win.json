@@ -28,7 +28,6 @@
     "rules": [
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "fakeip"},
-      {"rule_set": "filter", "server": "local"},
       {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
       {"rule_set": ["me", "apple", "micro", "cn"], "server": "alidns"},
       {"query_type": ["A", "AAAA"], "action": "evaluate", "server": "alidns"},
@@ -36,9 +35,9 @@
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "google",
+    "optimistic": true,
     "reverse_mapping": true,
-    "strategy": "prefer_ipv4",
-    "optimistic": true
+    "strategy": "prefer_ipv4"
   },
   "inbounds": [
     {"tag": "mixed-in", "type": "mixed", "listen": "::", "listen_port": 7890, "set_system_proxy": false},
@@ -74,9 +73,8 @@
     ],
     "rule_set": [
       {"tag": "me", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/me.srs"},
-      {"tag": "filter", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/filter.srs"},
-      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geoip/cn.srs"},
       {"tag": "cn", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geosite/cn.srs"},
+      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geoip/cn.srs"},
       {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geoip/telegram.srs"},
       {"tag": "apple", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geosite/apple.srs"},
       {"tag": "micro", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geosite/microsoft@cn.srs"},

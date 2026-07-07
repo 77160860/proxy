@@ -57,7 +57,7 @@
     "default_domain_match_strategy": "prefer_fqdn",
     "default_domain_resolver": {"server": "alidns"},
     "rules": [
-      {"action": "sniff"},
+      {"action": "sniff", "sniffer": ["tls", "http", "quic", "dns"]},
       {"inbound": "dns-in", "action": "hijack-dns"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},

@@ -61,7 +61,7 @@
     "auto_detect_interface": true,
     "default_http_client": "Direct",
     "default_domain_match_strategy": "prefer_fqdn",
-    "default_domain_resolver": {"server": public"},
+    "default_domain_resolver": {"server": "public"},
     "rules": [
       {"action": "sniff", "sniffer": ["tls", "http", "quic", "dns"]},
       {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},

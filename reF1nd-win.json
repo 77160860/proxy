@@ -21,16 +21,22 @@
   "dns": {
     "servers": [
       {"tag": "local", "type": "local"},
-      {"tag": "alidns", "type": "https", "server": "223.5.5.5"},
+      {"tag": "hosts", "type": "hosts", "predefined": {"dns.alidns.com": ["223.5.5.5", "223.6.6.6"], "doh.pub": ["1.12.12.12", "120.53.53.53"]}},
+      {"tag": "alidns", "type": "https", "server": "dns.alidns.com", "domain_resolver": "hosts"},
+      {"tag": "dnspod", "type": "https", "server": "doh.pub", "domain_resolver": "hosts"},
+      {"tag": "public", "type": "group", "servers": ["alidns", "dnspod"]},
       {"tag": "google", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
     ],
     "rules": [
+      {"preferred_by": ["hosts"], "server": "hosts"},
       {"clash_mode": "direct", "server": "local"},
+      {"rule_set": "private", "server": "local"},
+      {"query_type": "HTTPS", "action": "reject"},
       {"clash_mode": "global", "server": "fakeip"},
       {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
-      {"rule_set": ["me", "apple", "micro", "cn"], "server": "alidns"},
-      {"query_type": ["A", "AAAA"], "action": "evaluate", "server": "alidns"},
+      {"rule_set": ["me", "apple", "micro", "cn"], "server": "public"},
+      {"query_type": ["A", "AAAA"], "action": "evaluate", "server": "public"},
       {"match_response": true, "rule_set": "cnip", "action": "respond"},
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
@@ -55,10 +61,10 @@
     "auto_detect_interface": true,
     "default_http_client": "Direct",
     "default_domain_match_strategy": "prefer_fqdn",
-    "default_domain_resolver": {"server": "alidns"},
+    "default_domain_resolver": {"server": public"},
     "rules": [
       {"action": "sniff", "sniffer": ["tls", "http", "quic", "dns"]},
-      {"type": "logical", "mode": "or", "rules": [{"protocol": "dns"}, {"port": 53}], "action": "hijack-dns"},
+      {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
@@ -73,13 +79,14 @@
     ],
     "rule_set": [
       {"tag": "me", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/me.srs"},
-      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geosite/cn.srs"},
-      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geoip/cn.srs"},
-      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geoip/telegram.srs"},
-      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geosite/apple.srs"},
-      {"tag": "micro", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geosite/microsoft@cn.srs"},
-      {"tag": "adblock", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/217heidai/adblockfilters/raw/main/rules/adblocksingboxlite.srs"},
-      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/sing/geo/geosite/geolocation-!cn.srs"}
+      {"tag": "cn", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/cn.srs"},
+      {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/tgip.srs"},
+      {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/cnip.srs"},
+      {"tag": "apple", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/apple.srs"},
+      {"tag": "micro", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/micro.srs"},
+      {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/proxy.srs"},
+      {"tag": "private", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/private.srs"},
+      {"tag": "adblock", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/adblock.srs"}
     ]
   }
 }

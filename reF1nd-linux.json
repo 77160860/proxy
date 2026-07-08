@@ -82,6 +82,7 @@
       {"tag": "cn", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/cn.srs"},
       {"tag": "tgip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/tgip.srs"},
       {"tag": "cnip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/cnip.srs"},
+      {"tag": "pvip", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/pvip.srs"},
       {"tag": "apple", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/apple.srs"},
       {"tag": "micro", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/micro.srs"},
       {"tag": "proxy", "type": "remote", "format": "binary", "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/proxy.srs"},

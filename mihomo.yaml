@@ -26,6 +26,22 @@ profile:
   store-selected: true
   store-fake-ip: true
 
+sniffer:  
+  enable: true  
+  force-dns-mapping: true  
+  parse-pure-ip: true  
+  sniff:  
+    HTTP:  
+      ports: [80, 8080-8880]  
+      override-destination: true  
+    TLS:  
+      ports: [443, 8443]  
+    QUIC:  
+      ports: [443, 8443]  
+  skip-domain:  
+    - "Mijia Cloud"  
+    - "+.push.apple.com"
+
 tun:
   enable: true
   stack: mixed
@@ -47,13 +63,17 @@ dns:
   fake-ip-range: 198.18.0.1/15
   fake-ip-range6: fc00::/16
   fake-ip-filter-mode: blacklist
-  fake-ip-filter: [rule-set:me,rule-set:cn]
+  fake-ip-filter:
+    - 'rule-set:private'
+    - 'rule-set:cn'
+  nameserver-policy:
+    'rule-set:private': system
   default-nameserver:
     - 223.5.5.5
     - 119.29.29.29
   nameserver:
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query#disable-qtype-65=true
+    - https://doh.pub/dns-query#disable-qtype-65=true
 
 proxy-groups:
   - name: Proxy
@@ -82,7 +102,11 @@ proxy-groups:
     icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/Skicat.png
 
 rules:
+  - DST-PORT,853,REJECT  
+  - AND,((NETWORK,UDP),(DST-PORT,443)),REJECT
   - RULE-SET,adblock,REJECT
+  - RULE-SET,private,DIRECT
+  - RULE-SET,pvip,DIRECT
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT
   - RULE-SET,micro,DIRECT
@@ -100,27 +124,30 @@ rule-providers:
   me:
     <<: *domain
     url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/me.mrs"
+  cn:
+    <<: *domain
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/cn.mrs"
   pvip:
     <<: *ip
     url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/pvip.mrs"
   cnip:
     <<: *ip
-    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geoip/cn.mrs"
-  cn:
-    <<: *domain
-    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/cn.mrs"
-  apple:
-    <<: *domain
-    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/apple.mrs"
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/cnip.mrs"
   tgip:
     <<: *ip
-    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geoip/telegram.mrs"
-  adblock:
-    <<: *domain
-    url: "https://gh-proxy.org/github.com/217heidai/adblockfilters/raw/main/rules/adblockmihomolite.mrs"
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/tgip.mrs"
   micro:
     <<: *domain
-    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/microsoft@cn.mrs"
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/micro.mrs"
   proxy:
     <<: *domain
-    url: "https://gh-proxy.org/github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/geolocation-!cn.mrs"
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/proxy.mrs"
+  apple:
+    <<: *domain
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/apple.mrs"
+  private:
+    <<: *domain
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/private.mrs"
+  adblock:
+    <<: *domain
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/adblock.mrs"

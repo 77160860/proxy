@@ -3,10 +3,14 @@ on:
   workflow_dispatch:
     inputs:
       source_ref:
-        description: '编译的分支（留空则选择分支）'
-        type: string
-        required: false
-        default: ''
+        description: '选择编译分支'
+        type: choice
+        required: true
+        default: 'reF1nd-testing'
+        options:
+          - reF1nd-testing
+          - reF1nd-stable
+          - r1.14.0-a28
       custom_version:
         description: '输入版本号（留空则自动获取）'
         type: string
@@ -21,9 +25,8 @@ jobs:
       - name: Prepare context
         id: prep
         run: |
-          UPSTREAM_REPO="https://github.com/${{ github.repository }}.git"
-          INPUT_REF="${{ github.event.inputs.source_ref }}"
-          REF="${INPUT_REF:-${{ github.ref_name }}}"
+          UPSTREAM_REPO="https://github.com/77160860/sing-box.git"
+          REF="${{ github.event.inputs.source_ref }}"
           echo "REF=$REF" >> $GITHUB_ENV
           echo "UPSTREAM_REPO=$UPSTREAM_REPO" >> $GITHUB_ENV
       - name: Resolve SHA (tag/branch/commit)
@@ -41,7 +44,7 @@ jobs:
             SHA=$(git ls-remote "${UPSTREAM_REPO}" "${REF}" | cut -f1)
           fi
           if [ -z "$SHA" ]; then
-            echo "ERROR: REF '${REF}' not found (branch/tag/commit)."
+            echo "ERROR: REF '${REF}' not found in 77160860/sing-box."
             exit 1
           fi
           SHORT="${SHA:0:7}"
@@ -50,7 +53,7 @@ jobs:
       - name: Checkout upstream with full history
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository }}
+          repository: 77160860/sing-box
           ref: ${{ env.UPSTREAM_SHA }}
           fetch-depth: 0
       - name: Setup Go

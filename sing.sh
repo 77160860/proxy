@@ -119,7 +119,7 @@ upsingbox(){
     (curl -Lo "$out" -# --retry 2 "$url") || (wget -O "$out" --tries=2 "$url")
     chmod +x "$HOME/sing/sing-box"
     sbcore=$("$HOME/sing/sing-box" version 2>/dev/null | awk '/version/{print $NF}')
-    echo "已安装Singbox正式版内核:$sbcore"
+    echo "已安装Singbox内核:$sbcore"
 }
 insuuid(){
     if [ ! -e "$HOME/sing/sing-box" ]; then upsingbox; fi

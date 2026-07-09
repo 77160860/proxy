@@ -61,8 +61,26 @@ jobs:
             echo "ERROR: 'go run ./cmd/internal/read_tag' failed to produce a version string."
             exit 1
           fi
-          CLEANED_VERSION=$(echo "$RAW_VERSION" | cut -d'-' -f1)
-          FINAL_VERSION="${CLEANED_VERSION}-reF1nd"
+          
+          if [[ ! "$RAW_VERSION" =~ -reF1nd$ ]]; then
+            VERSION_WITH_SUFFIX="${RAW_VERSION}-reF1nd"
+          else
+            VERSION_WITH_SUFFIX="$RAW_VERSION"
+          fi
+
+          if [[ "$VERSION_WITH_SUFFIX" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-alpha\.([0-9]+)-reF1nd$ ]]; then
+            FINAL_VERSION="r${BASH_REMATCH[1]}-a${BASH_REMATCH[2]}"
+          elif [[ "$VERSION_WITH_SUFFIX" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-beta\.([0-9]+)-reF1nd$ ]]; then
+            FINAL_VERSION="r${BASH_REMATCH[1]}-b${BASH_REMATCH[2]}"
+          elif [[ "$VERSION_WITH_SUFFIX" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-reF1nd$ ]]; then
+            FINAL_VERSION="r${BASH_REMATCH[1]}"
+          else
+            CLEANED=$(echo "$RAW_VERSION" | sed -E 's/-reF1nd$//')
+            FINAL_VERSION="r${CLEANED}"
+          fi
+
+          echo "转换前: $RAW_VERSION"
+          echo "转换后: $FINAL_VERSION"
           echo "VERSION=$FINAL_VERSION" >> $GITHUB_ENV
       - name: Define build metadata
         id: meta

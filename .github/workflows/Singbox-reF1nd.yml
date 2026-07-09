@@ -3,10 +3,15 @@ on:
   workflow_dispatch:
     inputs:
       source_ref:
-        description: 'Source ref to build (branch)'
+        description: '编译的分支（留空则选择分支）'
         type: string
-        required: true
-        default: 'reF1nd-testing'
+        required: false
+        default: ''
+      custom_version:
+        description: '输入版本号（留空则自动获取）'
+        type: string
+        required: false
+        default: ''
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,8 +21,9 @@ jobs:
       - name: Prepare context
         id: prep
         run: |
-          UPSTREAM_REPO="https://github.com/reF1nd/sing-box.git"
-          REF="${{ github.event.inputs.source_ref }}"
+          UPSTREAM_REPO="https://github.com/${{ github.repository }}.git"
+          INPUT_REF="${{ github.event.inputs.source_ref }}"
+          REF="${INPUT_REF:-${{ github.ref_name }}}"
           echo "REF=$REF" >> $GITHUB_ENV
           echo "UPSTREAM_REPO=$UPSTREAM_REPO" >> $GITHUB_ENV
       - name: Resolve SHA (tag/branch/commit)
@@ -44,7 +50,7 @@ jobs:
       - name: Checkout upstream with full history
         uses: actions/checkout@v4
         with:
-          repository: reF1nd/sing-box
+          repository: ${{ github.repository }}
           ref: ${{ env.UPSTREAM_SHA }}
           fetch-depth: 0
       - name: Setup Go
@@ -55,32 +61,37 @@ jobs:
       - name: Extract, Clean, and Prefix Version
         id: extract_version
         run: |
-          go mod tidy
-          RAW_VERSION=$(go run ./cmd/internal/read_tag)
-          if [ -z "$RAW_VERSION" ]; then
-            echo "ERROR: 'go run ./cmd/internal/read_tag' failed to produce a version string."
-            exit 1
-          fi
-          
-          if [[ ! "$RAW_VERSION" =~ -reF1nd$ ]]; then
-            VERSION_WITH_SUFFIX="${RAW_VERSION}-reF1nd"
+          INPUT_VER="${{ github.event.inputs.custom_version }}"
+          if [ -n "$INPUT_VER" ]; then
+            FINAL_VERSION="$INPUT_VER"
+            echo "输入版本号: $FINAL_VERSION"
           else
-            VERSION_WITH_SUFFIX="$RAW_VERSION"
+            go mod tidy
+            RAW_VERSION=$(go run ./cmd/internal/read_tag)
+            if [ -z "$RAW_VERSION" ]; then
+              echo "ERROR: 'go run ./cmd/internal/read_tag' failed to produce a version string."
+              exit 1
+            fi
+            
+            if [[ ! "$RAW_VERSION" =~ -reF1nd$ ]]; then
+              VERSION_WITH_SUFFIX="${RAW_VERSION}-reF1nd"
+            else
+              VERSION_WITH_SUFFIX="$RAW_VERSION"
+            fi
+
+            if [[ "$VERSION_WITH_SUFFIX" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-alpha\.([0-9]+)-reF1nd$ ]]; then
+              FINAL_VERSION="r${BASH_REMATCH[1]}-a${BASH_REMATCH[2]}"
+            elif [[ "$VERSION_WITH_SUFFIX" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-beta\.([0-9]+)-reF1nd$ ]]; then
+              FINAL_VERSION="r${BASH_REMATCH[1]}-b${BASH_REMATCH[2]}"
+            elif [[ "$VERSION_WITH_SUFFIX" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-reF1nd$ ]]; then
+              FINAL_VERSION="r${BASH_REMATCH[1]}"
+            else
+              CLEANED=$(echo "$RAW_VERSION" | sed -E 's/-reF1nd$//')
+              FINAL_VERSION="r${CLEANED}"
+            fi
+            echo "获取版本号: $RAW_VERSION -> $FINAL_VERSION"
           fi
 
-          if [[ "$VERSION_WITH_SUFFIX" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-alpha\.([0-9]+)-reF1nd$ ]]; then
-            FINAL_VERSION="r${BASH_REMATCH[1]}-a${BASH_REMATCH[2]}"
-          elif [[ "$VERSION_WITH_SUFFIX" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-beta\.([0-9]+)-reF1nd$ ]]; then
-            FINAL_VERSION="r${BASH_REMATCH[1]}-b${BASH_REMATCH[2]}"
-          elif [[ "$VERSION_WITH_SUFFIX" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-reF1nd$ ]]; then
-            FINAL_VERSION="r${BASH_REMATCH[1]}"
-          else
-            CLEANED=$(echo "$RAW_VERSION" | sed -E 's/-reF1nd$//')
-            FINAL_VERSION="r${CLEANED}"
-          fi
-
-          echo "转换前: $RAW_VERSION"
-          echo "转换后: $FINAL_VERSION"
           echo "VERSION=$FINAL_VERSION" >> $GITHUB_ENV
       - name: Define build metadata
         id: meta

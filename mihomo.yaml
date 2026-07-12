@@ -113,8 +113,7 @@ proxy-groups:
     icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/Skicat.png
 
 rules:
-  - DST-PORT,853,REJECT  
-  - AND,((NETWORK,UDP),(DST-PORT,443)),REJECT
+  - OR,((DST-PORT,853),(AND,((NETWORK,udp),(DST-PORT,443))),(DST-PORT,3478)),REJECT
   - RULE-SET,adblock,REJECT
   - RULE-SET,private,DIRECT
   - RULE-SET,pvip,DIRECT

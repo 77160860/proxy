@@ -10,6 +10,7 @@ on:
         options:
           - reF1nd-testing
           - reF1nd-stable
+          - reF1nd-testing-next
           - r1.14.0-a28
       custom_version:
         description: '输入版本号（留空则自动获取）'

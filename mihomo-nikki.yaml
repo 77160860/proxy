@@ -1,0 +1,151 @@
+proxy-providers:
+  🌈:
+    url: "订阅链接"
+    type: http
+    override:
+      ip-version: ipv4-prefer
+
+mode: rule
+ipv6: true
+allow-lan: true
+tproxy-port: 7890
+log-level: error
+bind-address: "*"
+unified-delay: true
+tcp-concurrent: true
+find-process-mode: off
+keep-alive-idle: 600
+keep-alive-interval: 15
+
+external-ui: ui
+external-ui-name: zashboard
+external-controller: 0.0.0.0:9090
+external-ui-url: "https://gh-proxy.org/github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip"
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+sniffer:  
+  enable: true  
+  force-dns-mapping: true  
+  parse-pure-ip: true  
+  sniff:  
+    HTTP:  
+      ports: [80, 8080-8880]  
+      override-destination: true  
+    TLS:  
+      ports: [443, 8443]  
+    QUIC:  
+      ports: [443, 8443]  
+  skip-domain:  
+    - "Mijia Cloud"  
+    - "+.push.apple.com"
+
+dns:
+  enable: true
+  ipv6: true
+  listen: 0.0.0.0:1053
+  cache-algorithm: arc
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/15
+  fake-ip-range6: fc00::/16
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter:
+    - 'rule-set:private'
+    - 'rule-set:me'
+    - 'rule-set:apple'  
+    - 'rule-set:micro'
+    - 'rule-set:cn'
+  nameserver-policy:
+    'rule-set:private': system
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver:
+    - https://dns.alidns.com/dns-query#disable-qtype-65=true
+    - https://doh.pub/dns-query#disable-qtype-65=true
+
+proxy-groups:
+  - name: Proxy
+    type: select
+    include-all: true
+    proxies: [Urltest, Blance]
+    icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/SSID.png
+
+  - name: Urltest
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    tolerance: 60
+    include-all: true
+    icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/Urltest.png
+
+  - name: Blance
+    type: load-balance
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    strategy: consistent-hashing
+    include-all: true
+    icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/Roundrobin.png
+
+  - name: Final
+    type: select
+    proxies: [Proxy, DIRECT]
+    icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/Available.png
+  
+  - name: GLOBAL
+    type: select
+    include-all: true
+    proxies: [Proxy, Urltest]
+    icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/Skicat.png
+
+rules:
+  - OR,((DST-PORT,853),(AND,((NETWORK,udp),(DST-PORT,443))),(DST-PORT,3478)),REJECT
+  - RULE-SET,adblock,REJECT
+  - RULE-SET,private,DIRECT
+  - RULE-SET,pvip,DIRECT
+  - RULE-SET,me,DIRECT
+  - RULE-SET,apple,DIRECT
+  - RULE-SET,micro,DIRECT
+  - RULE-SET,proxy,Proxy
+  - RULE-SET,cn,DIRECT
+  - RULE-SET,tgip,Proxy
+  - RULE-SET,cnip,DIRECT
+  - MATCH,Final
+
+rule-anchor:
+  ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
+  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
+
+rule-providers:
+  me:
+    <<: *domain
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/me.mrs"
+  cn:
+    <<: *domain
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/cn.mrs"
+  pvip:
+    <<: *ip
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/pvip.mrs"
+  cnip:
+    <<: *ip
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/cnip.mrs"
+  tgip:
+    <<: *ip
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/tgip.mrs"
+  micro:
+    <<: *domain
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/micro.mrs"
+  proxy:
+    <<: *domain
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/proxy.mrs"
+  apple:
+    <<: *domain
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/apple.mrs"
+  private:
+    <<: *domain
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/private.mrs"
+  adblock:
+    <<: *domain
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/adblock.mrs"

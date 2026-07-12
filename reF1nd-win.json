@@ -52,7 +52,7 @@
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest", "🍉 Balance"]},
     {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true},
-    {"tag": "🍉 Balance", "type": "loadbalance", "strategy": "consistent-hashing", "providers": ["🌈"]},
+    {"tag": "🍉 Balance", "type": "loadbalance", "strategy": "consistent-hashing", "use_all_providers": true},
     {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"]},
     {"tag": "GLOBAL", "type": "selector", "use_all_providers": true, "outbounds": ["🐝 Proxy", "🚀 Urltest"]},
     {"tag": "🐸 Direct", "type": "direct"}

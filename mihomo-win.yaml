@@ -17,11 +17,6 @@ find-process-mode: off
 keep-alive-idle: 600
 keep-alive-interval: 15
 
-external-ui: ui
-external-ui-name: zashboard
-external-controller: 0.0.0.0:9090
-external-ui-url: "https://gh-proxy.org/github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip"
-
 profile:
   store-selected: true
   store-fake-ip: true
@@ -50,9 +45,7 @@ tun:
     - "tcp://any:53"
   auto-route: true
   strict-route: true
-  auto-redirect: true
   auto-detect-interface: true
-  route-exclude-address-set: [cnip,pvip]
 
 dns:
   enable: true

@@ -50,8 +50,9 @@
      "auto_route": true, "strict_route": true, "auto_redirect": true, "route_exclude_address_set": ["cnip", "pvip"]}
   ],
   "outbounds": [
-    {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest"]},
+    {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest", "🍉 Balance"]},
     {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true},
+    {"tag": "🍉 Balance", "type": "loadbalance", "strategy": "consistent-hashing", "providers": ["🌈"]},
     {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"]},
     {"tag": "GLOBAL", "type": "selector", "use_all_providers": true, "outbounds": ["🐝 Proxy", "🚀 Urltest"]},
     {"tag": "🐸 Direct", "type": "direct"}

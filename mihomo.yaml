@@ -82,7 +82,7 @@ proxy-groups:
   - name: Proxy
     type: select
     include-all: true
-    proxies: [Urltest]
+    proxies: [Urltest, Blance]
     icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/SSID.png
 
   - name: Urltest
@@ -92,6 +92,14 @@ proxy-groups:
     tolerance: 60
     include-all: true
     icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/Urltest.png
+
+  - name: Blance
+    type: load-balance
+    url: http://www.gstatic.com/generate_204
+    interval: 600
+    strategy: consistent-hashing
+    include-all: true
+    icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/Roundrobin.png
 
   - name: Final
     type: select

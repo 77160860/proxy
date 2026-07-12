@@ -67,7 +67,7 @@
       {"action": "sniff", "sniffer": ["tls", "http", "quic", "dns"]},
       {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
-      {"type": "logical", "mode": "or", "rules": [{"port": 853}, {"network": "udp", "port": 443}], "action": "reject"},
+      {"type": "logical", "mode": "or", "rules": [{"port": 853}, {"network": "udp", "port": 8853}, {"protocol": ["quic", "stun"]}], "action": "reject", "no_drop": true},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
       {"rule_set": "me", "outbound": "🐸 Direct"},

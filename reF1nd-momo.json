@@ -11,13 +11,7 @@
       "external_ui_http_client": "Direct"
     }
   },
-  "providers": [
-    {
-      "type": "remote",
-      "tag": "🌈",
-      "url": "订阅链接"
-    }
-  ],
+  "providers": [{"type": "remote", "tag": "🌈", "url": "订阅链接"}],
   "dns": {
     "servers": [
       {"tag": "local", "type": "local"},

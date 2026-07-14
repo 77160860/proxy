@@ -67,32 +67,21 @@ jobs:
           INPUT_VER="${{ github.event.inputs.custom_version }}"
           if [ -n "$INPUT_VER" ]; then
             FINAL_VERSION="$INPUT_VER"
-            echo "输入版本号: $FINAL_VERSION"
           else
             go mod tidy
             RAW_VERSION=$(go run ./cmd/internal/read_tag)
-            if [ -z "$RAW_VERSION" ]; then
-              echo "ERROR: 'go run ./cmd/internal/read_tag' failed to produce a version string."
-              exit 1
-            fi
             
             CLEAN_RAW="${RAW_VERSION#v}"
+            CLEAN_RAW="${CLEAN_RAW%-reF1nd}"
 
-            if [[ ! "$CLEAN_RAW" =~ -reF1nd$ ]]; then
-              VERSION_WITH_SUFFIX="${CLEAN_RAW}-reF1nd"
-            else
-              VERSION_WITH_SUFFIX="$CLEAN_RAW"
-            fi
-
-            if [[ "$VERSION_WITH_SUFFIX" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-alpha\.([0-9]+)-reF1nd$ ]]; then
+            if [[ "$CLEAN_RAW" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-alpha\.([0-9]+) ]]; then
               FINAL_VERSION="r${BASH_REMATCH[1]}-a${BASH_REMATCH[2]}"
-            elif [[ "$VERSION_WITH_SUFFIX" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-beta\.([0-9]+)-reF1nd$ ]]; then
+            elif [[ "$CLEAN_RAW" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-beta\.([0-9]+) ]]; then
               FINAL_VERSION="r${BASH_REMATCH[1]}-b${BASH_REMATCH[2]}"
-            elif [[ "$VERSION_WITH_SUFFIX" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-reF1nd$ ]]; then
+            elif [[ "$CLEAN_RAW" =~ ^([0-9]+\.[0-9]+\.[0-9]+) ]]; then
               FINAL_VERSION="r${BASH_REMATCH[1]}"
             else
-              CLEANED=$(echo "$CLEAN_RAW" | sed -E 's/-reF1nd$//')
-              FINAL_VERSION="r${CLEANED}"
+              FINAL_VERSION="r${CLEAN_RAW}"
             fi
             echo "获取版本号: $RAW_VERSION -> $FINAL_VERSION"
           fi

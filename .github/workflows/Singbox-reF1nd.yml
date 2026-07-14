@@ -44,7 +44,7 @@ jobs:
             SHA=$(git ls-remote "${UPSTREAM_REPO}" "${REF}" | cut -f1)
           fi
           if [ -z "$SHA" ]; then
-            echo "ERROR: REF '${REF}' not found in 77160860/sing-box."
+            echo "ERROR: REF '${REF}' not found in reF1nd/sing-box."
             exit 1
           fi
           SHORT="${SHA:0:7}"
@@ -53,7 +53,7 @@ jobs:
       - name: Checkout upstream with full history
         uses: actions/checkout@v4
         with:
-          repository: 77160860/sing-box
+          repository: reF1nd/sing-box
           ref: ${{ env.UPSTREAM_SHA }}
           fetch-depth: 0
       - name: Setup Go

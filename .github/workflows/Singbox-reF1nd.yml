@@ -61,7 +61,7 @@ jobs:
         with:
           go-version: 'stable'
           check-latest: true
-      - name: Extract, Clean, and Prefix Version
+      - name: Fix Version
         id: extract_version
         run: |
           INPUT_VER="${{ github.event.inputs.custom_version }}"
@@ -76,10 +76,12 @@ jobs:
               exit 1
             fi
             
-            if [[ ! "$RAW_VERSION" =~ -reF1nd$ ]]; then
-              VERSION_WITH_SUFFIX="${RAW_VERSION}-reF1nd"
+            CLEAN_RAW="${RAW_VERSION#v}"
+
+            if [[ ! "$CLEAN_RAW" =~ -reF1nd$ ]]; then
+              VERSION_WITH_SUFFIX="${CLEAN_RAW}-reF1nd"
             else
-              VERSION_WITH_SUFFIX="$RAW_VERSION"
+              VERSION_WITH_SUFFIX="$CLEAN_RAW"
             fi
 
             if [[ "$VERSION_WITH_SUFFIX" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-alpha\.([0-9]+)-reF1nd$ ]]; then
@@ -89,7 +91,7 @@ jobs:
             elif [[ "$VERSION_WITH_SUFFIX" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-reF1nd$ ]]; then
               FINAL_VERSION="r${BASH_REMATCH[1]}"
             else
-              CLEANED=$(echo "$RAW_VERSION" | sed -E 's/-reF1nd$//')
+              CLEANED=$(echo "$CLEAN_RAW" | sed -E 's/-reF1nd$//')
               FINAL_VERSION="r${CLEANED}"
             fi
             echo "获取版本号: $RAW_VERSION -> $FINAL_VERSION"

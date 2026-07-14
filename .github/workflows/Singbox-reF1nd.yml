@@ -34,6 +34,9 @@ jobs:
         run: |
           UPSTREAM_REPO="https://github.com/reF1nd/sing-box.git"
           REF="${{ github.event.inputs.source_ref }}"
+          if [ -z "$REF" ]; then
+            REF="reF1nd-testing"
+          fi
           echo "REF=$REF" >> $GITHUB_ENV
           echo "UPSTREAM_REPO=$UPSTREAM_REPO" >> $GITHUB_ENV
       - name: Resolve SHA (tag/branch/commit)

@@ -64,6 +64,7 @@
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
       {"rule_set": "me", "outbound": "🐸 Direct"},
+      {"rule_set": "private", "outbound": "🐸 Direct"},
       {"rule_set": "apple", "outbound": "🐸 Direct"},
       {"rule_set": "micro", "outbound": "🐸 Direct"},
       {"rule_set": "proxy", "outbound": "🐝 Proxy"},
@@ -73,8 +74,8 @@
       {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [
-      {"tag": ["me", "cn", "tgip", "cnip", "apple", "micro", "proxy", "private", "adblock"],
-      "url": "https://ghfast.top/github.com/77160860/rule/raw/main/singbox/{tag}.srs",
-      "type": "remote", "format": "binary"}]
+      {"tag": ["me", "cn", "tgip", "cnip", "pvip", "apple", "micro", "proxy", "private", "adblock"],
+       "url": "https://ghfast.top/github.com/77160860/rule/raw/main/singbox/{tag}.srs",
+       "type": "remote", "format": "binary"}]
   }
 }

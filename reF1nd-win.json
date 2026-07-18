@@ -63,6 +63,7 @@
       {"type": "logical", "mode": "or", "rules": [{"port": 853}, {"protocol": ["quic", "stun"]}], "action": "reject", "no_drop": true},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
+      {"rule_set": "private", "outbound": "🐸 Direct"},
       {"rule_set": "me", "outbound": "🐸 Direct"},
       {"rule_set": "apple", "outbound": "🐸 Direct"},
       {"rule_set": "micro", "outbound": "🐸 Direct"},

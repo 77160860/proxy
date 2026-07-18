@@ -39,7 +39,8 @@
     "strategy": "prefer_ipv4"
   },
   "inbounds": [
-    {"tag": "mixed-in", "type": "mixed", "listen": "::", "listen_port": 7890, "set_system_proxy": true}
+    {"tag": "mixed-in", "type": "mixed", "listen": "::", "listen_port": 7890, "set_system_proxy": false},
+    {"tag": "tun-in", "type": "tun", "address": ["172.18.0.1/30", "fdfe:dcba:9876::1/126"], "auto_route": true, "strict_route": true}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest", "🍉 Balance"]},

@@ -8,8 +8,7 @@
       "external_controller": "0.0.0.0:9090",
       "external_ui": "ui",
       "external_ui_download_url": "https://ghfast.top/github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip",
-      "external_ui_http_client": "Direct"
-    }
+      "external_ui_http_client": "Direct"}
   },
   "providers": [{"type": "remote", "tag": "🌈", "url": "订阅链接"}],
   "dns": {
@@ -74,10 +73,8 @@
       {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [
-      {"type": "remote", "format": "binary",
-      "tag": ["me", "cn", "tgip", "cnip", "apple", "micro", "proxy", "private", "adblock"],
-      "url": "https://ghfast.top/github.com/77160860/rule/raw/main/singbox/{tag}.srs"
-      }
-    ]
+      {"tag": ["me", "cn", "tgip", "cnip", "apple", "micro", "proxy", "private", "adblock"],
+      "url": "https://ghfast.top/github.com/77160860/rule/raw/main/singbox/{tag}.srs",
+      "type": "remote", "format": "binary"}]
   }
 }

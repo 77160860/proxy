@@ -8,8 +8,7 @@
       "external_controller": "0.0.0.0:9090",
       "external_ui": "/etc/momo/run/ui",
       "external_ui_download_url": "https://ghfast.top/github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip",
-      "external_ui_http_client": "Direct"
-    }
+      "external_ui_http_client": "Direct"}
   },
   "providers": [{"type": "remote", "tag": "🌈", "url": "订阅链接"}],
   "dns": {

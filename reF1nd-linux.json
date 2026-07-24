@@ -22,7 +22,7 @@
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
     ],
     "rules": [
-      {"preferred_by": ["hosts"], "server": "hosts"},
+      {"preferred_by": "hosts", "server": "hosts"},
       {"clash_mode": "direct", "server": "local"},
       {"rule_set": "private", "server": "local"},
       {"query_type": "HTTPS", "action": "reject"},
@@ -48,8 +48,7 @@
     {"tag": "🍉 Balance", "type": "loadbalance", "strategy": "consistent-hashing", "use_all_providers": true},
     {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"]},
     {"tag": "GLOBAL", "type": "selector", "use_all_providers": true, "outbounds": ["🐝 Proxy", "🚀 Urltest"]},
-    {"tag": "🐸 Direct", "type": "direct"},
-    {"tag": "🌉 Bridge", "type": "bridge"}
+    {"tag": "🐸 Direct", "type": "direct"}
   ],
   "route": {
     "final": "🍓 Final",
@@ -58,7 +57,6 @@
     "default_domain_match_strategy": "prefer_fqdn",
     "default_domain_resolver": {"server": "public"},
     "rules": [
-      {"preferred_by": "🌉 Bridge", "outbound": "🌉 Bridge"},
       {"action": "sniff", "sniffer": ["tls", "http", "quic", "dns"]},
       {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},

@@ -58,7 +58,7 @@
     "default_domain_match_strategy": "prefer_fqdn",
     "default_domain_resolver": {"server": "public"},
     "rules": [
-      {"preferred_by": "bridge", "outbound": "🌉 Bridge"},
+      {"preferred_by": "🌉 Bridge", "outbound": "🌉 Bridge"},
       {"action": "sniff", "sniffer": ["tls", "http", "quic", "dns"]},
       {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},

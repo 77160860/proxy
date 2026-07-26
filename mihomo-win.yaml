@@ -128,9 +128,6 @@ rule-providers:
   cn:
     <<: *domain
     url: "https://ghfast.top/github.com/77160860/rule/raw/main/mihomo/cn.mrs"
-  pvip:
-    <<: *ip
-    url: "https://ghfast.top/github.com/77160860/rule/raw/main/mihomo/pvip.mrs"
   cnip:
     <<: *ip
     url: "https://ghfast.top/github.com/77160860/rule/raw/main/mihomo/cnip.mrs"

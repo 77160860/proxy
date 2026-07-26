@@ -104,7 +104,6 @@ rules:
   - OR,((DST-PORT,853),(AND,((NETWORK,udp),(DST-PORT,443))),(DST-PORT,3478)),REJECT
   - RULE-SET,adblock,REJECT
   - RULE-SET,private,DIRECT
-  - RULE-SET,pvip,DIRECT
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT
   - RULE-SET,micro,DIRECT
@@ -125,9 +124,6 @@ rule-providers:
   cn:
     <<: *domain
     url: "https://ghfast.top/github.com/77160860/rule/raw/main/mihomo/cn.mrs"
-  pvip:
-    <<: *ip
-    url: "https://ghfast.top/github.com/77160860/rule/raw/main/mihomo/pvip.mrs"
   cnip:
     <<: *ip
     url: "https://ghfast.top/github.com/77160860/rule/raw/main/mihomo/cnip.mrs"

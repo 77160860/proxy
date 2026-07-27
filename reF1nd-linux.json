@@ -35,8 +35,7 @@
     ],
     "final": "google",
     "optimistic": true,
-    "reverse_mapping": true,
-    "strategy": "prefer_ipv4"
+    "reverse_mapping": true
   },
   "inbounds": [
     {"tag": "tun-in", "type": "tun", "address": ["172.18.0.1/30", "fdfe:dcba:9876::1/126"],

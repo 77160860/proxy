@@ -35,8 +35,7 @@
     ],
     "final": "google",
     "optimistic": true,
-    "reverse_mapping": true,
-    "strategy": "prefer_ipv4"
+    "reverse_mapping": true
   },
   "inbounds": [
     {"tag": "dns-in", "type": "direct", "listen": "::", "listen_port": 1053},

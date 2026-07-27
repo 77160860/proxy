@@ -35,8 +35,7 @@
     ],
     "final": "google",
     "optimistic": true,
-    "reverse_mapping": true,
-    "strategy": "prefer_ipv4"
+    "reverse_mapping": true
   },
   "inbounds": [
     {"tag": "mixed-in", "type": "mixed", "listen": "::", "listen_port": 7890, "set_system_proxy": false},

@@ -1,10 +1,12 @@
 name: Build sing-box Core
-
+#CI计划
 on:
+  #自动编译：当Auto-Clean运行完成后
   workflow_run:
     workflows: ["Auto-Clean"]
     types:
       - completed
+  #手动编译
   workflow_dispatch:
     inputs:
       source_ref:
@@ -21,7 +23,6 @@ on:
         type: string
         required: false
         default: ''
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -38,7 +39,6 @@ jobs:
           fi
           echo "REF=$REF" >> $GITHUB_ENV
           echo "UPSTREAM_REPO=$UPSTREAM_REPO" >> $GITHUB_ENV
-
       - name: Resolve SHA (tag/branch/commit)
         id: upstream
         run: |
@@ -60,32 +60,30 @@ jobs:
           SHORT="${SHA:0:7}"
           echo "UPSTREAM_SHA=$SHA" >> $GITHUB_ENV
           echo "SHORT_SHA=$SHORT" >> $GITHUB_ENV
-
-      - name: Checkout upstream
+      - name: Checkout upstream with full history
         uses: actions/checkout@v4
         with:
           repository: reF1nd/sing-box
           ref: ${{ env.UPSTREAM_SHA }}
           fetch-depth: 0
-
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
           check-latest: true
-
       - name: Fix Version
         id: extract_version
         run: |
           INPUT_VER="${{ github.event.inputs.custom_version }}"
           if [ -n "$INPUT_VER" ]; then
             FINAL_VERSION="$INPUT_VER"
-            echo "使用自定义版本号: $FINAL_VERSION"
           else
             go mod tidy
             RAW_VERSION=$(go run ./cmd/internal/read_tag)
+            
             CLEAN_RAW="${RAW_VERSION#v}"
             CLEAN_RAW="${CLEAN_RAW%-reF1nd}"
+
             if [[ "$CLEAN_RAW" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-alpha\.([0-9]+) ]]; then
               FINAL_VERSION="r${BASH_REMATCH[1]}-a${BASH_REMATCH[2]}"
             elif [[ "$CLEAN_RAW" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-beta\.([0-9]+) ]]; then
@@ -97,30 +95,31 @@ jobs:
             fi
             echo "获取版本号: $RAW_VERSION -> $FINAL_VERSION"
           fi
+
           echo "VERSION=$FINAL_VERSION" >> $GITHUB_ENV
-
-      - name: Setup dependencies for eBPF
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang llvm gcc-aarch64-linux-gnu
-
       - name: Define build metadata
         id: meta
         run: |
           TAGS_COMMON="with_quic with_utls with_clash_api"
-          echo "BUILD_TAGS_LINUX=$TAGS_COMMON with_ebpf" >> $GITHUB_ENV
-          echo "BUILD_TAGS_WIN=$TAGS_COMMON with_purego" >> $GITHUB_ENV
+          # 在 Linux 编译标签中加入 with_ebpf
+          echo "BUILD_TAGS=$TAGS_COMMON with_ebpf" >> $GITHUB_ENV
           echo "OUT_LINUX_ARM64=sing-box-arm64" >> $GITHUB_ENV
           echo "OUT_LINUX_AMD64=sing-box-amd64" >> $GITHUB_ENV
+          echo "BUILD_TAGS_WIN=$TAGS_COMMON with_purego" >> $GITHUB_ENV
           echo "OUT_WIN_ARM64=sing-box-windows-arm64.exe" >> $GITHUB_ENV
           echo "OUT_WIN_AMD64=sing-box-windows-amd64.exe" >> $GITHUB_ENV
           echo "TAG=singbox" >> $GITHUB_ENV
 
-      - name: Generate eBPF artifacts
+      # 新增步骤：安装 eBPF 编译所需的 clang/llvm 以及 arm64 交叉编译器
+      - name: Install build dependencies
         run: |
-          if [ -d common/ebpf ]; then
-            make ebpf_generate
-          fi
+          sudo apt-get update
+          sudo apt-get install -y clang llvm gcc-aarch64-linux-gnu
+
+      # 新增步骤：生成 eBPF 对应的 Go 代码
+      - name: Generate eBPF code
+        run: |
+          make ebpf_generate
 
       - name: Build sing-box (linux arm64)
         env:
@@ -131,8 +130,7 @@ jobs:
         run: |
           go build -trimpath -o "${OUT_LINUX_ARM64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
-            -tags="${BUILD_TAGS_LINUX}" ./cmd/sing-box
-
+            -tags="${BUILD_TAGS}" ./cmd/sing-box
       - name: Build sing-box (linux amd64)
         env:
           GOOS: linux
@@ -141,8 +139,7 @@ jobs:
         run: |
           go build -trimpath -o "${OUT_LINUX_AMD64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
-            -tags="${BUILD_TAGS_LINUX}" ./cmd/sing-box
-
+            -tags="${BUILD_TAGS}" ./cmd/sing-box
       - name: Build sing-box (windows arm64)
         env:
           GOOS: windows
@@ -152,7 +149,6 @@ jobs:
           go build -trimpath -o "${OUT_WIN_ARM64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
             -tags="${BUILD_TAGS_WIN}" ./cmd/sing-box
-
       - name: Build sing-box (windows amd64)
         env:
           GOOS: windows
@@ -162,17 +158,15 @@ jobs:
           go build -trimpath -o "${OUT_WIN_AMD64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
             -tags="${BUILD_TAGS_WIN}" ./cmd/sing-box
-
       - name: Verify arch
-        run: ls -lh sing-box-*
-
+        run: |
+          ls -lh sing-box-*
       - name: Cleanup old release
         uses: dev-drprasad/delete-tag-and-release@v1.1
         with:
           tag_name: ${{ env.TAG }}
           delete_release: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
@@ -183,7 +177,7 @@ jobs:
             Version: ${{ env.VERSION }}
             Commit: ${{ env.SHORT_SHA }}
             Platforms: Linux (arm64/amd64), Windows (arm64/amd64)
-            Build Tags (Linux): ${{ env.BUILD_TAGS_LINUX }}
+            Build Tags (Linux): ${{ env.BUILD_TAGS }}
             Build Tags (Windows): ${{ env.BUILD_TAGS_WIN }}
           prerelease: false
           make_latest: true

@@ -106,11 +106,6 @@ jobs:
           echo "OUT_WIN_ARM64=sing-box-windows-arm64.exe" >> $GITHUB_ENV
           echo "OUT_WIN_AMD64=sing-box-windows-amd64.exe" >> $GITHUB_ENV
           echo "TAG=singbox" >> $GITHUB_ENV
-      - name: Generate eBPF artifacts
-        run: |
-          if [ -d common/ebpf ]; then
-            make ebpf_generate
-          fi
       - name: Install cross-compiler for Linux ARM64
         run: |
           sudo apt-get update
@@ -122,6 +117,9 @@ jobs:
           CGO_ENABLED: "1"
           CC: aarch64-linux-gnu-gcc
         run: |
+          if [ -d common/ebpf ]; then
+            make ebpf_generate
+          fi
           go build -trimpath -o "${OUT_LINUX_ARM64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
             -tags="${BUILD_TAGS}" ./cmd/sing-box
@@ -131,6 +129,9 @@ jobs:
           GOARCH: amd64
           CGO_ENABLED: "1"
         run: |
+          if [ -d common/ebpf ]; then
+            make ebpf_generate
+          fi
           go build -trimpath -o "${OUT_LINUX_AMD64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
             -tags="${BUILD_TAGS}" ./cmd/sing-box

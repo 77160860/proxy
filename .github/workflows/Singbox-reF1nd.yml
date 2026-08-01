@@ -61,7 +61,7 @@ jobs:
           echo "UPSTREAM_SHA=$SHA" >> $GITHUB_ENV
           echo "SHORT_SHA=$SHORT" >> $GITHUB_ENV
 
-      - name: Checkout upstream with full history
+      - name: Checkout upstream
         uses: actions/checkout@v4
         with:
           repository: reF1nd/sing-box
@@ -83,10 +83,8 @@ jobs:
           else
             go mod tidy
             RAW_VERSION=$(go run ./cmd/internal/read_tag)
-            
             CLEAN_RAW="${RAW_VERSION#v}"
             CLEAN_RAW="${CLEAN_RAW%-reF1nd}"
-
             if [[ "$CLEAN_RAW" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-alpha\.([0-9]+) ]]; then
               FINAL_VERSION="r${BASH_REMATCH[1]}-a${BASH_REMATCH[2]}"
             elif [[ "$CLEAN_RAW" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-beta\.([0-9]+) ]]; then
@@ -96,22 +94,13 @@ jobs:
             else
               FINAL_VERSION="r${CLEAN_RAW}"
             fi
-            echo "获取版本号: $RAW_VERSION -> $FINAL_VERSION"
           fi
-
           echo "VERSION=$FINAL_VERSION" >> $GITHUB_ENV
 
-      - name: Define build metadata
-        id: meta
+      - name: Setup dependencies for eBPF
         run: |
-          TAGS_COMMON="with_quic with_utls with_clash_api"
-          echo "BUILD_TAGS_LINUX=$TAGS_COMMON with_ebpf" >> $GITHUB_ENV
-          echo "OUT_LINUX_ARM64=sing-box-arm64" >> $GITHUB_ENV
-          echo "OUT_LINUX_AMD64=sing-box-amd64" >> $GITHUB_ENV
-          echo "BUILD_TAGS_WIN=$TAGS_COMMON with_purego" >> $GITHUB_ENV
-          echo "OUT_WIN_ARM64=sing-box-windows-arm64.exe" >> $GITHUB_ENV
-          echo "OUT_WIN_AMD64=sing-box-windows-amd64.exe" >> $GITHUB_ENV
-          echo "TAG=singbox" >> $GITHUB_ENV
+          sudo apt-get update
+          sudo apt-get install -y clang llvm gcc-aarch64-linux-gnu
 
       - name: Generate eBPF artifacts
         run: |
@@ -119,10 +108,17 @@ jobs:
             make ebpf_generate
           fi
 
-      - name: Install cross-compiler for Linux ARM64
+      - name: Define build metadata
+        id: meta
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu
+          TAGS_COMMON="with_quic with_utls with_clash_api"
+          echo "BUILD_TAGS_LINUX=$TAGS_COMMON with_ebpf" >> $GITHUB_ENV
+          echo "BUILD_TAGS_WIN=$TAGS_COMMON with_purego" >> $GITHUB_ENV
+          echo "OUT_LINUX_ARM64=sing-box-arm64" >> $GITHUB_ENV
+          echo "OUT_LINUX_AMD64=sing-box-amd64" >> $GITHUB_ENV
+          echo "OUT_WIN_ARM64=sing-box-windows-arm64.exe" >> $GITHUB_ENV
+          echo "OUT_WIN_AMD64=sing-box-windows-amd64.exe" >> $GITHUB_ENV
+          echo "TAG=singbox" >> $GITHUB_ENV
 
       - name: Build sing-box (linux arm64)
         env:
@@ -130,6 +126,8 @@ jobs:
           GOARCH: arm64
           CGO_ENABLED: "1"
           CC: aarch64-linux-gnu-gcc
+          CGO_CFLAGS: "-I/usr/aarch64-linux-gnu/include"
+          CGO_LDFLAGS: "-L/usr/aarch64-linux-gnu/lib"
         run: |
           go build -trimpath -o "${OUT_LINUX_ARM64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
@@ -166,8 +164,7 @@ jobs:
             -tags="${BUILD_TAGS_WIN}" ./cmd/sing-box
 
       - name: Verify arch
-        run: |
-          ls -lh sing-box-*
+        run: ls -lh sing-box-*
 
       - name: Cleanup old release
         uses: dev-drprasad/delete-tag-and-release@v1.1

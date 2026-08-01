@@ -104,7 +104,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang llvm gcc-aarch64-linux-gnu
 
-            - name: Define build metadata
+      - name: Define build metadata
         id: meta
         run: |
           TAGS_COMMON="with_quic,with_utls,with_clash_api"
@@ -133,7 +133,6 @@ jobs:
           CGO_ENABLED: "1"
           CC: aarch64-linux-gnu-gcc
         run: |
-          # 将逗号替换为空格，满足 Go -tags 的空格分隔要求
           TAGS_SPACED=$(echo "${BUILD_TAGS_LINUX}" | tr ',' ' ')
           go build -trimpath -o "${OUT_LINUX_ARM64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \

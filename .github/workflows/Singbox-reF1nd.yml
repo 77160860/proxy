@@ -77,7 +77,7 @@ jobs:
       - name: Fix Version
         id: extract_version
         run: |
-          INPUT_VER="${{ inputs.custom_version || github.event.inputs.custom_version }}"
+          INPUT_VER="${{ github.event.inputs.custom_version }}"
           if [ -n "$INPUT_VER" ]; then
             FINAL_VERSION="$INPUT_VER"
             echo "使用自定义版本号: $FINAL_VERSION"
@@ -128,8 +128,6 @@ jobs:
           GOARCH: arm64
           CGO_ENABLED: "1"
           CC: aarch64-linux-gnu-gcc
-          CGO_CFLAGS: "-I/usr/aarch64-linux-gnu/include"
-          CGO_LDFLAGS: "-L/usr/aarch64-linux-gnu/lib"
         run: |
           go build -trimpath -o "${OUT_LINUX_ARM64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \

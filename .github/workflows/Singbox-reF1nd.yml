@@ -77,9 +77,10 @@ jobs:
       - name: Fix Version
         id: extract_version
         run: |
-          INPUT_VER="${{ github.event.inputs.custom_version }}"
+          INPUT_VER="${{ inputs.custom_version || github.event.inputs.custom_version }}"
           if [ -n "$INPUT_VER" ]; then
             FINAL_VERSION="$INPUT_VER"
+            echo "使用自定义版本号: $FINAL_VERSION"
           else
             go mod tidy
             RAW_VERSION=$(go run ./cmd/internal/read_tag)
@@ -94,6 +95,7 @@ jobs:
             else
               FINAL_VERSION="r${CLEAN_RAW}"
             fi
+            echo "获取版本号: $RAW_VERSION -> $FINAL_VERSION"
           fi
           echo "VERSION=$FINAL_VERSION" >> $GITHUB_ENV
 

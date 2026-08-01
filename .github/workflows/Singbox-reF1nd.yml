@@ -95,6 +95,11 @@ jobs:
           fi
 
           echo "VERSION=$FINAL_VERSION" >> $GITHUB_ENV
+      - name: Set build tag
+        run: |
+          set -xeuo pipefail
+          TAG="v${{ env.VERSION }}"
+          git tag -f "${TAG}" "${{ env.UPSTREAM_SHA }}"
       - name: Define build metadata
         id: meta
         run: |
@@ -121,7 +126,7 @@ jobs:
             make ebpf_generate
           fi
           go build -trimpath -o "${OUT_LINUX_ARM64}" \
-            -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
+            -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${{ env.VERSION }}" \
             -tags="${BUILD_TAGS}" ./cmd/sing-box
       - name: Build sing-box (linux amd64)
         env:
@@ -133,7 +138,7 @@ jobs:
             make ebpf_generate
           fi
           go build -trimpath -o "${OUT_LINUX_AMD64}" \
-            -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
+            -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${{ env.VERSION }}" \
             -tags="${BUILD_TAGS}" ./cmd/sing-box
       - name: Build sing-box (windows arm64)
         env:
@@ -142,7 +147,7 @@ jobs:
           CGO_ENABLED: "0"
         run: |
           go build -trimpath -o "${OUT_WIN_ARM64}" \
-            -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
+            -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${{ env.VERSION }}" \
             -tags="${BUILD_TAGS_WIN}" ./cmd/sing-box
       - name: Build sing-box (windows amd64)
         env:
@@ -151,7 +156,7 @@ jobs:
           CGO_ENABLED: "0"
         run: |
           go build -trimpath -o "${OUT_WIN_AMD64}" \
-            -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
+            -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${{ env.VERSION }}" \
             -tags="${BUILD_TAGS_WIN}" ./cmd/sing-box
       - name: Verify arch
         run: |

@@ -104,16 +104,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang llvm gcc-aarch64-linux-gnu
 
-      - name: Define build metadata
+            - name: Define build metadata
         id: meta
         run: |
-          TAGS_COMMON="with_quic with_utls with_clash_api"
+          TAGS_COMMON="with_quic,with_utls,with_clash_api"
           TAGS_LINUX="$TAGS_COMMON"
           if [ -d common/ebpf ]; then
             TAGS_LINUX="$TAGS_LINUX,with_ebpf"
           fi
           echo "BUILD_TAGS_LINUX=$TAGS_LINUX" >> $GITHUB_ENV
-          echo "BUILD_TAGS_WIN=$TAGS_COMMON with_purego" >> $GITHUB_ENV
+          echo "BUILD_TAGS_WIN=$TAGS_COMMON,with_purego" >> $GITHUB_ENV
           echo "OUT_LINUX_ARM64=sing-box-arm64" >> $GITHUB_ENV
           echo "OUT_LINUX_AMD64=sing-box-amd64" >> $GITHUB_ENV
           echo "OUT_WIN_ARM64=sing-box-windows-arm64.exe" >> $GITHUB_ENV
@@ -133,9 +133,11 @@ jobs:
           CGO_ENABLED: "1"
           CC: aarch64-linux-gnu-gcc
         run: |
+          # 将逗号替换为空格，满足 Go -tags 的空格分隔要求
+          TAGS_SPACED=$(echo "${BUILD_TAGS_LINUX}" | tr ',' ' ')
           go build -trimpath -o "${OUT_LINUX_ARM64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
-            -tags="${BUILD_TAGS_LINUX}" ./cmd/sing-box
+            -tags="${TAGS_SPACED}" ./cmd/sing-box
 
       - name: Build sing-box (linux amd64)
         env:
@@ -143,9 +145,10 @@ jobs:
           GOARCH: amd64
           CGO_ENABLED: "1"
         run: |
+          TAGS_SPACED=$(echo "${BUILD_TAGS_LINUX}" | tr ',' ' ')
           go build -trimpath -o "${OUT_LINUX_AMD64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
-            -tags="${BUILD_TAGS_LINUX}" ./cmd/sing-box
+            -tags="${TAGS_SPACED}" ./cmd/sing-box
 
       - name: Build sing-box (windows arm64)
         env:
@@ -153,9 +156,10 @@ jobs:
           GOARCH: arm64
           CGO_ENABLED: "0"
         run: |
+          TAGS_SPACED=$(echo "${BUILD_TAGS_WIN}" | tr ',' ' ')
           go build -trimpath -o "${OUT_WIN_ARM64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
-            -tags="${BUILD_TAGS_WIN}" ./cmd/sing-box
+            -tags="${TAGS_SPACED}" ./cmd/sing-box
 
       - name: Build sing-box (windows amd64)
         env:
@@ -163,9 +167,10 @@ jobs:
           GOARCH: amd64
           CGO_ENABLED: "0"
         run: |
+          TAGS_SPACED=$(echo "${BUILD_TAGS_WIN}" | tr ',' ' ')
           go build -trimpath -o "${OUT_WIN_AMD64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
-            -tags="${BUILD_TAGS_WIN}" ./cmd/sing-box
+            -tags="${TAGS_SPACED}" ./cmd/sing-box
 
       - name: Verify arch
         run: ls -lh sing-box-*

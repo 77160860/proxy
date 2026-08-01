@@ -61,7 +61,7 @@ jobs:
           echo "UPSTREAM_SHA=$SHA" >> $GITHUB_ENV
           echo "SHORT_SHA=$SHORT" >> $GITHUB_ENV
 
-      - name: Checkout upstream with full history
+      - name: Checkout upstream
         uses: actions/checkout@v4
         with:
           repository: reF1nd/sing-box
@@ -77,7 +77,7 @@ jobs:
       - name: Fix Version
         id: extract_version
         run: |
-          INPUT_VER="${{ inputs.custom_version || github.event.inputs.custom_version }}"
+          INPUT_VER="${{ github.event.inputs.custom_version }}"
           if [ -n "$INPUT_VER" ]; then
             FINAL_VERSION="$INPUT_VER"
             echo "使用自定义版本号: $FINAL_VERSION"
@@ -104,17 +104,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang llvm gcc-aarch64-linux-gnu
 
-      - name: Generate eBPF artifacts
-        run: |
-          if [ -d common/ebpf ]; then
-            make ebpf_generate
-          fi
-
       - name: Define build metadata
         id: meta
         run: |
           TAGS_COMMON="with_quic with_utls with_clash_api"
-          echo "BUILD_TAGS_LINUX=$TAGS_COMMON with_ebpf" >> $GITHUB_ENV
+          TAGS_LINUX="$TAGS_COMMON"
+          if [ -d common/ebpf ]; then
+            TAGS_LINUX="$TAGS_LINUX,with_ebpf"
+          fi
+          echo "BUILD_TAGS_LINUX=$TAGS_LINUX" >> $GITHUB_ENV
           echo "BUILD_TAGS_WIN=$TAGS_COMMON with_purego" >> $GITHUB_ENV
           echo "OUT_LINUX_ARM64=sing-box-arm64" >> $GITHUB_ENV
           echo "OUT_LINUX_AMD64=sing-box-amd64" >> $GITHUB_ENV
@@ -122,14 +120,18 @@ jobs:
           echo "OUT_WIN_AMD64=sing-box-windows-amd64.exe" >> $GITHUB_ENV
           echo "TAG=singbox" >> $GITHUB_ENV
 
+      - name: Generate eBPF artifacts
+        run: |
+          if [[ "${BUILD_TAGS_LINUX}" == *with_ebpf* ]]; then
+            make ebpf_generate
+          fi
+
       - name: Build sing-box (linux arm64)
         env:
           GOOS: linux
           GOARCH: arm64
           CGO_ENABLED: "1"
           CC: aarch64-linux-gnu-gcc
-          CGO_CFLAGS: "-I/usr/aarch64-linux-gnu/include"
-          CGO_LDFLAGS: "-L/usr/aarch64-linux-gnu/lib"
         run: |
           go build -trimpath -o "${OUT_LINUX_ARM64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
@@ -166,8 +168,7 @@ jobs:
             -tags="${BUILD_TAGS_WIN}" ./cmd/sing-box
 
       - name: Verify arch
-        run: |
-          ls -lh sing-box-*
+        run: ls -lh sing-box-*
 
       - name: Cleanup old release
         uses: dev-drprasad/delete-tag-and-release@v1.1

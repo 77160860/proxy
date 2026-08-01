@@ -1,12 +1,10 @@
 name: Build sing-box Core
-#CI计划
+
 on:
-  #自动编译：当Auto-Clean运行完成后
   workflow_run:
     workflows: ["Auto-Clean"]
     types:
       - completed
-  #手动编译
   workflow_dispatch:
     inputs:
       source_ref:
@@ -101,18 +99,28 @@ jobs:
         id: meta
         run: |
           TAGS_COMMON="with_quic with_utls with_clash_api"
-          echo "BUILD_TAGS=$TAGS_COMMON" >> $GITHUB_ENV
+          echo "BUILD_TAGS=$TAGS_COMMON with_ebpf" >> $GITHUB_ENV
           echo "OUT_LINUX_ARM64=sing-box-arm64" >> $GITHUB_ENV
           echo "OUT_LINUX_AMD64=sing-box-amd64" >> $GITHUB_ENV
           echo "BUILD_TAGS_WIN=$TAGS_COMMON with_purego" >> $GITHUB_ENV
           echo "OUT_WIN_ARM64=sing-box-windows-arm64.exe" >> $GITHUB_ENV
           echo "OUT_WIN_AMD64=sing-box-windows-amd64.exe" >> $GITHUB_ENV
           echo "TAG=singbox" >> $GITHUB_ENV
+      - name: Generate eBPF artifacts
+        run: |
+          if [ -d common/ebpf ]; then
+            make ebpf_generate
+          fi
+      - name: Install cross-compiler for Linux ARM64
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
       - name: Build sing-box (linux arm64)
         env:
           GOOS: linux
           GOARCH: arm64
-          CGO_ENABLED: "0"
+          CGO_ENABLED: "1"
+          CC: aarch64-linux-gnu-gcc
         run: |
           go build -trimpath -o "${OUT_LINUX_ARM64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
@@ -121,7 +129,7 @@ jobs:
         env:
           GOOS: linux
           GOARCH: amd64
-          CGO_ENABLED: "0"
+          CGO_ENABLED: "1"
         run: |
           go build -trimpath -o "${OUT_LINUX_AMD64}" \
             -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \

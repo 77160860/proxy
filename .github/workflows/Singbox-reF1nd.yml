@@ -101,7 +101,7 @@ jobs:
         id: meta
         run: |
           TAGS_COMMON="with_quic with_utls with_clash_api"
-          # 在 Linux 编译标签中加入 with_ebpf
+          # 启用 Linux 的 eBPF 标签
           echo "BUILD_TAGS=$TAGS_COMMON with_ebpf" >> $GITHUB_ENV
           echo "OUT_LINUX_ARM64=sing-box-arm64" >> $GITHUB_ENV
           echo "OUT_LINUX_AMD64=sing-box-amd64" >> $GITHUB_ENV
@@ -110,17 +110,18 @@ jobs:
           echo "OUT_WIN_AMD64=sing-box-windows-amd64.exe" >> $GITHUB_ENV
           echo "TAG=singbox" >> $GITHUB_ENV
 
-      # 新增步骤：安装 eBPF 编译所需的 clang/llvm 以及 arm64 交叉编译器
+      # 安装 eBPF 编译工具链、交叉编译器以及静态链接所需的 libc 库
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang llvm gcc-aarch64-linux-gnu
+          sudo apt-get install -y clang llvm gcc-aarch64-linux-gnu libc6-dev-arm64-cross
 
-      # 新增步骤：生成 eBPF 对应的 Go 代码
+      # 生成 eBPF 对应的 Go 代码
       - name: Generate eBPF code
         run: |
           make ebpf_generate
 
+      # 编译 Linux arm64 (启用 CGO + 静态链接)
       - name: Build sing-box (linux arm64)
         env:
           GOOS: linux
@@ -129,8 +130,10 @@ jobs:
           CC: aarch64-linux-gnu-gcc
         run: |
           go build -trimpath -o "${OUT_LINUX_ARM64}" \
-            -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
+            -ldflags="-s -w -checklinkname=0 -linkmode external -extldflags '-static' -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
             -tags="${BUILD_TAGS}" ./cmd/sing-box
+
+      # 编译 Linux amd64 (启用 CGO + 静态链接)
       - name: Build sing-box (linux amd64)
         env:
           GOOS: linux
@@ -138,8 +141,9 @@ jobs:
           CGO_ENABLED: "1"
         run: |
           go build -trimpath -o "${OUT_LINUX_AMD64}" \
-            -ldflags="-s -w -checklinkname=0 -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
+            -ldflags="-s -w -checklinkname=0 -linkmode external -extldflags '-static' -X github.com/sagernet/sing-box/constant.Version=${VERSION}" \
             -tags="${BUILD_TAGS}" ./cmd/sing-box
+
       - name: Build sing-box (windows arm64)
         env:
           GOOS: windows

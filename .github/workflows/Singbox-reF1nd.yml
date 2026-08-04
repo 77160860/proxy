@@ -147,6 +147,12 @@ jobs:
       - name: Verify arch
         run: |
           ls -lh sing-box-*
+      - name: Compress with UPX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y upx-ucl
+          upx -9 sing-box-*
+          upx -t sing-box-*
       - name: Cleanup old release
         uses: dev-drprasad/delete-tag-and-release@v1.1
         with:

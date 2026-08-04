@@ -144,19 +144,6 @@ jobs:
       - name: Verify arch
         run: |
           ls -lh sing-box-*
-      - name: Compress supported binaries with UPX
-        run: |
-          set -e
-          sudo apt-get update
-          sudo apt-get install -y upx-ucl
-          upx -9 \
-            "${OUT_LINUX_ARM64}" \
-            "${OUT_LINUX_AMD64}" \
-            "${OUT_WIN_AMD64}"
-          upx -t \
-            "${OUT_LINUX_ARM64}" \
-            "${OUT_LINUX_AMD64}" \
-            "${OUT_WIN_AMD64}"
       - name: Cleanup old release
         uses: dev-drprasad/delete-tag-and-release@v1.1
         with:

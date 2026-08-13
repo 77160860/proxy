@@ -1,7 +1,7 @@
 
 config config 'config'
 	option enabled '0'
-	option start_delay '6'
+	option start_delay '3'
 	option scheduled_restart '0'
 	option scheduled_restart_cron '0 3 * * *'
 	option test_profile '1'

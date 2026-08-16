@@ -2,8 +2,6 @@ proxy-providers:
   🌈:
     url: "订阅链接"
     type: http
-    override:
-      ip-version: ipv4-prefer
 
 mode: rule
 ipv6: true
@@ -14,8 +12,8 @@ bind-address: "*"
 unified-delay: true
 tcp-concurrent: true
 find-process-mode: off
-keep-alive-idle: 600
-keep-alive-interval: 15
+keep-alive-idle: 300
+keep-alive-interval: 75
 
 profile:
   store-selected: true
@@ -53,7 +51,7 @@ dns:
   cache-algorithm: arc
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/15
-  fake-ip-range6: fc00::/16
+  fake-ip-range6: fc00::/18
   fake-ip-filter-mode: blacklist
   fake-ip-filter:
     - 'rule-set:private'
@@ -80,7 +78,7 @@ proxy-groups:
   - name: Urltest
     type: url-test
     url: http://www.gstatic.com/generate_204
-    interval: 600
+    interval: 300
     tolerance: 60
     include-all: true
     icon: https://ghfast.top/github.com/Orz-3/mini/raw/master/Color/Urltest.png
@@ -88,7 +86,7 @@ proxy-groups:
   - name: Blance
     type: load-balance
     url: http://www.gstatic.com/generate_204
-    interval: 600
+    interval: 300
     strategy: consistent-hashing
     include-all: true
     icon: https://ghfast.top/github.com/Orz-3/mini/raw/master/Color/Roundrobin.png

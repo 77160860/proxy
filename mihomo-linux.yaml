@@ -116,7 +116,6 @@ rules:
   - RULE-SET,apple,DIRECT
   - RULE-SET,micro,DIRECT
   - RULE-SET,cn,DIRECT
-  - RULE-SET,cnip,DIRECT,no-resolve
   - OR,((AND,((NETWORK,UDP),(DST-PORT,443))),(DST-PORT,3478/5349)),REJECT
   - RULE-SET,proxy,Proxy
   - RULE-SET,tgip,Proxy

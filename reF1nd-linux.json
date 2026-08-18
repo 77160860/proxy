@@ -56,8 +56,9 @@
     "default_domain_match_strategy": "prefer_fqdn",
     "default_domain_resolver": {"server": "public"},
     "rules": [
-      {"action": "sniff"},
+     {"action": "sniff"},
       {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},
+      {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"port": 853, "action": "reject", "no_drop": true},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
@@ -65,14 +66,10 @@
       {"rule_set": "me", "outbound": "🐸 Direct"},
       {"rule_set": "apple", "outbound": "🐸 Direct"},
       {"rule_set": "micro", "outbound": "🐸 Direct"},
-      {"rule_set": "proxy", "protocol": ["quic", "stun"], "action": "reject"},
-      {"rule_set": "proxy", "outbound": "🐝 Proxy"},
       {"rule_set": "cn", "outbound": "🐸 Direct"},
-      {"action": "resolve", "match_only": true},
-      {"ip_is_private": true, "outbound": "🐸 Direct"},
-      {"rule_set": "tgip", "outbound": "🐝 Proxy"},
-      {"rule_set": "cnip", "outbound": "🐸 Direct"},
-      {"protocol": ["quic", "stun"], "action": "reject"}
+      {"protocol": ["quic", "stun"], "action": "reject"},
+      {"rule_set": "proxy", "outbound": "🐝 Proxy"},
+      {"rule_set": "tgip", "outbound": "🐝 Proxy"}
     ],
     "rule_set": [
       {"tag": ["me", "cn", "tgip", "cnip", "pvip", "apple", "micro", "proxy", "private", "adblock"],

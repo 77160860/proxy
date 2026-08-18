@@ -78,7 +78,7 @@ proxy-groups:
   - name: Proxy
     type: select
     include-all: true
-    proxies: [Urltest, Blance]
+    proxies: [Urltest, Balance]
     icon: https://ghfast.top/github.com/Orz-3/mini/raw/master/Color/SSID.png
 
   - name: Urltest
@@ -89,7 +89,7 @@ proxy-groups:
     include-all: true
     icon: https://ghfast.top/github.com/Orz-3/mini/raw/master/Color/Urltest.png
 
-  - name: Blance
+  - name: Balance
     type: load-balance
     url: http://www.gstatic.com/generate_204
     interval: 300

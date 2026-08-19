@@ -1,4 +1,4 @@
-sing脚本基于**Sing-box**内核的多协议一键安装脚本，支持Hysteria2、Snell v5、Tuic v5、VLESS-Reality、SS2022-shadowtls、Trojan-WS协议，并集成了Cloudflare Argo隧道功能搭配Trojan使用，支持单协议及全协议一键安装。
+sing脚本基于**Sing-box**内核的多协议一键安装脚本，支持Hysteria2、Snell v6、Tuic v5、Vless-Reality、SS2022-shadowtls、Trojan-WS协议，并集成了Cloudflare Argo隧道功能搭配Trojan使用，支持单协议及全协议一键安装。
 
 ### 1. 基础安装命令
 该脚本通过环境变量来控制开启哪些协议。你需要在执行命令前设置对应的变量。

@@ -83,7 +83,7 @@ showmode(){
 }
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "sing一键无交互脚本 (Singbox内核版)"
-echo "当前版本:26.06.18"
+echo "当前版本:26.08.18"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 hostname=$(uname -a | awk '{print $2}'); op=$(cat /etc/redhat-release 2>/dev/null || cat /etc/os-release 2>/dev/null | grep -i pretty_name | cut -d \" -f2); case $(uname -m) in aarch64) cpu=arm64;; x86_64) cpu=amd64;; *) echo "目前脚本不支持$(uname -m)架构" && exit; esac; mkdir -p "$HOME/sing"
 v4v6(){
@@ -374,7 +374,7 @@ cip(){
         port_vrp=$(cat "$HOME/sing/port_vrp")
         public_key=$(sed -n '2p' "$HOME/sing/reality.key" | awk '{print $2}')
         short_id=$(cat "$HOME/sing/short_id")
-        vless_link="vless://${uuid}@${server_ip}:${port_vrp}?encryption=none&security=reality&sni=www.ua.edu&fp=chrome&flow=xtls-rprx-vision&publicKey=${public_key}&shortId=${short_id}&tfo=true#${sxname}vless-reality-$hostname"
+        vless_link="vless://${uuid}@${server_ip}:${port_vrp}/?type=tcp&encryption=none&flow=xtls-rprx-vision&sni=www.ua.edu&fp=chrome&security=reality&pbk=${public_key}&sid=${short_id}&tfo=true#${sxname}vless-reality-$hostname"
         echo "【 VLESS-Reality-Vision 】"; echo "$vless_link" | tee -a "$HOME/sing/jh.txt"; echo;
     fi
     if grep -q '"tag": "snell"' "$HOME/sing/sb.json"; then

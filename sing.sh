@@ -436,15 +436,17 @@ sbrestart(){
     fi
 }
 argorestart(){
-    kill -15 $(pgrep -x cloudflared 2>/dev/null) >/dev/null 2>&1
-    if pidof systemd >/dev/null 2>&1; then
+    if [ -f "/etc/systemd/system/argo.service" ]; then
+        kill -15 $(pgrep -x cloudflared 2>/dev/null) >/dev/null 2>&1
         systemctl restart argo
-    elif command -v rc-service >/dev/null 2>/dev/null; then
+    elif [ -f "/etc/init.d/argo" ]; then
+        kill -15 $(pgrep -x cloudflared 2>/dev/null) >/dev/null 2>&1
         rc-service argo restart
-    else
+    elif [ -f "$HOME/sing/cloudflared" ]; then
+        kill -15 $(pgrep -x cloudflared 2>/dev/null) >/dev/null 2>&1
         if [ -e "$HOME/sing/sbargotoken.log" ]; then
             nohup "$HOME/sing/cloudflared" tunnel --no-autoupdate --edge-ip-version auto run --token $(cat $HOME/sing/sbargotoken.log) >/dev/null 2>&1 &
-        else
+        elif [ -e "$HOME/sing/argoport.log" ]; then
             nohup "$HOME/sing/cloudflared" tunnel --url http://localhost:$(cat $HOME/sing/argoport.log) --edge-ip-version auto --no-autoupdate > $HOME/sing/argo.log 2>&1 &
         fi
     fi

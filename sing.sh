@@ -174,7 +174,7 @@ EOF
         snell_psk="${uuid}"
         echo "$snell_psk" > "$HOME/sing/snell_psk"
         cat >> "$HOME/sing/sb.json" <<EOF
-{"type": "snell", "tag": "snell", "listen": "::", "listen_port": ${port_snell}, "psk": "${snell_psk}", "tcp_fast_open": true, "version": 5},
+{"type": "snell", "tag": "snell", "listen": "::", "listen_port": ${port_snell}, "psk": "${snell_psk}", "tcp_fast_open": true, "version": 6},
 EOF
     fi
     if [ -n "$trp" ]; then
@@ -380,7 +380,7 @@ cip(){
     if grep -q '"tag": "snell"' "$HOME/sing/sb.json"; then
         port_snell=$(cat "$HOME/sing/port_snell")
         snell_psk=$(cat "$HOME/sing/snell_psk")
-        snell_link="snell://${snell_psk}@${server_ip}:${port_snell}?version=5&reuse=true&tfo=true#${sxname}snell-$hostname"
+        snell_link="snell://${snell_psk}@${server_ip}:${port_snell}?version=6&reuse=true&tfo=true#${sxname}snell-$hostname"
         echo "【 Snell 】"
         echo "$snell_link" | tee -a "$HOME/sing/jh.txt"
         echo

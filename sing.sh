@@ -137,7 +137,7 @@ installsb(){
     if [ ! -e "$HOME/sing/sing-box" ]; then upsingbox; fi
     cat > "$HOME/sing/sb.json" <<EOF
 {
-"log": { "disabled": false, "level": "error", "timestamp": true },
+"log": { "disabled": false, "level": "error", "timestamp": true, "output": "$HOME/sing/sing.log"},
 "inbounds": [
 EOF
     insuuid

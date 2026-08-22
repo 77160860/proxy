@@ -44,7 +44,7 @@
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest", "🍉 Balance"]},
     {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true, "tolerance": 30},
-    {"tag": "🍉 Balance", "type": "loadbalance", "use_all_providers": true, "strategy": "consistent-hashing"},
+    {"tag": "🍉 Balance", "type": "loadbalance", "use_all_providers": true, "strategy": "sticky-sessions"},
     {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"]},
     {"tag": "GLOBAL", "type": "selector", "use_all_providers": true, "outbounds": ["🐝 Proxy", "🚀 Urltest"]},
     {"tag": "🐸 Direct", "type": "direct"}

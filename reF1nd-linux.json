@@ -1,0 +1,79 @@
+{
+  "log": {"disabled": false, "level": "error", "timestamp": true},
+  "http_clients": [{"tag": "Direct"}],
+  "experimental": {
+    "urltest_unified_delay": true,
+    "cache_file": {"enabled": true, "store_fakeip": true, "store_dns": true},
+    "clash_api": {
+      "external_controller": "0.0.0.0:9090",
+      "external_ui": "ui",
+      "external_ui_download_url": "https://gh-proxy.org/github.com/Zephyruso/zashboard/releases/download/v3.21.0/dist-no-fonts.zip",
+      "external_ui_http_client": "Direct"}
+  },
+  "providers": [{"type": "remote", "tag": "🌈", "url": "订阅链接"}],
+  "dns": {
+    "servers": [
+      {"tag": "local", "type": "local"},
+      {"tag": "hosts", "type": "hosts", "predefined": {"dns.alidns.com": ["223.5.5.5", "223.6.6.6"], "doh.pub": ["1.12.12.12", "120.53.53.53"]}},
+      {"tag": "alidns", "type": "https", "server": "dns.alidns.com", "domain_resolver": "hosts"},
+      {"tag": "dnspod", "type": "https", "server": "doh.pub", "domain_resolver": "hosts"},
+      {"tag": "public", "type": "group", "servers": ["alidns", "dnspod"]},
+      {"tag": "google", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
+      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
+    ],
+    "rules": [
+      {"preferred_by": "hosts", "server": "hosts"},
+      {"rule_set": "private", "server": "local"},
+      {"clash_mode": "direct", "server": "public"},
+      {"query_type": "HTTPS", "action": "reject"},
+      {"clash_mode": "global", "server": "fakeip"},
+      {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
+      {"rule_set": ["me", "apple", "micro", "cn"], "server": "public"},
+      {"query_type": ["A", "AAAA"], "action": "evaluate", "server": "public"},
+      {"match_response": true, "rule_set": "cnip", "action": "respond"},
+      {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
+    ],
+    "final": "google",
+    "optimistic": true,
+    "reverse_mapping": true
+  },
+  "inbounds": [
+    {"tag": "tun-in", "type": "tun", "address": ["172.18.0.1/30", "fdfe:dcba:9876::1/126"],
+     "auto_route": true, "strict_route": true, "auto_redirect": true, "route_exclude_address_set": ["cnip", "pvip"]}
+  ],
+  "outbounds": [
+    {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest", "🍉 Balance"]},
+    {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true, "tolerance": 30},
+    {"tag": "🍉 Balance", "type": "loadbalance", "use_all_providers": true, "strategy": "sticky-sessions"},
+    {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"]},
+    {"tag": "GLOBAL", "type": "selector", "use_all_providers": true, "outbounds": ["🐝 Proxy", "🚀 Urltest"]},
+    {"tag": "🐸 Direct", "type": "direct"}
+  ],
+  "route": {
+    "final": "🍓 Final",
+    "auto_detect_interface": true,
+    "default_http_client": "Direct",
+    "default_domain_match_strategy": "prefer_fqdn",
+    "default_domain_resolver": {"server": "public"},
+    "rules": [
+     {"action": "sniff"},
+      {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},
+      {"ip_is_private": true, "outbound": "🐸 Direct"},
+      {"port": 853, "action": "reject", "no_drop": true},
+      {"clash_mode": "direct", "outbound": "🐸 Direct"},
+      {"clash_mode": "global", "outbound": "GLOBAL"},
+      {"rule_set": "private", "outbound": "🐸 Direct"},
+      {"rule_set": "me", "outbound": "🐸 Direct"},
+      {"rule_set": "apple", "outbound": "🐸 Direct"},
+      {"rule_set": "micro", "outbound": "🐸 Direct"},
+      {"rule_set": "cn", "outbound": "🐸 Direct"},
+      {"protocol": ["quic", "stun"], "action": "reject"},
+      {"rule_set": "proxy", "outbound": "🐝 Proxy"},
+      {"rule_set": "tgip", "outbound": "🐝 Proxy"}
+    ],
+    "rule_set": [
+      {"tag": ["me", "cn", "tgip", "cnip", "pvip", "apple", "micro", "proxy", "private", "adblock"],
+       "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/{tag}.srs",
+       "type": "remote", "format": "binary"}]
+  }
+}

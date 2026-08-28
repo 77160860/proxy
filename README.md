@@ -1,0 +1,52 @@
+sing脚本基于**Sing-box**内核的多协议一键安装脚本，支持Hysteria2、Snell v6、Tuic v5、Vless-Reality、SS2022-shadowtls、Trojan-WS协议，并集成了Cloudflare Argo隧道功能搭配Trojan使用，支持单协议及全协议一键安装。
+
+### 1. 基础安装命令
+该脚本通过环境变量来控制开启哪些协议。你需要在执行命令前设置对应的变量。
+
+#### 常用协议变量说明：
+*   `tu`: 设置 Tuic v5 端口 (如 `tu=20000`不设置则随机生成)
+*   `sn`: 设置 Snell v5 端口 (如 `sn=20001`不设置则随机生成)
+*   `hy`: 设置 Hysteria2 端口 (如 `hy=20002`不设置则随机生成)
+*   `vr`: 设置 VLESS-Reality 端口 (如 `vr=8443`不设置则随机生成)
+*   `ss`: 设置 SS2022-shadowtls 端口 (如 `ss=443`不设置则随机生成)
+*   `tr`: 设置 Trojan-WS 端口 (如 `tr=20003`不设置则随机生成并配合Argo在vps本地使用)
+*   `uuid`: 自定义 UUID/密码 (不设置则随机生成)
+
+### 2. 常见使用示例
+
+#### 示例 A：非隧道全协议安装 (自动分配端口及uuid)
+```bash
+hy=yes tu=yes sn=yes vr=yes ss=yes bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/sing.sh)
+```
+#### 示例 B：隧道协议组合安装 (手动分配端口及uuid)
+```bash
+tr="自定义端口" hy="自定义端口" uuid="自定义uuid" argo="tr" agn="cf域名" agk="隧道token" bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/sing.sh)
+```
+*注：变量赋值为 yes 表示启用并随机分配端口。使用argo才需要加入argo、agn、agk配置字段 *
+### 3. 管理命令
+
+脚本安装完成后，可以直接使用 `sing` 命令进行管理。
+
+> **注意**：重置协议需要在脚本末尾加上 ` rep`。
+
+- `sing`：查看当前内核的运行状态。
+- `sing list`：输出当前所有已安装节点的配置链接，并显示已生成的聚合文件（`cat $HOME/sing/jh.txt`）。
+- `sing res`：重启 Sing-box 内核与 Argo 隧道。
+- `sing ups`：一键更新 Sing-box 内核至最新正式版。
+- `sing rep`：重置配置。会清理旧配置文件及所有缓存的端口和密钥，方便您传入新参数重新安装。
+- `sing del`：一键彻底卸载。停止所有后台服务，删除系统启动项，彻底清空 `$HOME/sing` 目录。
+### 4. 脚本特性说明
+1.  **架构支持**：自动识别并支持 `x86_64` (amd64) 和 `aarch64` (arm64) 架构。
+2.  **系统兼容**：支持 `systemd` (常见 Linux) 和 `OpenRC` (如 Alpine Linux) 初始化系统。
+3.  **无交互安装**：所有参数通过环境变量传入，适合脚本自动化部署。    
+                                      
+    
+---  
+snell(v2-v6):
+```bash
+bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/snell.sh)
+```
+BBR优化:
+```bash
+bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/bbr.sh)
+```

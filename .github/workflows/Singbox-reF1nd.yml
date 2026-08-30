@@ -69,7 +69,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.26.6' #stable
+          go-version: 'stable' #old-1.27.0
           check-latest: true
       - name: Fix Version
         id: extract_version

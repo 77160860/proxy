@@ -39,14 +39,6 @@ tr="自定义端口" hy="自定义端口" uuid="自定义uuid" argo="tr" agn="cf
 1.  **架构支持**：自动识别并支持 `x86_64` (amd64) 和 `aarch64` (arm64) 架构。
 2.  **系统兼容**：支持 `systemd` (常见 Linux) 和 `OpenRC` (如 Alpine Linux) 初始化系统。
 3.  **无交互安装**：所有参数通过环境变量传入，适合脚本自动化部署。    
-                                      
-    
+                                          
 ---  
-snell(v2-v6):
-```bash
-bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/snell.sh)
-```
-BBR优化:
-```bash
-bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/bbr.sh)
-```
+

@@ -53,13 +53,122 @@ check_deps() {
     fi
 }
 check_deps
+
+# 设置系统时区为 Asia/Shanghai (UTC+8)
+if command -v timedatectl >/dev/null 2>&1; then
+    ([ "$EUID" -eq 0 ] && timedatectl set-timezone Asia/Shanghai || sudo timedatectl set-timezone Asia/Shanghai) >/dev/null 2>&1 || true
+else
+    if [ -f /usr/share/zoneinfo/Asia/Shanghai ]; then
+        ([ "$EUID" -eq 0 ] && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime || sudo ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime) 2>/dev/null || true
+        ([ "$EUID" -eq 0 ] && echo "Asia/Shanghai" >/etc/timezone || sudo sh -c 'echo "Asia/Shanghai" >/etc/timezone') 2>/dev/null || true
+    elif [ -f /etc/alpine-release ]; then
+        ([ "$EUID" -eq 0 ] && apk add --no-cache tzdata >/dev/null 2>&1 || sudo apk add --no-cache tzdata >/dev/null 2>&1)
+        [ -f /usr/share/zoneinfo/Asia/Shanghai ] && ([ "$EUID" -eq 0 ] && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime || sudo ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime) 2>/dev/null || true
+    fi
+fi
+export TZ=Asia/Shanghai
+
+# ==================== 时区设置后自动执行 BBR 优化 ====================
+if [ "$EUID" -eq 0 ]; then
+    MTU="${MTU:-1500}"
+    FQ_QUANTUM="${FQ_QUANTUM:-18028}"
+    FQ_INITIAL_QUANTUM="${FQ_INITIAL_QUANTUM:-90140}"
+    TCP_WMEM_MAX="${TCP_WMEM_MAX:-33554432}"
+    TCP_RMEM_MAX="${TCP_RMEM_MAX:-33554432}"
+    TCP_LIMIT_OUTPUT_BYTES="${TCP_LIMIT_OUTPUT_BYTES:-4194304}"
+    SYSCTL_FILE="${SYSCTL_FILE:-/etc/sysctl.d/99-bbr-optimization.conf}"
+    SERVICE_FILE="${SERVICE_FILE:-/etc/systemd/system/bbr-fq-optimization.service}"
+
+    need_cmd() {
+        if ! command -v "$1" >/dev/null 2>&1; then
+            if command -v apt-get >/dev/null 2>&1; then
+                apt-get update -qy >/dev/null 2>&1 || true
+                apt-get install -y iproute2 python3 >/dev/null 2>&1 || true
+            elif command -v dnf >/dev/null 2>&1; then
+                dnf install -y iproute python3 >/dev/null 2>&1 || true
+            elif command -v yum >/dev/null 2>&1; then
+                yum install -y iproute python3 >/dev/null 2>&1 || true
+            elif command -v apk >/dev/null 2>&1; then
+                apk add --no-cache iproute2 python3 >/dev/null 2>&1 || true
+            elif command -v pacman >/dev/null 2>&1; then
+                pacman -Sy --noconfirm iproute2 python3 >/dev/null 2>&1 || true
+            fi
+        fi
+    }
+
+    detect_iface() {
+        local detected
+        detected="$(ip route show default 2>/dev/null | awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="dev") {print $(i+1); exit}}')"
+        [ -z "$detected" ] && detected="eth0"
+        echo "$detected"
+    }
+
+    write_sysctl() {
+        cat > "${SYSCTL_FILE}" <<EOF
+net.ipv4.tcp_congestion_control = bbr
+net.core.default_qdisc = fq
+net.ipv4.tcp_wmem = 4096 16384 ${TCP_WMEM_MAX}
+net.ipv4.tcp_rmem = 4096 131072 ${TCP_RMEM_MAX}
+net.ipv4.tcp_limit_output_bytes = ${TCP_LIMIT_OUTPUT_BYTES}
+EOF
+        sysctl -p "${SYSCTL_FILE}" >/dev/null 2>&1 || {
+            sysctl -w net.ipv4.tcp_congestion_control=bbr 2>/dev/null || true
+            sysctl -w net.ipv4.tcp_wmem="4096 16384 ${TCP_WMEM_MAX}" 2>/dev/null || true
+            sysctl -w net.ipv4.tcp_rmem="4096 131072 ${TCP_RMEM_MAX}" 2>/dev/null || true
+        }
+    }
+
+    apply_fq_qdisc() {
+        local iface="$1"
+        if command -v systemctl >/dev/null 2>&1; then
+            cat > "${SERVICE_FILE}" <<EOF
+[Unit]
+Description=BBR + fq qdisc optimization
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStartPre=-/usr/sbin/tc qdisc del dev ${iface} root
+ExecStart=/usr/sbin/tc qdisc add dev ${iface} root fq quantum ${FQ_QUANTUM} initial_quantum ${FQ_INITIAL_QUANTUM}
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+            systemctl daemon-reload >/dev/null 2>&1 || true
+            systemctl enable --now "$(basename "${SERVICE_FILE}")" >/dev/null 2>&1 || true
+        else
+            tc qdisc del dev "${iface}" root 2>/dev/null || true
+            tc qdisc add dev "${iface}" root fq quantum "${FQ_QUANTUM}" initial_quantum "${FQ_INITIAL_QUANTUM}" 2>/dev/null || true
+        fi
+    }
+
+    need_cmd ip
+    need_cmd tc
+    need_cmd sysctl
+
+    iface=$(detect_iface)
+    ip link set dev "${iface}" mtu "${MTU}" 2>/dev/null || true
+    write_sysctl
+    apply_fq_qdisc "$iface"
+else
+    echo "提示: 非 root 用户，跳过自动 BBR 优化"
+fi
+# ==================== 自动 BBR 优化结束 ====================
+
 [ -z "${tr+x}" ] || trp=yes
 [ -z "${hy+x}" ] || hyp=yes
 [ -z "${vr+x}" ] || vrp=yes
 [ -z "${sn+x}" ] || snp=yes
 [ -z "${ss+x}" ] || ssp=yes
 [ -z "${tu+x}" ] || tup=yes
-if [ "$1" = "list" ] || [ "$1" = "del" ] || [ "$1" = "res" ] || [ "$1" = "ups" ]; then
+
+# 只要设置 tr 就自动启用 Argo
+if [ "$trp" = "yes" ]; then
+    argo="tr"
+fi
+
+if [ "$1" = "list" ] || [ "$1" = "del" ] || [ "$1" = "res" ] || [ "$1" = "ups" ] || [ "$1" = "bbr" ]; then
     :
 elif find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -q 'sing/sing-box' || pgrep -x sing-box >/dev/null 2>&1; then
     if [ "$1" = "rep" ]; then
@@ -68,9 +177,11 @@ elif find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -
 else
     [ "$vrp" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || [ "$snp" = yes ] || [ "$ssp" = yes ] || [ "$tup" = yes ] || { echo "提示:未安装sing脚本,请在脚本前至少设置一个协议变量哦,再见!"; exit; }
 fi
+
 export uuid=${uuid:-''}; export port_tr=${tr:-''}; export port_hy2=${hy:-''}; export port_vrp=${vr:-''}; export port_snell=${sn:-''}; export port_ss=${ss:-''}; export port_tuic=${tu:-''}; export cdnym=${cdnym:-''}; export argo=${argo:-''}; export ARGO_DOMAIN=${agn:-''}; export ARGO_AUTH=${agk:-''}; export ippz=${ippz:-''}; export name=${name:-''}; export oap=${oap:-''}
 v46url="https://icanhazip.com"
 singurl="https://raw.githubusercontent.com/77160860/proxy/main/sing.sh"
+
 showmode(){
     echo "sing脚本 (Singbox内核版)"
     echo "主脚本:bash <(curl -Ls ${singurl}) 或 bash <(wget -qO- ${singurl})"
@@ -79,17 +190,22 @@ showmode(){
     echo "更新内核命令:sing ups"
     echo "重启脚本命令:sing res"
     echo "卸载脚本命令:sing del"
+    echo "BBR优化命令:sing bbr"
     echo "---------------------------------------------------------"
 }
+
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 echo "sing一键无交互脚本 (Singbox内核版)"
-echo "当前版本:26.08.18"
+echo "当前版本:26.08.28"
 echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
 hostname=$(uname -a | awk '{print $2}'); op=$(cat /etc/redhat-release 2>/dev/null || cat /etc/os-release 2>/dev/null | grep -i pretty_name | cut -d \" -f2); case $(uname -m) in aarch64) cpu=arm64;; x86_64) cpu=amd64;; *) echo "目前脚本不支持$(uname -m)架构" && exit; esac; mkdir -p "$HOME/sing"
+
 v4v6(){
     v4=$( (curl -s4m5 -k "$v46url" 2>/dev/null) || (wget -4 -qO- --tries=2 "$v46url" 2>/dev/null) )
     v6=$( (curl -s6m5 -k "$v46url" 2>/dev/null) || (wget -6 -qO- --tries=2 "$v46url" 2>/dev/null) )
 }
+
 port_in_use(){
     local p="$1"
     [ -z "$p" ] && return 1
@@ -103,6 +219,7 @@ port_in_use(){
     fi
     return 1
 }
+
 get_free_port(){
     local p
     while true; do
@@ -113,6 +230,7 @@ get_free_port(){
         fi
     done
 }
+
 upsingbox(){
     url="https://github.com/77160860/proxy/releases/download/singbox/sing-box-$cpu"
     out="$HOME/sing/sing-box"
@@ -121,6 +239,7 @@ upsingbox(){
     sbcore=$("$HOME/sing/sing-box" version 2>/dev/null | awk '/version/{print $NF}')
     echo "已安装Singbox内核:$sbcore"
 }
+
 insuuid(){
     if [ ! -e "$HOME/sing/sing-box" ]; then upsingbox; fi
     if [ -z "$uuid" ] && [ ! -e "$HOME/sing/uuid" ]; then
@@ -132,6 +251,7 @@ insuuid(){
     uuid=$(cat "$HOME/sing/uuid")
     echo "UUID密码:$uuid"
 }
+
 installsb(){
     echo; echo "=========启用Singbox内核========="
     if [ ! -e "$HOME/sing/sing-box" ]; then upsingbox; fi
@@ -143,6 +263,7 @@ EOF
     insuuid
     openssl ecparam -genkey -name prime256v1 -out "$HOME/sing/private.key" >/dev/null 2>&1
     openssl req -new -x509 -days 36500 -key "$HOME/sing/private.key" -out "$HOME/sing/cert.pem" -subj "/CN=www.icloud.com" >/dev/null 2>&1
+
     if [ -n "$hyp" ]; then
         if [ "$port_hy2" = "yes" ] || [[ ! "$port_hy2" =~ ^[0-9]+$ ]]; then port_hy2=""; fi
         if [ -n "$port_hy2" ]; then
@@ -159,6 +280,7 @@ EOF
 {"type": "hysteria2", "tag": "hy2", "listen": "::", "listen_port": ${port_hy2},"users": [ { "password": "${uuid}" } ],"tls": { "enabled": true, "certificate_path": "$HOME/sing/cert.pem", "key_path": "$HOME/sing/private.key" }},
 EOF
     fi
+
     if [ -n "$snp" ]; then
         if [ "$port_snell" = "yes" ] || [[ ! "$port_snell" =~ ^[0-9]+$ ]]; then port_snell=""; fi
         if [ -n "$port_snell" ]; then
@@ -177,6 +299,7 @@ EOF
 {"type": "snell", "tag": "snell", "listen": "::", "listen_port": ${port_snell}, "psk": "${snell_psk}", "tcp_fast_open": true, "version": 6},
 EOF
     fi
+
     if [ -n "$trp" ]; then
         if [ "$port_tr" = "yes" ] || [[ ! "$port_tr" =~ ^[0-9]+$ ]]; then port_tr=""; fi
         if [ -n "$port_tr" ]; then
@@ -193,6 +316,7 @@ EOF
 {"type": "trojan", "tag": "trojan-ws", "listen": "::", "listen_port": ${port_tr}, "tcp_fast_open": true, "users": [ { "password": "${uuid}" } ],"transport": { "type": "ws", "path": "/tr" }},
 EOF
     fi
+
     if [ -n "$vrp" ]; then
         if [ "$port_vrp" = "yes" ] || [[ ! "$port_vrp" =~ ^[0-9]+$ ]]; then port_vrp=""; fi
         if [ -n "$port_vrp" ]; then
@@ -212,6 +336,7 @@ EOF
 {"type": "vless", "tag": "vless-reality", "listen": "::", "listen_port": ${port_vrp}, "tcp_fast_open": true, "users": [{"uuid": "${uuid}","flow": "xtls-rprx-vision"}],"tls": {"enabled": true,"server_name": "www.ua.edu","reality": {"enabled": true,"handshake": {"server": "www.ua.edu","server_port": 443},"private_key": "${private_key}","short_id": ["${short_id}"]}}},
 EOF
     fi
+
     if [ -n "$ssp" ]; then
         if [ "$port_ss" = "yes" ] || [[ ! "$port_ss" =~ ^[0-9]+$ ]]; then port_ss=""; fi
         if [ -n "$port_ss" ]; then
@@ -233,6 +358,7 @@ EOF
 {"type": "shadowsocks", "tag": "ss-in", "listen": "127.0.0.1", "listen_port": 0, "network": "tcp", "method": "2022-blake3-aes-128-gcm", "password": "${ss_password}", "multiplex": { "enabled": true } },
 EOF
     fi
+
     if [ -n "$tup" ]; then
         if [ "$port_tuic" = "yes" ] || [[ ! "$port_tuic" =~ ^[0-9]+$ ]]; then port_tuic=""; fi
         if [ -n "$port_tuic" ]; then
@@ -250,6 +376,7 @@ EOF
 EOF
     fi
 }
+
 sbbout(){
     if [ -e "$HOME/sing/sb.json" ]; then
         sed -i '${s/,\s*$//}' "$HOME/sing/sb.json"
@@ -294,9 +421,10 @@ EOF
         fi
     fi
 }
+
 ins(){
     installsb; sbbout
-    if [ "$argo" = "tr" ] && [ "$trp" = "yes" ]; then
+    if [ "$trp" = "yes" ]; then
         echo; echo "=========启用Cloudflared-argo内核========="
         if [ ! -e "$HOME/sing/cloudflared" ]; then
             argocore=$({ curl -Ls https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared || wget -qO- https://data.jsdelivr.com/v1/package/gh/cloudflare/cloudflared; } | grep -Eo '"[0-9.]+"' | sed -n 1p | tr -d '",')
@@ -351,12 +479,14 @@ EOF
         echo "sing脚本进程未启动,安装失败" && exit
     fi
 }
+
 singstatus(){
     echo "=========当前内核运行状态========="
     procs=$(find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null)
     if echo "$procs" | grep -Eq 'sing/sing-box' || pgrep -x sing-box >/dev/null 2>&1; then echo "Singbox (版本$("$HOME/sing/sing-box" version 2>/dev/null | awk '/version/{print $NF}')):运行中"; else echo "Sing-box:未启用"; fi
     if echo "$procs" | grep -Eq 'sing/cloudflared' || pgrep -x cloudflared >/dev/null 2>&1; then echo "Argo (版本$("$HOME/sing/cloudflared" version 2>/dev/null | awk '{print $3}')):运行中"; else echo "Argo:未启用"; fi
 }
+
 cip(){
     ipbest(){ serip=$((curl -s4m5 -k "$v46url" 2>/dev/null)|| (wget -4 -qO- --tries=2 "$v46url" 2>/dev/null)|| (curl -s6m5 -k "$v46url" 2>/dev/null)|| (wget -6 -qO- --tries=2 "$v46url" 2>/dev/null)); serip=$(echo "$serip"|tr -d '\r\n'|head -n1); if echo "$serip"|grep -q ':'; then server_ip="[$serip]"; else server_ip="$serip"; fi; echo "$server_ip" > "$HOME/sing/server_ip.log"; }
     ipchange(){
@@ -412,6 +542,7 @@ EOF
     fi
     echo; echo "聚合节点: cat $HOME/sing/jh.txt"; echo "========================================================="; echo "相关快捷方式如下:"; showmode
 }
+
 cleandel(){
     if pidof systemd >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
         for svc in sb argo; do systemctl stop "$svc" >/dev/null 2>&1; systemctl disable "$svc" >/dev/null 2>&1; done
@@ -425,6 +556,7 @@ cleandel(){
     kill -9 $(pgrep -x cloudflared 2>/dev/null) $(pgrep -x sing-box 2>/dev/null) >/dev/null 2>&1
     rm -f /usr/local/bin/sing "$HOME/bin/sing"
 }
+
 sbrestart(){
     kill -15 $(pgrep -x sing-box 2>/dev/null) >/dev/null 2>&1
     if pidof systemd >/dev/null 2>&1; then
@@ -435,6 +567,7 @@ sbrestart(){
         nohup "$HOME/sing/sing-box" run -c "$HOME/sing/sb.json" >/dev/null 2>&1 &
     fi
 }
+
 argorestart(){
     if [ -f "/etc/systemd/system/argo.service" ]; then
         kill -15 $(pgrep -x cloudflared 2>/dev/null) >/dev/null 2>&1
@@ -451,11 +584,39 @@ argorestart(){
         fi
     fi
 }
+
+# ==================== 命令处理 ====================
 if [ "$1" = "del" ]; then cleandel; rm -rf "$HOME/sing"; echo "卸载完成"; showmode; exit; fi
 if [ "$1" = "rep" ]; then cleandel; rm -rf "$HOME/sing"/{sb.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name,port_tr,port_vrp,port_snell,port_ss,port_tuic,reality.key,short_id,uuid,vlvm,server_ip.log,snell_psk,st_password,ss_password}; echo "重置完成..."; sleep 2; fi
 if [ "$1" = "list" ]; then cip; exit; fi
 if [ "$1" = "ups" ]; then kill -15 $(pgrep -x sing-box 2>/dev/null); upsingbox && sbrestart && echo "Sing-box内核更新完成" && sleep 2 && cip; exit; fi
 if [ "$1" = "res" ]; then sbrestart; argorestart; sleep 5 && echo "重启完成" && sleep 3 && cip; exit; fi
+
+# BBR 手动命令
+if [ "$1" = "bbr" ]; then
+    set -Eeuo pipefail
+    MTU="${MTU:-1500}"
+    FQ_QUANTUM="${FQ_QUANTUM:-18028}"
+    FQ_INITIAL_QUANTUM="${FQ_INITIAL_QUANTUM:-90140}"
+    TCP_WMEM_MAX="${TCP_WMEM_MAX:-33554432}"
+    TCP_RMEM_MAX="${TCP_RMEM_MAX:-33554432}"
+    TCP_LIMIT_OUTPUT_BYTES="${TCP_LIMIT_OUTPUT_BYTES:-4194304}"
+    SYSCTL_FILE="${SYSCTL_FILE:-/etc/sysctl.d/99-bbr-optimization.conf}"
+    SERVICE_FILE="${SERVICE_FILE:-/etc/systemd/system/bbr-fq-optimization.service}"
+
+    need_root() { if [[ "${EUID}" -ne 0 ]]; then echo "错误：请使用 root 权限运行 sing bbr"; exit 1; fi; }
+    need_root
+
+    need_cmd ip; need_cmd tc; need_cmd sysctl
+    iface=$(detect_iface)
+    echo "正在应用 BBR 优化（接口: $iface）..."
+    ip link set dev "${iface}" mtu "${MTU}" 2>/dev/null || true
+    write_sysctl
+    apply_fq_qdisc "$iface"
+    echo "BBR 优化已完成"
+    exit
+fi
+
 if ! pgrep -x sing-box >/dev/null 2>&1 && [ "$1" != "rep" ]; then cleandel; fi
 if ! pgrep -x sing-box >/dev/null 2>&1 || [ "$1" = "rep" ]; then
     if [ -z "$( (curl -s4m5 -k "$v46url") || (wget -4 -qO- --tries=2 "$v46url") )" ]; then echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a00:1098:2c::1" > /etc/resolv.conf; fi

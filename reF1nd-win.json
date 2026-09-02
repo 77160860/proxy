@@ -14,15 +14,13 @@
   "dns": {
     "servers": [
       {"tag": "local", "type": "local"},
-      {"tag": "hosts", "type": "hosts", "predefined": {"dns.alidns.com": ["223.5.5.5", "223.6.6.6"], "doh.pub": ["1.12.12.12", "120.53.53.53"]}},
-      {"tag": "alidns", "type": "https", "server": "dns.alidns.com", "domain_resolver": "hosts"},
-      {"tag": "dnspod", "type": "https", "server": "doh.pub", "domain_resolver": "hosts"},
+      {"tag": "alidns", "type": "https", "server": "223.5.5.5", "tls": {"server_name": "dns.alidns.com"}},
+      {"tag": "dnspod", "type": "https", "server": "1.12.12.12", "tls": {"server_name": "doh.pub"}},
       {"tag": "public", "type": "group", "servers": ["alidns", "dnspod"]},
       {"tag": "google", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
     ],
     "rules": [
-      {"preferred_by": "hosts", "server": "hosts"},
       {"rule_set": "private", "server": "local"},
       {"clash_mode": "direct", "server": "public"},
       {"query_type": "HTTPS", "action": "reject"},

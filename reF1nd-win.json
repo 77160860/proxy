@@ -63,14 +63,14 @@
       {"rule_set": "me", "outbound": "🐸 Direct"},
       {"rule_set": "apple", "outbound": "🐸 Direct"},
       {"rule_set": "micro", "outbound": "🐸 Direct"},
-      {"rule_set": "proxy", "protocol": ["quic", "stun"], "action": "reject"},
+      {"rule_set": "proxy", "protocol": ["quic", "stun"], "action": "reject", "no_drop": true},
       {"rule_set": "proxy", "outbound": "🐝 Proxy"},
       {"rule_set": "cn", "outbound": "🐸 Direct"},
       {"action": "resolve", "match_only": true},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"rule_set": "tgip", "outbound": "🐝 Proxy"},
       {"rule_set": "cnip", "outbound": "🐸 Direct"},
-      {"protocol": ["quic", "stun"], "action": "reject"}
+      {"protocol": ["quic", "stun"], "action": "reject", "no_drop": true}
     ],
     "rule_set": [
       {"tag": ["me", "cn", "tgip", "cnip", "apple", "micro", "proxy", "private", "adblock"],

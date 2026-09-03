@@ -65,7 +65,7 @@
       {"rule_set": "apple", "outbound": "🐸 Direct"},
       {"rule_set": "micro", "outbound": "🐸 Direct"},
       {"rule_set": "cn", "outbound": "🐸 Direct"},
-      {"protocol": ["quic", "stun"], "action": "reject"},
+      {"protocol": ["quic", "stun"], "action": "reject", "no_drop": true},
       {"rule_set": "proxy", "outbound": "🐝 Proxy"},
       {"rule_set": "tgip", "outbound": "🐝 Proxy"}
     ],

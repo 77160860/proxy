@@ -20,9 +20,9 @@ hy=yes tu=yes sn=yes vr=yes ss=yes bash <(curl -Ls https://raw.githubusercontent
 ```
 #### 示例 B：隧道协议组合安装 (手动分配端口及uuid)
 ```bash
-tr="自定义端口" hy="自定义端口" uuid="自定义uuid" argo="tr" agn="cf域名" agk="隧道token" bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/sing.sh)
+tr="自定义端口" hy="自定义端口" uuid="自定义uuid" agn="cf域名" agk="隧道token" bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/sing.sh)
 ```
-*注：变量赋值为 yes 表示启用并随机分配端口。使用argo才需要加入argo、agn、agk配置字段 *
+*注：变量赋值为 yes 表示启用并随机分配端口。使用argo固定隧道才需要加入agn、agk配置字段 *
 ### 3. 管理命令
 
 脚本安装完成后，可以直接使用 `sing` 命令进行管理。

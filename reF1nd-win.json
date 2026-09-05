@@ -41,7 +41,7 @@
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest", "🍉 Balance"]},
-    {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true, "tolerance": 30},
+    {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true},
     {"tag": "🍉 Balance", "type": "loadbalance", "use_all_providers": true, "strategy": "sticky-sessions"},
     {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"]},
     {"tag": "GLOBAL", "type": "selector", "use_all_providers": true, "outbounds": ["🐝 Proxy", "🚀 Urltest"]},

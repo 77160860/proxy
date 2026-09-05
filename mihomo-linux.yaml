@@ -85,7 +85,7 @@ proxy-groups:
     type: url-test
     url: http://www.gstatic.com/generate_204
     interval: 300
-    tolerance: 30
+    tolerance: 50
     include-all: true
     icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/Urltest.png
 

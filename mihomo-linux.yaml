@@ -71,8 +71,8 @@ dns:
     - 223.5.5.5
     - 119.29.29.29
   nameserver:
-    - https://dns.alidns.com/dns-query#disable-qtype-65=true
-    - https://doh.pub/dns-query#disable-qtype-65=true
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
 
 proxy-groups:
   - name: Proxy
@@ -116,7 +116,7 @@ rules:
   - RULE-SET,apple,DIRECT
   - RULE-SET,micro,DIRECT
   - RULE-SET,cn,DIRECT
-  - OR,((AND,((NETWORK,UDP),(DST-PORT,443))),(DST-PORT,3478/5349)),REJECT
+  - AND,((NETWORK,UDP),(DST-PORT,443)),REJECT
   - RULE-SET,proxy,Proxy
   - RULE-SET,tgip,Proxy
   - MATCH,Final

@@ -17,27 +17,11 @@ keep-alive-interval: 75
 external-ui: ui
 external-ui-name: zashboard
 external-controller: 0.0.0.0:9090
-external-ui-url: "https://gh-proxy.org/github.com/Zephyruso/zashboard/releases/download/v3.21.0/dist-no-fonts.zip"
+external-ui-url: "https://gh-proxy.org/github.com/Zephyruso/zashboard/releases/latest/download/dist-no-fonts.zip"
 
 profile:
   store-selected: true
   store-fake-ip: true
-
-sniffer:  
-  enable: true  
-  force-dns-mapping: true  
-  parse-pure-ip: true  
-  sniff:  
-    HTTP:  
-      ports: [80, 8080-8880]  
-      override-destination: true  
-    TLS:  
-      ports: [443, 8443]  
-    QUIC:  
-      ports: [443, 8443]  
-  skip-domain:  
-    - "Mijia Cloud"  
-    - "+.push.apple.com"
 
 tun:
   enable: true
@@ -50,7 +34,7 @@ tun:
   auto-redirect: true
   auto-detect-interface: true
   route-exclude-address-set: [cnip,pvip]
-
+  
 dns:
   enable: true
   ipv6: true
@@ -62,7 +46,7 @@ dns:
   fake-ip-filter:
     - 'rule-set:private'
     - 'rule-set:me'
-    - 'rule-set:apple'  
+    - 'rule-set:apple'
     - 'rule-set:micro'
     - 'rule-set:cn'
   nameserver-policy:
@@ -115,9 +99,8 @@ rules:
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT
   - RULE-SET,micro,DIRECT
-  - RULE-SET,cn,DIRECT
-  - AND,((NETWORK,UDP),(DST-PORT,443)),REJECT
   - RULE-SET,proxy,Proxy
+  - RULE-SET,cn,DIRECT
   - RULE-SET,tgip,Proxy
   - MATCH,Final
 
@@ -132,12 +115,12 @@ rule-providers:
   cn:
     <<: *domain
     url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/cn.mrs"
-  pvip:
-    <<: *ip
-    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/pvip.mrs"
   cnip:
     <<: *ip
     url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/cnip.mrs"
+  pvip:
+    <<: *ip
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/pvip.mrs"
   tgip:
     <<: *ip
     url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/tgip.mrs"

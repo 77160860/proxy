@@ -8,7 +8,8 @@
       "external_controller": "127.0.0.1:9090",
       "external_ui": "ui",
       "external_ui_download_url": "https://gh-proxy.org/github.com/Zephyruso/zashboard/releases/download/v3.21.0/dist-no-fonts.zip",
-      "external_ui_http_client": "Direct"}
+      "external_ui_http_client": "Direct"
+    }
   },
   "providers": [{"type": "remote", "tag": "🌈", "url": "订阅链接"}],
   "dns": {
@@ -53,8 +54,7 @@
     "default_domain_match_strategy": "prefer_fqdn",
     "default_domain_resolver": {"server": "public"},
     "rules": [
-      {"action": "sniff"},
-      {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},
+      {"port": 53, "action": "hijack-dns"},
       {"port": 853, "action": "reject", "no_drop": true},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
@@ -62,15 +62,16 @@
       {"rule_set": "me", "outbound": "🐸 Direct"},
       {"rule_set": "apple", "outbound": "🐸 Direct"},
       {"rule_set": "micro", "outbound": "🐸 Direct"},
-      {"rule_set": "cn", "outbound": "🐸 Direct"},
-      {"rule_set": "cnip", "outbound": "🐸 Direct"},
-      {"protocol": "quic", "action": "reject", "no_drop": true},
       {"rule_set": "proxy", "outbound": "🐝 Proxy"},
-      {"rule_set": "tgip", "outbound": "🐝 Proxy"}
+      {"rule_set": "cn", "outbound": "🐸 Direct"},
+      {"action": "resolve", "match_only": true},
+      {"ip_is_private": true, "outbound": "🐸 Direct"},
+      {"rule_set": "tgip", "outbound": "🐝 Proxy"},
+      {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [
       {"tag": ["me", "cn", "tgip", "cnip", "apple", "micro", "proxy", "private", "adblock"],
-       "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/{tag}.srs",
-       "type": "remote", "format": "binary"}]
+      "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/{tag}.srs",
+      "type": "remote", "format": "binary"}]
   }
 }

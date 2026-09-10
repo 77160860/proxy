@@ -11,7 +11,6 @@ log-level: error
 bind-address: "*"
 unified-delay: true
 tcp-concurrent: true
-find-process-mode: off
 keep-alive-idle: 300
 keep-alive-interval: 75
 
@@ -23,22 +22,6 @@ external-ui-url: "https://gh-proxy.org/github.com/Zephyruso/zashboard/releases/d
 profile:
   store-selected: true
   store-fake-ip: true
-
-sniffer:  
-  enable: true  
-  force-dns-mapping: true  
-  parse-pure-ip: true  
-  sniff:  
-    HTTP:  
-      ports: [80, 8080-8880]  
-      override-destination: true  
-    TLS:  
-      ports: [443, 8443]  
-    QUIC:  
-      ports: [443, 8443]  
-  skip-domain:  
-    - "Mijia Cloud"  
-    - "+.push.apple.com"
 
 tun:
   enable: true
@@ -61,7 +44,7 @@ dns:
   fake-ip-filter:
     - 'rule-set:private'
     - 'rule-set:me'
-    - 'rule-set:apple'  
+    - 'rule-set:apple'
     - 'rule-set:micro'
     - 'rule-set:cn'
   nameserver-policy:
@@ -72,7 +55,6 @@ dns:
   nameserver:
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
-
 proxy-groups:
   - name: Proxy
     type: select
@@ -109,16 +91,16 @@ proxy-groups:
 
 rules:
   - DST-PORT,853,REJECT
+  - RULE-SET,pvip,DIRECT,no-resolve
   - RULE-SET,private,DIRECT
   - RULE-SET,adblock,REJECT
   - RULE-SET,me,DIRECT
   - RULE-SET,apple,DIRECT
   - RULE-SET,micro,DIRECT
-  - RULE-SET,cn,DIRECT
-  - RULE-SET,cnip,DIRECT,no-resolve
-  - AND,((NETWORK,UDP),(DST-PORT,443)),REJECT
   - RULE-SET,proxy,Proxy
+  - RULE-SET,cn,DIRECT
   - RULE-SET,tgip,Proxy
+  - RULE-SET,cnip,DIRECT
   - MATCH,Final
 
 rule-anchor:
@@ -135,6 +117,9 @@ rule-providers:
   cnip:
     <<: *ip
     url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/cnip.mrs"
+  pvip:
+    <<: *ip
+    url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/pvip.mrs"
   tgip:
     <<: *ip
     url: "https://gh-proxy.org/github.com/77160860/rule/raw/main/mihomo/tgip.mrs"

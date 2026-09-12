@@ -55,7 +55,7 @@
     "default_domain_match_strategy": "prefer_fqdn",
     "default_domain_resolver": {"server": "public"},
     "rules": [
-      {"preferred_by": "🐲 Bridge", "rule_set": "cnip", "outbound": "🐲 Bridge"},
+      {"rule_set": "cnip", "outbound": "🐲 Bridge"},
       {"action": "sniff"},
       {"port": 53, "action": "hijack-dns"},
       {"port": 853, "action": "reject", "no_drop": true},

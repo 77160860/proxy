@@ -1,0 +1,154 @@
+name: Build Mihomo Core
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: '选择编译分支'
+        type: choice
+        required: true
+        default: 'Meta'
+        options:
+          - Meta
+          - Alpha
+      custom_version:
+        description: '输入版本号（留空则自动获取）'
+        type: string
+        required: false
+        default: ''
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Prepare context
+        id: prep
+        run: |
+          UPSTREAM_REPO="https://github.com/MetaCubeX/mihomo.git"
+          REF="${{ github.event.inputs.source_ref }}"
+          if [ "$REF" = "Meta" ]; then
+            BRANCH="Meta"
+          else
+            BRANCH="Alpha"
+          fi
+          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+          echo "UPSTREAM_REPO=$UPSTREAM_REPO" >> $GITHUB_ENV
+
+      - name: Checkout upstream with full history
+        uses: actions/checkout@v4
+        with:
+          repository: MetaCubeX/mihomo
+          ref: ${{ env.BRANCH }}
+          fetch-depth: 0 # 必须获取完整历史才能正确识别 git tag 版本号
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+          check-latest: true
+
+      - name: Fix Version
+        id: extract_version
+        run: |
+          INPUT_VER="${{ github.event.inputs.custom_version }}"
+          if [ -n "$INPUT_VER" ]; then
+            FINAL_VERSION="$INPUT_VER"
+          else
+            # 使用 git describe 获取最近的 tag（例如 v1.19.31），若处于 alpha 则会自动带出提交数和 commit hash
+            RAW_VERSION=$(git describe --tags --always --match "v*" || echo "v1.19.0")
+            FINAL_VERSION="${RAW_VERSION#v}"
+            echo "获取版本号: $RAW_VERSION -> $FINAL_VERSION"
+          fi
+          echo "VERSION=$FINAL_VERSION" >> $GITHUB_ENV
+          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Define build metadata
+        id: meta
+        run: |
+          # 核心精简参数：去掉 gVisor，去除三大叠加网，开启低内存优化
+          TAGS="no_tailscale,no_zerotier,no_easytier,no_fake_tcp,with_low_memory"
+          
+          echo "BUILD_TAGS=$TAGS" >> $GITHUB_ENV
+          echo "OUT_LINUX_ARM64=mihomo-linux-arm64" >> $GITHUB_ENV
+          echo "OUT_LINUX_AMD64=mihomo-linux-amd64" >> $GITHUB_ENV
+          echo "OUT_WIN_ARM64=mihomo-windows-arm64.exe" >> $GITHUB_ENV
+          echo "OUT_WIN_AMD64=mihomo-windows-amd64.exe" >> $GITHUB_ENV
+          echo "TAG=mihomo-slim" >> $GITHUB_ENV
+
+      - name: Build Mihomo (Linux arm64)
+        env:
+          GOOS: linux
+          GOARCH: arm64
+          CGO_ENABLED: "0"
+        run: |
+          go build -trimpath \
+            -tags="${BUILD_TAGS}" \
+            -ldflags="-s -w -buildid= -X github.com/metacubex/mihomo/constant.Version=${VERSION}" \
+            -o "${OUT_LINUX_ARM64}"
+
+      - name: Build Mihomo (Linux amd64)
+        env:
+          GOOS: linux
+          GOARCH: amd64
+          GOAMD64: v3
+          CGO_ENABLED: "0"
+        run: |
+          go build -trimpath \
+            -tags="${BUILD_TAGS}" \
+            -ldflags="-s -w -buildid= -X github.com/metacubex/mihomo/constant.Version=${VERSION}" \
+            -o "${OUT_LINUX_AMD64}"
+
+      - name: Build Mihomo (Windows arm64)
+        env:
+          GOOS: windows
+          GOARCH: arm64
+          CGO_ENABLED: "0"
+        run: |
+          go build -trimpath \
+            -tags="${BUILD_TAGS}" \
+            -ldflags="-s -w -buildid= -X github.com/metacubex/mihomo/constant.Version=${VERSION}" \
+            -o "${OUT_WIN_ARM64}"
+
+      - name: Build Mihomo (Windows amd64)
+        env:
+          GOOS: windows
+          GOARCH: amd64
+          GOAMD64: v3
+          CGO_ENABLED: "0"
+        run: |
+          go build -trimpath \
+            -tags="${BUILD_TAGS}" \
+            -ldflags="-s -w -buildid= -X github.com/metacubex/mihomo/constant.Version=${VERSION}" \
+            -o "${OUT_WIN_AMD64}"
+
+      - name: Verify artifacts
+        run: |
+          ls -lh mihomo-*
+
+      - name: Cleanup old release
+        uses: dev-drprasad/delete-tag-and-release@v1.1
+        with:
+          tag_name: ${{ env.TAG }}
+          delete_release: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: Mihomo lite (${{ env.VERSION }})
+          body: |
+            Source: ${{ env.BRANCH }}
+            Version: ${{ env.VERSION }}
+            Commit: ${{ env.SHORT_SHA }}
+            Platforms: Linux (arm64/amd64), Windows (arm64/amd64)
+            Build Tags: ${{ env.BUILD_TAGS }}
+          prerelease: false
+          make_latest: true
+          files: |
+            ${{ env.OUT_LINUX_ARM64 }}
+            ${{ env.OUT_LINUX_AMD64 }}
+            ${{ env.OUT_WIN_ARM64 }}
+            ${{ env.OUT_WIN_AMD64 }}

@@ -75,7 +75,7 @@ jobs:
           echo "OUT_LINUX_AMD64=mihomo-linux-amd64" >> $GITHUB_ENV
           echo "OUT_WIN_ARM64=mihomo-windows-arm64.exe" >> $GITHUB_ENV
           echo "OUT_WIN_AMD64=mihomo-windows-amd64.exe" >> $GITHUB_ENV
-          echo "TAG=mihomo-slim" >> $GITHUB_ENV
+          echo "TAG=mihomo" >> $GITHUB_ENV
 
       - name: Build Mihomo (Linux arm64)
         env:

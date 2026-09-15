@@ -13,10 +13,10 @@ on:
         description: '选择编译分支'
         type: choice
         required: true
-        default: 'reF1nd-stable'
+        default: 'reF1nd-testing'
         options:
-          - reF1nd-testing
           - reF1nd-stable
+          - reF1nd-testing
           - reF1nd-testing-next
       custom_version:
         description: '输入版本号（留空则自动获取）'

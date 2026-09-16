@@ -33,11 +33,12 @@ jobs:
         id: prep
         run: |
           UPSTREAM_REPO="https://github.com/MetaCubeX/mihomo.git"
-          REF="${{ github.event.inputs.source_ref }}"
-          if [ "$REF" = "Meta" ]; then
-            BRANCH="Meta"
-          else
+          REF="${{ github.event.inputs.source_ref }}"     
+          # 只有手动指定为 Alpha 时才走 Alpha，默认走 Meta
+          if [ "$REF" = "Alpha" ]; then
             BRANCH="Alpha"
+          else
+            BRANCH="Meta"
           fi
           echo "BRANCH=$BRANCH" >> $GITHUB_ENV
           echo "UPSTREAM_REPO=$UPSTREAM_REPO" >> $GITHUB_ENV

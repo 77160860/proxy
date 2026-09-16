@@ -48,7 +48,7 @@ jobs:
         with:
           repository: MetaCubeX/mihomo
           ref: ${{ env.BRANCH }}
-          fetch-depth: 0 # 必须获取完整历史才能正确识别 git tag 版本号
+          fetch-depth: 0
 
       - name: Setup Go
         uses: actions/setup-go@v5
@@ -63,9 +63,12 @@ jobs:
           if [ -n "$INPUT_VER" ]; then
             FINAL_VERSION="$INPUT_VER"
           else
-            # 使用 git describe 获取最近的 tag（例如 v1.19.31），若处于 alpha 则会自动带出提交数和 commit hash
             RAW_VERSION=$(git describe --tags --always --match "v*" || echo "v1.19.0")
             FINAL_VERSION="${RAW_VERSION#v}"
+            # 若包含提交偏移量，把第一个 '-' 后面的全部替换为 'alpha'
+            if [[ "$FINAL_VERSION" == *-* ]]; then
+              FINAL_VERSION="${FINAL_VERSION%%-*}-alpha"
+            fi
             echo "获取版本号: $RAW_VERSION -> $FINAL_VERSION"
           fi
           echo "VERSION=$FINAL_VERSION" >> $GITHUB_ENV

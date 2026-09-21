@@ -58,10 +58,6 @@ dns:
   fake-ip-filter-mode: blacklist
   fake-ip-filter:
     - 'rule-set:private'
-    - 'rule-set:me'
-    - 'rule-set:apple'
-    - 'rule-set:micro'
-    - 'rule-set:cn'
   nameserver-policy:
     'rule-set:private': system
   default-nameserver:

@@ -62,7 +62,6 @@
       {"rule_set": "micro", "outbound": "🐸 Direct"},
       {"rule_set": "proxy", "outbound": "🐝 Proxy"},
       {"rule_set": "cn", "outbound": "🐸 Direct"},
-      {"action": "sniff", "sniffer": ["tls", "http", "quic"]},
       {"action": "resolve", "match_only": true},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"rule_set": "tgip", "outbound": "🐝 Proxy"}

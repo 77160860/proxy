@@ -19,10 +19,6 @@ external-ui-name: zashboard
 external-controller: 127.0.0.1:9090
 external-ui-url: "https://gh-proxy.org/github.com/Zephyruso/zashboard/releases/download/v3.21.0/dist-no-fonts.zip"
 
-profile:
-  store-selected: true
-  store-fake-ip: true
-
 tun:
   enable: true
   stack: mips
@@ -42,6 +38,10 @@ dns:
   fake-ip-range6: fc00::/18
   fake-ip-filter-mode: blacklist
   fake-ip-filter:
+    - 'rule-set:cn'
+    - 'rule-set:me'
+    - 'rule-set:apple'
+    - 'rule-set:micro'
     - 'rule-set:private'
   nameserver-policy:
     'rule-set:private': system
@@ -60,7 +60,7 @@ proxy-groups:
 
   - name: Urltest
     type: url-test
-    url: http://www.gstatic.com/generate_204
+    url: http://cp.cloudflare.com/generate_204
     interval: 300
     tolerance: 50
     include-all: true
@@ -68,7 +68,7 @@ proxy-groups:
 
   - name: Balance
     type: load-balance
-    url: http://www.gstatic.com/generate_204
+    url: http://cp.cloudflare.com/generate_204
     interval: 300
     strategy: sticky-sessions
     include-all: true
@@ -82,7 +82,6 @@ proxy-groups:
   - name: GLOBAL
     type: select
     include-all: true
-    proxies: [Proxy, Urltest]
     icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/Skicat.png
 
 rules:

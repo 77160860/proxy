@@ -14,8 +14,8 @@
   "dns": {
     "servers": [
       {"tag": "local", "type": "local"},
-      {"tag": "alidns", "type": "https", "server": "223.5.5.5", "tls": {"server_name": "dns.alidns.com"}},
-      {"tag": "dnspod", "type": "https", "server": "1.12.12.12", "tls": {"server_name": "doh.pub"}},
+      {"tag": "alidns", "type": "https", "server": "223.5.5.5"},
+      {"tag": "dnspod", "type": "https", "server": "1.12.12.12"},
       {"tag": "public", "type": "group", "servers": ["alidns", "dnspod"]},
       {"tag": "google", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
@@ -25,8 +25,7 @@
       {"clash_mode": "direct", "server": "public"},
       {"clash_mode": "global", "query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1},
       {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
-      {"query_type": ["A", "AAAA"], "action": "evaluate", "server": "public"},
-      {"match_response": true, "rule_set": "cnip", "action": "respond"},
+      {"rule_set": ["cn", "me", "apple", "micro"], "server": "public"}, 
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "google",
@@ -39,10 +38,10 @@
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest", "🍉 Balance"]},
-    {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true},
+    {"tag": "🚀 Urltest", "type": "urltest", "use_all_providers": true, "url": "http://cp.cloudflare.com/generate_204"},
     {"tag": "🍉 Balance", "type": "loadbalance", "use_all_providers": true, "strategy": "sticky-sessions"},
     {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"]},
-    {"tag": "GLOBAL", "type": "selector", "use_all_providers": true, "outbounds": ["🐝 Proxy", "🚀 Urltest"]},
+    {"tag": "GLOBAL", "type": "selector", "use_all_providers": true},
     {"tag": "🐸 Direct", "type": "direct"}
   ],
   "route": {
@@ -64,6 +63,7 @@
       {"rule_set": "cn", "outbound": "🐸 Direct"},
       {"action": "resolve", "match_only": true},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
+      {"rule_set": "cnip", "outbound": "🐸 Direct"},
       {"rule_set": "tgip", "outbound": "🐝 Proxy"}
     ],
     "rule_set": [

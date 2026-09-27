@@ -93,6 +93,7 @@ proxy-groups:
 
 rules:
   - DST-PORT,853,REJECT
+  - RULE-SET,pvip,DIRECT,no-resolve
   - RULE-SET,private,DIRECT
   - RULE-SET,adblock,REJECT
   - RULE-SET,me,DIRECT

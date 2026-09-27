@@ -30,7 +30,6 @@ tun:
     - "any:53"
     - "tcp://any:53"
   auto-route: true
-  strict-route: true
   auto-redirect: true
   auto-detect-interface: true
   route-exclude-address-set: [cnip,pvip]

@@ -44,6 +44,10 @@ dns:
   fake-ip-range6: fc00::/18
   fake-ip-filter-mode: blacklist
   fake-ip-filter:
+    - 'rule-set:cn'
+    - 'rule-set:me'
+    - 'rule-set:apple'
+    - 'rule-set:micro'
     - 'rule-set:private'
   nameserver-policy:
     'rule-set:private': system
@@ -63,7 +67,7 @@ proxy-groups:
 
   - name: Urltest
     type: url-test
-    url: http://www.gstatic.com/generate_204
+    url: http://cp.cloudflare.com/generate_204
     interval: 300
     tolerance: 50
     include-all: true
@@ -71,7 +75,7 @@ proxy-groups:
 
   - name: Balance
     type: load-balance
-    url: http://www.gstatic.com/generate_204
+    url: http://cp.cloudflare.com/generate_204
     interval: 300
     strategy: sticky-sessions
     include-all: true
@@ -85,7 +89,6 @@ proxy-groups:
   - name: GLOBAL
     type: select
     include-all: true
-    proxies: [Proxy, Urltest]
     icon: https://gh-proxy.org/github.com/Orz-3/mini/raw/master/Color/Skicat.png
 
 rules:
@@ -98,6 +101,7 @@ rules:
   - RULE-SET,proxy,Proxy
   - RULE-SET,cn,DIRECT
   - RULE-SET,tgip,Proxy
+  - RULE-SET,cnip,Proxy
   - MATCH,Final
 
 rule-anchor:

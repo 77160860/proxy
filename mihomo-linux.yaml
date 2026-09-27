@@ -101,7 +101,7 @@ rules:
   - RULE-SET,proxy,Proxy
   - RULE-SET,cn,DIRECT
   - RULE-SET,tgip,Proxy
-  - RULE-SET,cnip,Proxy
+  - RULE-SET,cnip,DIRECT
   - MATCH,Final
 
 rule-anchor:

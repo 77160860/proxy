@@ -51,9 +51,9 @@
     "default_domain_match_strategy": "prefer_fqdn",
     "default_domain_resolver": {"server": "public"},
     "rules": [
-      {"rule_set": ["cnip", "pvip"], "preferred_by": "🐲 Bridge", "outbound": "🐲 Bridge"},
       {"port": 53, "action": "hijack-dns"},
       {"port": 853, "action": "reject", "no_drop": true},
+      {"rule_set": ["cnip", "pvip"], "preferred_by": "🐲 Bridge", "outbound": "🐲 Bridge"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},

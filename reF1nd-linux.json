@@ -34,7 +34,7 @@
   },
   "inbounds": [
     {"tag": "tun-in", "type": "tun", "address": ["172.18.0.1/30", "fdfe:dcba:9876::1/126"],
-     "auto_route": true, "auto_redirect": true, "route_exclude_address_set": ["cnip", "pvip"]}
+     "auto_route": true, "auto_redirect": true, "strict_route": true, "route_exclude_address_set": ["cnip", "pvip"]}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest", "🍉 Balance"]},
@@ -53,6 +53,7 @@
     "rules": [
       {"port": 53, "action": "hijack-dns"},
       {"port": 853, "action": "reject", "no_drop": true},
+      {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
       {"rule_set": "private", "outbound": "🐸 Direct"},
@@ -62,9 +63,8 @@
       {"rule_set": "proxy", "outbound": "🐝 Proxy"},
       {"rule_set": "cn", "outbound": "🐸 Direct"},
       {"action": "resolve", "match_only": true},
-      {"ip_is_private": true, "outbound": "🐸 Direct"},
-      {"rule_set": "cnip", "outbound": "🐸 Direct"},
-      {"rule_set": "tgip", "outbound": "🐝 Proxy"}
+      {"rule_set": "tgip", "outbound": "🐝 Proxy"},
+      {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [
       {"tag": ["me", "cn", "tgip", "cnip", "pvip", "apple", "micro", "proxy", "private", "adblock"],

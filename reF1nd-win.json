@@ -53,7 +53,8 @@
     "default_domain_match_strategy": "prefer_fqdn",
     "default_domain_resolver": {"server": "public"},
     "rules": [
-      {"port": 53, "action": "hijack-dns"},
+      {"port": 53, "action": "sniff", "sniffer": "dns"},
+      {"port": 53, "protocol": "dns", "action": "hijack-dns"},
       {"port": 853, "action": "reject", "no_drop": true},
       {"rule_set": "cnip", "preferred_by": "🐲 Bridge", "outbound": "🐲 Bridge"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},

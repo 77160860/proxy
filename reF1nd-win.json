@@ -1,12 +1,12 @@
 {
   "$schema": "https://gh-proxy.org/raw.githubusercontent.com/reF1nd/sing-box/reF1nd-testing/docs/schema.json",
-  "log": {"disabled": false, "level": "info", "timestamp": true},
+  "log": {"disabled": false, "level": "error", "timestamp": true},
   "http_clients": [{"tag": "Direct"}],
   "experimental": {
     "urltest_unified_delay": true,
     "cache_file": {"enabled": true, "store_fakeip": true, "store_dns": true},
     "clash_api": {
-      "external_controller": "127.0.0.1:9090",
+      "external_controller": "0.0.0.0:9090",
       "external_ui": "ui",
       "external_ui_download_url": "https://gh-proxy.org/github.com/Zephyruso/zashboard/releases/download/v3.21.0/dist-no-fonts.zip",
       "external_ui_http_client": "Direct"}
@@ -19,14 +19,15 @@
       {"tag": "dnspod", "type": "https", "server": "1.12.12.12"},
       {"tag": "public", "type": "group", "servers": ["alidns", "dnspod"]},
       {"tag": "google", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
-      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
+      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "3fff::/20"}
     ],
     "rules": [
       {"rule_set": "private", "server": "local"},
+      {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
       {"clash_mode": "direct", "server": "public"},
       {"clash_mode": "global", "query_type": ["A", "AAAA"], "server": "fakeip"},
-      {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
-      {"rule_set": ["cn", "me", "apple", "micro"], "server": "public"},
+      {"rule_set": ["cn", "me", "apple", "micro"], "server": "public"}, 
+      {"query_type": ["HTTPS", "SVCB"], "action": "predefined"},
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "google",
@@ -53,8 +54,8 @@
     "default_domain_match_strategy": "prefer_fqdn",
     "default_domain_resolver": {"server": "public"},
     "rules": [
-      {"port": 53, "action": "sniff", "sniffer": "dns"},
-      {"port": 53, "protocol": "dns", "action": "hijack-dns"},
+      {"action": "sniff", "sniffer": ["tls", "http", "quic", "dns"]},
+      {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},
       {"port": 853, "action": "reject", "no_drop": true},
       {"rule_set": "cnip", "preferred_by": "🐲 Bridge", "outbound": "🐲 Bridge"},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
@@ -72,7 +73,7 @@
     ],
     "rule_set": [
       {"tag": ["me", "cn", "cnip", "tgip", "apple", "micro", "proxy", "private", "adblock"],
-      "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/{tag}.srs",
-      "type": "remote", "format": "binary"}]
+       "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/{tag}.srs",
+       "type": "remote", "format": "binary"}]
   }
 }

@@ -19,14 +19,15 @@
       {"tag": "dnspod", "type": "https", "server": "1.12.12.12"},
       {"tag": "public", "type": "group", "servers": ["alidns", "dnspod"]},
       {"tag": "google", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
-      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
+      {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "3fff::/20"}
     ],
     "rules": [
       {"rule_set": "private", "server": "local"},
+      {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
       {"clash_mode": "direct", "server": "public"},
       {"clash_mode": "global", "query_type": ["A", "AAAA"], "server": "fakeip"},
-      {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
       {"rule_set": ["cn", "me", "apple", "micro"], "server": "public"}, 
+      {"query_type": ["HTTPS", "SVCB"], "action": "predefined"},
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "google",
@@ -52,10 +53,10 @@
     "default_domain_match_strategy": "prefer_fqdn",
     "default_domain_resolver": {"server": "public"},
     "rules": [
-      {"port": 53, "action": "sniff", "sniffer": "dns"},
-      {"port": 53, "protocol": "dns", "action": "hijack-dns"},
+      {"action": "sniff", "sniffer": ["tls", "http", "quic", "dns"]},
+      {"type": "logical", "mode": "or", "rules": [{"port": 53}, {"protocol": "dns"}], "action": "hijack-dns"},
       {"port": 853, "action": "reject", "no_drop": true},
-      {"ip_is_private": true, "action": "bypass"},
+      {"ip_is_private": true, "action": "bypass"}, 
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
       {"rule_set": "private", "outbound": "🐸 Direct"},

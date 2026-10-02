@@ -67,7 +67,7 @@ proxy-groups:
 
   - name: Urltest
     type: url-test
-    url: http://cp.cloudflare.com/generate_204
+    url: http://www.gstatic.com/generate_204
     interval: 300
     tolerance: 50
     include-all: true
@@ -75,7 +75,7 @@ proxy-groups:
 
   - name: Balance
     type: load-balance
-    url: http://cp.cloudflare.com/generate_204
+    url: http://www.gstatic.com/generate_204
     interval: 300
     strategy: sticky-sessions
     include-all: true
@@ -93,7 +93,6 @@ proxy-groups:
 
 rules:
   - DST-PORT,853,REJECT
-  - RULE-SET,pvip,DIRECT,no-resolve
   - RULE-SET,private,DIRECT
   - RULE-SET,adblock,REJECT
   - RULE-SET,me,DIRECT

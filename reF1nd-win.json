@@ -1,6 +1,6 @@
 {
   "$schema": "https://gh-proxy.org/raw.githubusercontent.com/reF1nd/sing-box/reF1nd-testing/docs/schema.json",
-  "log": {"disabled": false, "level": "error", "timestamp": true},
+  "log": {"disabled": false, "level": "info", "timestamp": true},
   "http_clients": [{"tag": "Direct"}],
   "experimental": {
     "urltest_unified_delay": true,

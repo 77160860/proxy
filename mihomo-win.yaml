@@ -7,7 +7,7 @@ mode: rule
 ipv6: true
 allow-lan: true
 mixed-port: 7890
-log-level: error
+log-level: info
 bind-address: "*"
 unified-delay: true
 tcp-concurrent: true

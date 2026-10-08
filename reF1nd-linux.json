@@ -23,7 +23,7 @@
     ],
     "rules": [
       {"rule_set": "private", "server": "local"},
-      {"rule_set": "adblock", "action": "predefined", "rcode": "NXDOMAIN"},
+      {"rule_set": "adblock", "action": "predefined", "rcode": "NOERROR"},
       {"clash_mode": "direct", "server": "public"},
       {"clash_mode": "global", "query_type": ["A", "AAAA"], "server": "fakeip"},
       {"rule_set": ["cn", "me", "apple", "micro"], "server": "public"}, 

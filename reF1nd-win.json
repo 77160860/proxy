@@ -44,7 +44,6 @@
     {"tag": "🍉 Balance", "type": "loadbalance", "use_all_providers": true, "strategy": "sticky-sessions"},
     {"tag": "🍓 Final", "type": "selector", "outbounds": ["🐝 Proxy", "🐸 Direct"]},
     {"tag": "GLOBAL", "type": "selector", "use_all_providers": true},
-    {"tag": "🐲 Bridge", "type": "bridge"},
     {"tag": "🐸 Direct", "type": "direct"}
   ],
   "route": {
@@ -54,7 +53,6 @@
     "default_domain_match_strategy": "prefer_fqdn",
     "default_domain_resolver": {"server": "public"},
     "rules": [
-      {"rule_set": "cnip", "preferred_by": "🐲 Bridge", "outbound": "🐲 Bridge"},
       {"port": 853, "action": "reject", "no_drop": true},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},

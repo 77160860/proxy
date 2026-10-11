@@ -53,8 +53,8 @@
     "default_domain_match_strategy": "prefer_fqdn",
     "default_domain_resolver": {"server": "public"},
     "rules": [
-      {"port": 853, "action": "reject", "no_drop": true},
       {"ip_is_private": true, "outbound": "🐸 Direct"},
+      {"port": 853, "action": "reject", "no_drop": true},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
       {"rule_set": "private", "outbound": "🐸 Direct"},

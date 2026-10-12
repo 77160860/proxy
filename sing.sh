@@ -95,12 +95,12 @@ need_cmd() {
         fi
     }
 
-    detect_iface() {
-        local detected
-        detected="$(ip route show default 2>/dev/null | awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="dev") {print $(i+1); exit}}')"
-        [ -z "$detected" ] && detected="$(ip -6 route show default 2>/dev/null | awk 'NR==1 {for (i=1; i<=NF; i++) if ($i=="dev") {print $(i+1); exit}}')"
-        [ -z "$detected" ] && detected="eth0"
-        echo "$detected"
+    detect_ifaces() {
+        local ifaces
+        # 枚举所有 IPv4 + IPv6 默认路由出口网卡并去重(多出口/分栈路由时全覆盖)
+        ifaces="$( { ip -o route show default 2>/dev/null; ip -o -6 route show default 2>/dev/null; } | awk '{for (i=1; i<=NF; i++) if ($i=="dev") print $(i+1)}' | awk 'NF' | sort -u )"
+        [ -z "$ifaces" ] && ifaces="eth0"
+        echo "$ifaces"
     }
 
     verify_sysctl() {
@@ -143,23 +143,26 @@ EOF
     }
 
     apply_fq_qdisc() {
-        local iface="$1"
         local tcbin; tcbin="$(command -v tc 2>/dev/null || echo /usr/sbin/tc)"
+        local ifaces="$*"
+        local iface
         if [ -d /run/systemd/system ]; then
-            cat > "${SERVICE_FILE}" <<EOF
-[Unit]
-Description=BBR + fq qdisc optimization
-After=network-online.target
-
-[Service]
-Type=oneshot
-ExecStartPre=-${tcbin} qdisc del dev ${iface} root
-ExecStart=${tcbin} qdisc add dev ${iface} root fq quantum ${FQ_QUANTUM} initial_quantum ${FQ_INITIAL_QUANTUM}
-RemainAfterExit=yes
-
-[Install]
-WantedBy=multi-user.target
-EOF
+            {
+                echo "[Unit]"
+                echo "Description=BBR + fq qdisc optimization"
+                echo "After=network-online.target"
+                echo ""
+                echo "[Service]"
+                echo "Type=oneshot"
+                for iface in "$@"; do
+                    echo "ExecStartPre=-${tcbin} qdisc del dev ${iface} root"
+                    echo "ExecStart=${tcbin} qdisc add dev ${iface} root fq quantum ${FQ_QUANTUM} initial_quantum ${FQ_INITIAL_QUANTUM}"
+                done
+                echo "RemainAfterExit=yes"
+                echo ""
+                echo "[Install]"
+                echo "WantedBy=multi-user.target"
+            } > "${SERVICE_FILE}"
             systemctl daemon-reload >/dev/null 2>&1 || true
             systemctl enable --now "$(basename "${SERVICE_FILE}")" >/dev/null 2>&1 || true
         elif command -v rc-service >/dev/null 2>&1; then
@@ -169,8 +172,10 @@ description="BBR + fq qdisc optimization"
 depend() { need net; after net; }
 start() {
     sysctl -p "${SYSCTL_FILE}" >/dev/null 2>&1 || true
-    ${tcbin} qdisc del dev ${iface} root 2>/dev/null || true
-    ${tcbin} qdisc add dev ${iface} root fq quantum ${FQ_QUANTUM} initial_quantum ${FQ_INITIAL_QUANTUM} 2>/dev/null || true
+    for iface in ${ifaces}; do
+        ${tcbin} qdisc del dev "\$iface" root 2>/dev/null || true
+        ${tcbin} qdisc add dev "\$iface" root fq quantum ${FQ_QUANTUM} initial_quantum ${FQ_INITIAL_QUANTUM} 2>/dev/null || true
+    done
     return 0
 }
 EOF
@@ -178,14 +183,18 @@ EOF
             rc-update add bbr-optimization default >/dev/null 2>&1 || true
             rc-service bbr-optimization restart >/dev/null 2>&1 || rc-service bbr-optimization start >/dev/null 2>&1 || true
         else
-            "${tcbin}" qdisc del dev "${iface}" root 2>/dev/null || true
-            "${tcbin}" qdisc add dev "${iface}" root fq quantum "${FQ_QUANTUM}" initial_quantum "${FQ_INITIAL_QUANTUM}" 2>/dev/null || true
+            for iface in "$@"; do
+                "${tcbin}" qdisc del dev "${iface}" root 2>/dev/null || true
+                "${tcbin}" qdisc add dev "${iface}" root fq quantum "${FQ_QUANTUM}" initial_quantum "${FQ_INITIAL_QUANTUM}" 2>/dev/null || true
+            done
         fi
-        if "${tcbin}" qdisc show dev "${iface}" 2>/dev/null | grep -qw fq; then
-            echo "  ✔ 已在网卡 ${iface} 启用 fq 队列(BBR + FQ 生效)"
-        else
-            echo "  ⚠️ 警告: 网卡 ${iface} 未能启用 fq 队列; 可能内核缺少 sch_fq 模块或未安装 tc(Alpine 需 iproute2-tc)。BBR 仍生效, 但缺少 fq 的 pacing 优化"
-        fi
+        for iface in "$@"; do
+            if "${tcbin}" qdisc show dev "${iface}" 2>/dev/null | grep -qw fq; then
+                echo "  ✔ 已在网卡 ${iface} 启用 fq 队列(BBR + FQ 生效)"
+            else
+                echo "  ⚠️ 警告: 网卡 ${iface} 未能启用 fq 队列; 可能内核缺少 sch_fq 模块或未安装 tc(Alpine 需 iproute2-tc)。BBR 仍生效, 但缺少 fq 的 pacing 优化"
+            fi
+        done
     }
 
 apply_bbr() {
@@ -202,10 +211,14 @@ apply_bbr() {
     if ! sysctl -n net.ipv4.tcp_available_congestion_control 2>/dev/null | grep -qw bbr; then
         echo "  ⚠️ 警告: 当前内核可用拥塞控制算法中未发现 bbr, 可能无法启用(建议升级内核)"
     fi
-    local iface; iface=$(detect_iface)
-    ip link set dev "${iface}" mtu "${MTU}" 2>/dev/null || true
+    local ifaces iface
+    ifaces="$(detect_ifaces)"
+    for iface in $ifaces; do
+        ip link set dev "${iface}" mtu "${MTU}" 2>/dev/null || true
+    done
     write_sysctl
-    apply_fq_qdisc "$iface"
+    # shellcheck disable=SC2086
+    apply_fq_qdisc $ifaces
 }
 
 remove_bbr() {
@@ -276,6 +289,19 @@ hostname=$(uname -a | awk '{print $2}'); op=$(cat /etc/redhat-release 2>/dev/nul
 v4v6(){
     v4=$( (curl -s4m5 -k "$v46url" 2>/dev/null) || (wget -4 -qO- --tries=2 "$v46url" 2>/dev/null) )
     v6=$( (curl -s6m5 -k "$v46url" 2>/dev/null) || (wget -6 -qO- --tries=2 "$v46url" 2>/dev/null) )
+}
+
+# ISO-3166 两位国家代码 -> 国旗 emoji(区域指示符号, 'A'=U+1F1E6)
+flag_from_cc(){
+    local cc fmt="" i c cp
+    cc=$(printf '%s' "$1" | tr -cd 'A-Za-z' | tr '[:lower:]' '[:upper:]')
+    [ ${#cc} -ne 2 ] && return 0
+    for ((i=0; i<2; i++)); do
+        c="${cc:$i:1}"
+        printf -v cp '%d' "'$c"
+        fmt+="\\U$(printf '%08x' $((127397 + cp)))"
+    done
+    printf "$fmt"
 }
 
 port_in_use(){
@@ -535,6 +561,10 @@ cip(){
         v4v6
         v4dq=$( (curl -s4m5 -k https://ip.fm 2>/dev/null | sed -E 's/.*Location: ([^,]+(, [^,]+)*),.*/\1/') || (wget -4 -qO- --tries=2 https://ip.fm 2>/dev/null | grep '<span class="has-text-grey-light">Location:' | tail -n1 | sed -E 's/.*>Location: <\/span>([^<]+)<.*/\1/') )
         v6dq=$( (curl -s6m5 -k https://ip.fm 2>/dev/null | sed -E 's/.*Location: ([^,]+(, [^,]+)*),.*/\1/') || (wget -6 -qO- --tries=2 https://ip.fm 2>/dev/null | grep '<span class="has-text-grey-light">Location:' | tail -n1 | sed -E 's/.*>Location: <\/span>([^<]+)<.*/\1/') )
+        geocc=$( (curl -s4m5 -k https://ipinfo.io/country 2>/dev/null) || (curl -s6m5 -k https://ipinfo.io/country 2>/dev/null) || (wget -4 -qO- --tries=2 https://ipinfo.io/country 2>/dev/null) || (wget -6 -qO- --tries=2 https://ipinfo.io/country 2>/dev/null) )
+        geocc=$(printf '%s' "$geocc" | tr -cd 'A-Za-z' | tr '[:lower:]' '[:upper:]')
+        geoflag=$(flag_from_cc "$geocc")
+        if [ -n "$geocc" ]; then node_geo="${geoflag:+$geoflag }$geocc"; else node_geo="$hostname"; fi
         if [ -z "$v4" ]; then vps_ipv4='无IPV4'; vps_ipv6="$v6"; location=$v6dq; elif [ -n "$v4" ] && [ -n "$v6" ]; then vps_ipv4="$v4"; vps_ipv6="$v6"; location=$v4dq; else vps_ipv4="$v4"; vps_ipv6='无IPV6'; location=$v4dq; fi
         echo; singstatus; echo; echo "=========当前服务器本地IP情况========="; echo "本地IPV4地址:$vps_ipv4"; echo "本地IPV6地址:$vps_ipv6"; echo "服务器地区:$location"; echo; sleep 2
         if [ "$ippz" = "4" ]; then if [ -z "$v4" ]; then ipbest; else server_ip="$v4"; echo "$server_ip" > "$HOME/sing/server_ip.log"; fi; elif [ "$ippz" = "6" ]; then if [ -z "$v6" ]; then ipbest; else server_ip="[$v6]"; echo "$server_ip" > "$HOME/sing/server_ip.log"; fi; else ipbest; fi
@@ -552,19 +582,19 @@ cip(){
         [ "${#ip_list[@]}" -eq 0 ] && { ip_list+=("$(cat "$HOME/sing/server_ip.log")"); ip_tags+=(""); }
     fi
     echo "*********************************************************"; echo "sing脚本输出节点配置如下:"; echo;
-    if grep -q '"tag": "hy2"' "$HOME/sing/sb.json"; then port_hy2=$(cat "$HOME/sing/port_hy2"); echo "【 Hysteria2 】"; for i in "${!ip_list[@]}"; do server_ip="${ip_list[$i]}"; tag="${ip_tags[$i]}"; [ -n "$tag" ] && sfx="-$tag" || sfx=""; hy2_link="hysteria2://$uuid@$server_ip:$port_hy2?security=tls&insecure=1&sni=www.icloud.com#${sxname}hy2-$hostname$sfx"; echo "$hy2_link" | tee -a "$HOME/sing/jh.txt"; done; echo; fi
+    if grep -q '"tag": "hy2"' "$HOME/sing/sb.json"; then port_hy2=$(cat "$HOME/sing/port_hy2"); echo "【 Hysteria2 】"; for i in "${!ip_list[@]}"; do server_ip="${ip_list[$i]}"; tag="${ip_tags[$i]}"; [ -n "$tag" ] && ver=" $tag" || ver=""; hy2_link="hysteria2://$uuid@$server_ip:$port_hy2?security=tls&insecure=1&sni=www.icloud.com#${sxname}${node_geo} hy2${ver}"; echo "$hy2_link" | tee -a "$HOME/sing/jh.txt"; done; echo; fi
     if grep -q '"tag": "vless-reality"' "$HOME/sing/sb.json"; then
         port_vrp=$(cat "$HOME/sing/port_vrp")
         public_key=$(sed -n '2p' "$HOME/sing/reality.key" | awk '{print $2}')
         short_id=$(cat "$HOME/sing/short_id")
         echo "【 VLESS-Reality-Vision 】"
-        for i in "${!ip_list[@]}"; do server_ip="${ip_list[$i]}"; tag="${ip_tags[$i]}"; [ -n "$tag" ] && sfx="-$tag" || sfx=""; vless_link="vless://${uuid}@${server_ip}:${port_vrp}/?type=tcp&encryption=none&flow=xtls-rprx-vision&sni=www.ua.edu&fp=chrome&security=reality&pbk=${public_key}&sid=${short_id}&tfo=true#${sxname}vless-reality-$hostname$sfx"; echo "$vless_link" | tee -a "$HOME/sing/jh.txt"; done; echo;
+        for i in "${!ip_list[@]}"; do server_ip="${ip_list[$i]}"; tag="${ip_tags[$i]}"; [ -n "$tag" ] && ver=" $tag" || ver=""; vless_link="vless://${uuid}@${server_ip}:${port_vrp}/?type=tcp&encryption=none&flow=xtls-rprx-vision&sni=www.ua.edu&fp=chrome&security=reality&pbk=${public_key}&sid=${short_id}&tfo=true#${sxname}${node_geo} vless-reality${ver}"; echo "$vless_link" | tee -a "$HOME/sing/jh.txt"; done; echo;
     fi
     if grep -q '"tag": "snell"' "$HOME/sing/sb.json"; then
         port_snell=$(cat "$HOME/sing/port_snell")
         snell_psk=$(cat "$HOME/sing/snell_psk")
         echo "【 Snell 】"
-        for i in "${!ip_list[@]}"; do server_ip="${ip_list[$i]}"; tag="${ip_tags[$i]}"; [ -n "$tag" ] && sfx="-$tag" || sfx=""; snell_link="snell://${snell_psk}@${server_ip}:${port_snell}?version=6&reuse=true&tfo=true#${sxname}snell-$hostname$sfx"; echo "$snell_link" | tee -a "$HOME/sing/jh.txt"; done
+        for i in "${!ip_list[@]}"; do server_ip="${ip_list[$i]}"; tag="${ip_tags[$i]}"; [ -n "$tag" ] && ver=" $tag" || ver=""; snell_link="snell://${snell_psk}@${server_ip}:${port_snell}?version=6&reuse=true&tfo=true#${sxname}${node_geo} snell${ver}"; echo "$snell_link" | tee -a "$HOME/sing/jh.txt"; done
         echo
     fi
     if grep -q '"tag": "shadowtls"' "$HOME/sing/sb.json"; then
@@ -572,20 +602,20 @@ cip(){
         st_password=$(cat "$HOME/sing/st_password" 2>/dev/null || echo "$uuid")
         ss_password=$(cat "$HOME/sing/ss_password" 2>/dev/null || echo "$uuid")
         echo "【 SS2022 】"
-        for i in "${!ip_list[@]}"; do server_ip="${ip_list[$i]}"; tag="${ip_tags[$i]}"; [ -n "$tag" ] && sfx="-$tag" || sfx=""; ss_server="${server_ip#[}"; ss_server="${ss_server%]}"; echo "- {\"name\":\"SS2022-shadowtls$sfx\",\"type\":\"ss\",\"server\":\"${ss_server}\",\"port\":${port_ss},\"tfo\":true,\"cipher\":\"2022-blake3-aes-128-gcm\",\"password\":\"${ss_password}\",\"plugin\":\"shadow-tls\",\"client-fingerprint\":\"chrome\",\"plugin-opts\":{\"host\":\"www.icloud.com\",\"password\":\"${st_password}\",\"version\":3},\"smux\":{\"enabled\":true}}" | tee -a "$HOME/sing/jh.txt"; done
+        for i in "${!ip_list[@]}"; do server_ip="${ip_list[$i]}"; tag="${ip_tags[$i]}"; [ -n "$tag" ] && ver=" $tag" || ver=""; ss_server="${server_ip#[}"; ss_server="${ss_server%]}"; echo "- {\"name\":\"${node_geo} SS2022-shadowtls${ver}\",\"type\":\"ss\",\"server\":\"${ss_server}\",\"port\":${port_ss},\"tfo\":true,\"cipher\":\"2022-blake3-aes-128-gcm\",\"password\":\"${ss_password}\",\"plugin\":\"shadow-tls\",\"client-fingerprint\":\"chrome\",\"plugin-opts\":{\"host\":\"www.icloud.com\",\"password\":\"${st_password}\",\"version\":3},\"smux\":{\"enabled\":true}}" | tee -a "$HOME/sing/jh.txt"; done
         echo
     fi
     if grep -q '"tag": "tuic"' "$HOME/sing/sb.json"; then
         port_tuic=$(cat "$HOME/sing/port_tuic")
         echo "【 TUIC 】"
-        for i in "${!ip_list[@]}"; do server_ip="${ip_list[$i]}"; tag="${ip_tags[$i]}"; [ -n "$tag" ] && sfx="-$tag" || sfx=""; tuic_link="tuic://${uuid}:${uuid}@${server_ip}:${port_tuic}?congestion_control=bbr&udp_relay_mode=native&sni=www.icloud.com&insecure=1#${sxname}tuic-$hostname$sfx"; echo "$tuic_link" | tee -a "$HOME/sing/jh.txt"; done; echo;
+        for i in "${!ip_list[@]}"; do server_ip="${ip_list[$i]}"; tag="${ip_tags[$i]}"; [ -n "$tag" ] && ver=" $tag" || ver=""; tuic_link="tuic://${uuid}:${uuid}@${server_ip}:${port_tuic}?congestion_control=bbr&udp_relay_mode=native&sni=www.icloud.com&insecure=1#${sxname}${node_geo} tuic${ver}"; echo "$tuic_link" | tee -a "$HOME/sing/jh.txt"; done; echo;
     fi
     argodomain=$(cat "$HOME/sing/sbargoym.log" 2>/dev/null); [ -z "$argodomain" ] && argodomain=$(grep -oE 'https://[a-zA-Z0-9.-]+\.trycloudflare\.com' "$HOME/sing/argo.log" 2>/dev/null | head -n 1 | sed 's|https://||')
     if [ -n "$argodomain" ]; then
         vlvm=$(cat $HOME/sing/vlvm 2>/dev/null); uuid=$(cat "$HOME/sing/uuid")
         if [ "$vlvm" = "Trojan" ]; then
             cdn_host=$(cat "$HOME/sing/cdnym" 2>/dev/null); [ -z "$cdn_host" ] && cdn_host="saas.sin.fan"
-            tratls_link1="trojan://${uuid}@${cdn_host}:443?security=tls&type=ws&host=${argodomain}&path=%2Ftr&sni=${argodomain}&fp=chrome&tfo=true#${sxname}trojan-ws-tls-argo-$hostname-443"
+            tratls_link1="trojan://${uuid}@${cdn_host}:443?security=tls&type=ws&host=${argodomain}&path=%2Ftr&sni=${argodomain}&fp=chrome&tfo=true#${sxname}${node_geo} trojan-ws-tls-argo 443"
             sbtk=$(cat "$HOME/sing/sbargotoken.log" 2>/dev/null); [ -n "$sbtk" ] && nametn="Argo固定隧道token:\n$sbtk"
             argoshow="Argo隧道信息 (使用Trojan-ws端口: $(cat $HOME/sing/argoport.log 2>/dev/null))\n---------------------------------------------------------\nArgo域名: ${argodomain}\n\n${nametn}\n\n 【Argo-TLS节点】 (优选域名可替换):\n${tratls_link1}"
             echo "---------------------------------------------------------"; echo -e "$argoshow"; echo "---------------------------------------------------------"
@@ -646,7 +676,7 @@ if [ "$1" = "res" ]; then sbrestart; argorestart; sleep 5 && echo "重启完成"
 # BBR 手动命令
 if [ "$1" = "bbr" ]; then
     if [ "$EUID" -ne 0 ]; then echo "错误：请使用 root 权限运行 sing bbr"; exit 1; fi
-    echo "正在应用 BBR 优化（接口: $(detect_iface)）..."
+    echo "正在应用 BBR 优化（接口: $(detect_ifaces | tr '\n' ' ')）..."
     apply_bbr
     echo "BBR 优化已完成"
     exit

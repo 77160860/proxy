@@ -1,6 +1,6 @@
 # sing 一键无交互脚本（sing-box 内核版）
 
-基于 **Sing-box** 内核的多协议一键安装脚本，支持 Hysteria2、Snell v6、TUIC v5、VLESS-Reality-Vision、SS2022-ShadowTLS、Trojan-WS 六种协议，并集成 Cloudflare Argo 隧道（配合 Trojan 使用）。所有参数通过环境变量传入，**全程无交互**，支持单协议或全协议一键部署，安装时自动开启 BBR + FQ 网络优化。
+基于 **Sing-box** 内核的多协议一键安装脚本，支持 Hysteria2、Snell v6、TUIC v5、VLESS-Reality-Vision、Trojan-WS 五种协议，并集成 Cloudflare Argo 隧道（配合 Trojan 使用）。所有参数通过环境变量传入，**全程无交互**，支持单协议或全协议一键部署，安装时自动开启 BBR + FQ 网络优化。
 
 - 当前版本：`26.10.08`
 - 主脚本地址：`https://raw.githubusercontent.com/77160860/proxy/main/sing.sh`
@@ -15,7 +15,6 @@
 | VLESS-Reality-Vision | Reality 免证书，flow=xtls-rprx-vision |
 | Snell v6 | 兼容官方与第三方客户端 |
 | TUIC v5 | congestion_control=bbr，native UDP 中继 |
-| SS2022-ShadowTLS | 2022-blake3-aes-128-gcm + ShadowTLS v3 |
 | Trojan-WS | WebSocket + TLS，配合 Cloudflare Argo 隧道 |
 
 ---
@@ -34,7 +33,6 @@
 | `vr` | VLESS-Reality-Vision | `vr=8443` |
 | `sn` | Snell v6 | `sn=20001` |
 | `tu` | TUIC v5 | `tu=20000` |
-| `ss` | SS2022-ShadowTLS | `ss=443` |
 | `tr` | Trojan-WS（自动启用 Argo） | `tr=20003` |
 
 > 设置 `tr` 会自动启用 Cloudflare Argo 隧道。
@@ -64,7 +62,7 @@
 
 ### 示例 A：非隧道全协议安装（自动分配端口及 UUID）
 ```bash
-hy=yes tu=yes sn=yes vr=yes ss=yes bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/sing.sh)
+hy=yes tu=yes sn=yes vr=yes bash <(curl -Ls https://raw.githubusercontent.com/77160860/proxy/main/sing.sh)
 ```
 
 ### 示例 B：Argo 固定隧道组合安装（手动指定端口及 UUID）
@@ -83,7 +81,7 @@ hy=20002 vr=8443 ippz=4 bash <(curl -Ls https://raw.githubusercontent.com/771608
 
 - **默认双栈输出**：若机器同时具备公网 IPv4 和 IPv6，每个协议会**同时**生成 v4 与 v6 两条链接，节点名分别带 `-v4` / `-v6` 后缀。
 - **自助切换**：`ippz=4` 只输出 IPv4 节点，`ippz=6` 只输出 IPv6 节点。
-- 所有链接会写入聚合文件，可用 `cat $HOME/sing/jh.txt` 查看（SS2022-ShadowTLS 以 Clash/mihomo 片段形式写入）。
+- 所有链接会写入聚合文件，可用 `cat $HOME/sing/jh.txt` 查看。
 
 ---
 

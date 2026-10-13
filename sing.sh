@@ -118,8 +118,8 @@ need_cmd() {
         echo "    tcp_rmem:                  ${rmem}"
         echo "    tcp_limit_output_bytes:    ${lob}"
         echo "    tcp_slow_start_after_idle: ${ssai}"
-        [ "$cc" = "bbr" ] || echo "  ⚠️ 警告: 当前拥塞控制为 '${cc}', 不是 bbr; 请确认内核是否支持 bbr(可能需升级内核或加载 tcp_bbr 模块)"
-        [ "$qd" = "fq" ] || echo "  ℹ️ 说明: default_qdisc=\"${qd}\" 仅影响新建网卡的默认队列; 实际 BBR pacing 以下方网卡 fq 状态为准"
+        [ "$cc" = "bbr" ] || echo "  ⚠️ 警告: 当前拥塞控制为 '${cc}', 不是 bbr; 请确认内核是否支持 bbr"
+        [ "$qd" = "fq" ] || echo "  ℹ️ 说明: default_qdisc=\"${qd}\" 仅影响新建网卡的默认队列"
     }
 
     write_sysctl() {
@@ -245,7 +245,6 @@ cf_running() { pgrep -x cloudflared >/dev/null 2>&1 || { find /proc/*/exe -type 
 [ -z "${hy+x}" ] || hyp=yes
 [ -z "${vr+x}" ] || vrp=yes
 [ -z "${sn+x}" ] || snp=yes
-[ -z "${ss+x}" ] || ssp=yes
 [ -z "${tu+x}" ] || tup=yes
 
 # 只要设置 tr 就自动启用 Argo
@@ -257,13 +256,13 @@ if [ "$1" = "list" ] || [ "$1" = "del" ] || [ "$1" = "res" ] || [ "$1" = "ups" ]
     :
 elif sb_running; then
     if [ "$1" = "rep" ]; then
-        [ "$vrp" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || [ "$snp" = yes ] || [ "$ssp" = yes ] || [ "$tup" = yes ] || { echo "提示:rep重置协议时,请在脚本前至少设置一个协议变量哦,再见!"; exit; }
+        [ "$vrp" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || [ "$snp" = yes ] || [ "$tup" = yes ] || { echo "提示:rep重置协议时,请在脚本前至少设置一个协议变量哦,再见!"; exit; }
     fi
 else
-    [ "$vrp" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || [ "$snp" = yes ] || [ "$ssp" = yes ] || [ "$tup" = yes ] || { echo "提示:未安装sing脚本,请在脚本前至少设置一个协议变量哦,再见!"; exit; }
+    [ "$vrp" = yes ] || [ "$trp" = yes ] || [ "$hyp" = yes ] || [ "$snp" = yes ] || [ "$tup" = yes ] || { echo "提示:未安装sing脚本,请在脚本前至少设置一个协议变量哦,再见!"; exit; }
 fi
 
-export uuid=${uuid:-''}; export port_tr=${tr:-''}; export port_hy2=${hy:-''}; export port_vrp=${vr:-''}; export port_snell=${sn:-''}; export port_ss=${ss:-''}; export port_tuic=${tu:-''}; export cdnym=${cdnym:-''}; export argo=${argo:-''}; export ARGO_DOMAIN=${agn:-''}; export ARGO_AUTH=${agk:-''}; export ippz=${ippz:-''}; export name=${name:-''}; export oap=${oap:-''}
+export uuid=${uuid:-''}; export port_tr=${tr:-''}; export port_hy2=${hy:-''}; export port_vrp=${vr:-''}; export port_snell=${sn:-''}; export port_tuic=${tu:-''}; export cdnym=${cdnym:-''}; export argo=${argo:-''}; export ARGO_DOMAIN=${agn:-''}; export ARGO_AUTH=${agk:-''}; export ippz=${ippz:-''}; export name=${name:-''}; export oap=${oap:-''}
 v46url="https://icanhazip.com"
 singurl="https://raw.githubusercontent.com/77160860/proxy/main/sing.sh"
 
@@ -411,18 +410,6 @@ EOF
         [ -f "$HOME/sing/short_id" ] && short_id=$(cat "$HOME/sing/short_id") || { short_id=$(openssl rand -hex 4); echo "$short_id" > "$HOME/sing/short_id"; }
         cat >> "$HOME/sing/sb.json" <<EOF
 {"type": "vless", "tag": "vless-reality", "listen": "::", "listen_port": ${port_vrp}, "tcp_fast_open": true, "users": [{"uuid": "${uuid}","flow": "xtls-rprx-vision"}],"tls": {"enabled": true,"server_name": "www.ua.edu","reality": {"enabled": true,"handshake": {"server": "www.ua.edu","server_port": 443},"private_key": "${private_key}","short_id": ["${short_id}"]}}},
-EOF
-    fi
-
-    if [ -n "$ssp" ]; then
-        resolve_port "ShadowTLS" "$port_ss" "$HOME/sing/port_ss"; port_ss="$REPLY_PORT"; echo "SS2022端口:$port_ss"
-        st_password="${uuid}"
-        ss_password=$(openssl rand -base64 16)
-        echo "$st_password" > "$HOME/sing/st_password"
-        echo "$ss_password" > "$HOME/sing/ss_password"
-        cat >> "$HOME/sing/sb.json" <<EOF
-{"type": "shadowtls", "tag": "shadowtls", "listen": "::", "listen_port": ${port_ss}, "tcp_fast_open": true, "version": 3, "users": [ { "password": "${st_password}" } ], "handshake": { "server": "www.icloud.com", "server_port": 443 }, "strict_mode": true, "detour": "ss-in" },
-{"type": "shadowsocks", "tag": "ss-in", "listen": "127.0.0.1", "listen_port": 0, "network": "tcp", "method": "2022-blake3-aes-128-gcm", "password": "${ss_password}", "multiplex": { "enabled": true } },
 EOF
     fi
 
@@ -597,14 +584,6 @@ cip(){
         for i in "${!ip_list[@]}"; do server_ip="${ip_list[$i]}"; tag="${ip_tags[$i]}"; [ -n "$tag" ] && ver=" $tag" || ver=""; snell_link="snell://${snell_psk}@${server_ip}:${port_snell}?version=6&reuse=true&tfo=true#${sxname}${node_geo} snell${ver}"; echo "$snell_link" | tee -a "$HOME/sing/jh.txt"; done
         echo
     fi
-    if grep -q '"tag": "shadowtls"' "$HOME/sing/sb.json"; then
-        port_ss=$(cat "$HOME/sing/port_ss")
-        st_password=$(cat "$HOME/sing/st_password" 2>/dev/null || echo "$uuid")
-        ss_password=$(cat "$HOME/sing/ss_password" 2>/dev/null || echo "$uuid")
-        echo "【 SS2022 】"
-        for i in "${!ip_list[@]}"; do server_ip="${ip_list[$i]}"; tag="${ip_tags[$i]}"; [ -n "$tag" ] && ver=" $tag" || ver=""; ss_server="${server_ip#[}"; ss_server="${ss_server%]}"; echo "- {\"name\":\"${node_geo} SS2022-shadowtls${ver}\",\"type\":\"ss\",\"server\":\"${ss_server}\",\"port\":${port_ss},\"tfo\":true,\"cipher\":\"2022-blake3-aes-128-gcm\",\"password\":\"${ss_password}\",\"plugin\":\"shadow-tls\",\"client-fingerprint\":\"chrome\",\"plugin-opts\":{\"host\":\"www.icloud.com\",\"password\":\"${st_password}\",\"version\":3},\"smux\":{\"enabled\":true}}" | tee -a "$HOME/sing/jh.txt"; done
-        echo
-    fi
     if grep -q '"tag": "tuic"' "$HOME/sing/sb.json"; then
         port_tuic=$(cat "$HOME/sing/port_tuic")
         echo "【 TUIC 】"
@@ -668,7 +647,7 @@ argorestart(){
 
 # ==================== 命令处理 ====================
 if [ "$1" = "del" ]; then cleandel; remove_bbr; rm -rf "$HOME/sing"; echo "卸载完成"; showmode; exit; fi
-if [ "$1" = "rep" ]; then cleandel; rm -rf "$HOME/sing"/{sb.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name,port_tr,port_vrp,port_snell,port_ss,port_tuic,reality.key,short_id,uuid,vlvm,server_ip.log,snell_psk,st_password,ss_password}; echo "重置完成..."; sleep 2; fi
+if [ "$1" = "rep" ]; then cleandel; rm -rf "$HOME/sing"/{sb.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name,port_tr,port_vrp,port_snell,port_tuic,reality.key,short_id,uuid,vlvm,server_ip.log,snell_psk}; echo "重置完成..."; sleep 2; fi
 if [ "$1" = "list" ]; then cip; exit; fi
 if [ "$1" = "ups" ]; then kill -15 $(pgrep -x sing-box 2>/dev/null); upsingbox && sbrestart && echo "Sing-box内核更新完成" && sleep 2 && cip; exit; fi
 if [ "$1" = "res" ]; then sbrestart; argorestart; sleep 5 && echo "重启完成" && sleep 3 && cip; exit; fi

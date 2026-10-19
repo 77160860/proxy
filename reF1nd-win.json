@@ -16,7 +16,7 @@
     "servers": [
       {"tag": "local", "type": "local"},
       {"tag": "alidns", "type": "https", "server": "223.5.5.5"},
-      {"tag": "dnspod", "type": "https", "server": "1.12.12.12"},
+      {"tag": "dnspod", "type": "https", "server": "120.53.53.53"},
       {"tag": "public", "type": "group", "servers": ["alidns", "dnspod"]},
       {"tag": "google", "type": "https", "server": "8.8.8.8", "detour": "🐝 Proxy"},
       {"tag": "fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "3fff::/20"}
@@ -31,7 +31,6 @@
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "google",
-    "optimistic": true,
     "reverse_mapping": true
   },
   "inbounds": [

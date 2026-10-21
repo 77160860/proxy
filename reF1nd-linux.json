@@ -23,11 +23,11 @@
     ],
     "rules": [
       {"rule_set": "private", "server": "local"},
+      {"query_type": ["HTTPS", "SVCB"], "action": "predefined"},
       {"rule_set": "adblock", "action": "predefined", "rcode": "NOERROR"},
       {"clash_mode": "direct", "server": "public"},
       {"clash_mode": "global", "query_type": ["A", "AAAA"], "server": "fakeip"},
       {"rule_set": ["cn", "me", "apple", "micro"], "server": "public"}, 
-      {"query_type": ["HTTPS", "SVCB"], "action": "predefined"},
       {"query_type": ["A", "AAAA"], "server": "fakeip", "rewrite_ttl": 1}
     ],
     "final": "google",

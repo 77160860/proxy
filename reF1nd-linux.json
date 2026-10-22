@@ -34,7 +34,8 @@
     "reverse_mapping": true
   },
   "inbounds": [
-    {"tag": "tun-in", "type": "tun", "address": ["172.18.0.1/30", "fdfe:dcba:9876::1/126"], "auto_route": true, "auto_redirect": true, "strict_route": true, "route_exclude_address_set": ["cnip", "pvip"]}
+    {"tag": "tun-in", "type": "tun", "address": ["172.18.0.1/30", "fdfe:dcba:9876::1/126"],
+     "auto_route": true, "auto_redirect": true, "strict_route": true, "route_exclude_address_set": ["cnip", "pvip"]}
   ],
   "outbounds": [
     {"tag": "🐝 Proxy", "type": "selector", "use_all_providers": true, "outbounds": ["🚀 Urltest", "🍉 Balance"]},
@@ -51,12 +52,10 @@
     "default_domain_match_strategy": "prefer_fqdn",
     "default_domain_resolver": {"server": "public"},
     "rules": [
-      {"ip_is_private": true, "action": "bypass"},
-      {"rule_set": "cnip", "action": "bypass"},
       {"port": 853, "action": "reject", "no_drop": true},
+      {"rule_set": "private", "outbound": "🐸 Direct"},
       {"clash_mode": "direct", "outbound": "🐸 Direct"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
-      {"rule_set": "private", "outbound": "🐸 Direct"},
       {"rule_set": "me", "outbound": "🐸 Direct"},
       {"rule_set": "apple", "outbound": "🐸 Direct"},
       {"rule_set": "micro", "outbound": "🐸 Direct"},
@@ -67,7 +66,7 @@
       {"rule_set": "cnip", "outbound": "🐸 Direct"}
     ],
     "rule_set": [
-      {"tag": ["me", "cn", "cnip", "tgip", "apple", "micro", "proxy", "private", "adblock"],
+      {"tag": ["me", "cn", "cnip", "pvip", "tgip", "apple", "micro", "proxy", "private", "adblock"],
        "url": "https://gh-proxy.org/github.com/77160860/rule/raw/main/singbox/{tag}.srs",
        "type": "remote", "format": "binary"}]
   }
